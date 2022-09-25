@@ -27,7 +27,7 @@ while n>=0:
 
 a=n*(n+4)/2 
 print("hello")
-print ("the area of the triangle",a)
+print ("the area of the triangle is",a)
 
 for a in (0,n+1):
     print(" "*(a),end="")
