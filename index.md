@@ -15,11 +15,30 @@ Syntax highlighted code block
 ## Header 2
 ### Header 3
 
-- Bulleted
-- List
+i=1
+n=int(input("enter:"))
 
-1. Numbered
-2. List
+while n>=0:
+    print(" "*(n),end="")
+    print("*"*i,end="")
+    print()
+    i=i+2
+    n=n-1
+
+a=n*(n+4)/2 
+print("hello")
+print ("the area of the triangle",a)
+
+for a in (0,n+1):
+    print(" "*(a),end="")
+    print("*"*i,end="")
+    print()
+    i=i+2
+    n=n-1
+
+
+
+
 
 **Bold** and _Italic_ and `Code` text
 
