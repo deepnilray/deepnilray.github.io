@@ -14,13 +14,16 @@ Syntax highlighted code block
 # Header 1
 ## Header 2
 ### Header 3
+
+
+
 ![pleiades](https://user-images.githubusercontent.com/95030337/194613156-b8572920-738f-40be-b4b0-1d8855e03c30.jpg)
 
 
 
 **Bold** and _Italic_ and `Code` text
 
-[Link](url) and ![Image](C:\Users\DEEPNIL RAY\Desktop\MIT docs)
+[Link](url) and ![Image](https://user-images.githubusercontent.com/95030337/194613156-b8572920-738f-40be-b4b0-1d8855e03c30.jpg)
 ```
 
 For more details see [Basic writing and formatting syntax](https://docs.github.com/en/github/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax).
