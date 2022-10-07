@@ -18,7 +18,7 @@ Syntax highlighted code block
 
 
 ![pleiades](https://user-images.githubusercontent.com/95030337/194613156-b8572920-738f-40be-b4b0-1d8855e03c30.jpg)
-
+![This is an image](https://myoctocat.com/assets/images/base-octocat.svg)
 
 
 **Bold** and _Italic_ and `Code` text
