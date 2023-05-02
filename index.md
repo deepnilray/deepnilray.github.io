@@ -1,10 +1,4 @@
-
----
-layout: default
----
-
 {% include header.html %}
-
 ## Welcome to my Website!
 
 My name is Deepnil Ray and I am an aspiring astrophysicist. I have achieved the honor of being a 3-time national topper at Vikram Sarabhai Science Foundation. In addition, I am an ASTEROID HUNTER who loves to talk about space, astronomy, and astrophotography.
