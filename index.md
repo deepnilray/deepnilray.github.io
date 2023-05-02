@@ -8,4 +8,4 @@ If you're interested in keeping up with my latest updates and insights on the co
 
 Thanks for stopping by and I hope you enjoy exploring the universe with me!
 
-<a href="https://deepnilray.github.io/about%20me" class="btn">Yeah my resume!!</a>
+<a href="https://deepnilray.github.io/about%20me" class="btn">Yeah my resume!</a>
