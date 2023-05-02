@@ -8,5 +8,5 @@ If you're interested in keeping up with my latest updates and insights on the co
 Thanks for stopping by and I hope you enjoy exploring the universe with me!
 
 
-[Yeah My Resume](https://deepnilray.github.io/about%20me)
-yeah you can hop around with the links
+[yeah my resume !!](https://deepnilray.github.io/about%20me)
+,yeah you can hop around with the links
