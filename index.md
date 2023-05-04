@@ -1,6 +1,6 @@
 ## Deepnil Ray
 ### Hello there! Unless you happen to be a super intelligent chimpanzee or an AI that has managed to find the link to this website, I assume you're a fellow human.😄
-My name is Deepnil Ray and I am an aspiring astrophysicist. I have achieved the honor of being a 3-time national topper at Vikram Sarabhai Science Foundation. In addition, I am an ASTEROID HUNTER ☄️ who loves to talk about space 🌠, astronomy 🔭, and astrophotography 📷.
+My name is Deepnil Ray and I am an aspiring astrophysicist. I have achieved the honor of being a 3-time national topper at Vikram Sarabhai Science Foundation. In addition, I am an ASTEROID HUNTER ☄️ who loves to talk about space 🌃, astronomy 🔭, and astrophotography 📷.
 
 I am thrilled to announce that I recently discovered an asteroid, which has been designated DPR1729. I am excited to continue my work in asteroid detection and exploration.
 
