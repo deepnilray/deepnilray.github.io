@@ -1,6 +1,7 @@
 # Resume
 
 ## Space Generation Advisory Council
+![SGAC](https://spacegeneration.org/wp-content/uploads/2019/06/SGAC-logo-100x-1-e1569970112593.png)
 - Student Member
 - Part-time
 - Feb 2023 - Present (4 mos)
@@ -26,6 +27,7 @@
 - Two of my processed images got featured in Open University Newsletter on the website that I shared on Twitter.
 
 ## NORCEL
+![NoRCEL](https://norcel.net/wp-content/uploads/2022/11/NoRCEL-LOGO-black-ret.png)
 - Member
 - Part-time
 - Jan 2023 - Present (5 mos)
