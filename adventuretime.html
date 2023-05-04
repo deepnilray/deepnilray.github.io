@@ -1,0 +1,97 @@
+import time
+
+def start_game():
+    print("Welcome to the text-based adventure game!")
+    print("You find yourself standing at the entrance of a dark cave.")
+    print("You can see two paths - one leading left and the other leading right.")
+    path = input("Which path do you choose? (left/right) ").lower()
+    if path == "left":
+        go_left()
+    elif path == "right":
+        go_right()
+    else:
+        print("Invalid choice. Please try again.")
+        start_game()
+
+def go_left():
+    print("You chose to go left and you find yourself in a narrow tunnel.")
+    print("You see a faint light in the distance.")
+    choice = input("Do you want to follow the light? (y/n) ").lower()
+    if choice == "y":
+        follow_light()
+    elif choice == "n":
+        go_back()
+    else:
+        print("Invalid choice. Please try again.")
+        go_left()
+
+def go_right():
+    print("You chose to go right and you find yourself in a large cavern.")
+    print("You can see two doors - one made of wood and the other made of stone.")
+    choice = input("Which door do you choose? (wood/stone) ").lower()
+    if choice == "wood":
+        open_wooden_door()
+    elif choice == "stone":
+        open_stone_door()
+    else:
+        print("Invalid choice. Please try again.")
+        go_right()
+
+def follow_light():
+    print("You follow the light and it leads you to a small room.")
+    print("You see a treasure chest in the corner.")
+    choice = input("Do you want to open the chest? (y/n) ").lower()
+    if choice == "y":
+        open_chest()
+    elif choice == "n":
+        go_back()
+    else:
+        print("Invalid choice. Please try again.")
+        follow_light()
+
+def open_wooden_door():
+    print("You try to open the wooden door, but it's locked.")
+    go_back()
+
+def open_stone_door():
+    print("You push the stone door and it opens with a loud creak.")
+    time.sleep(2)
+    print("You hear a loud growl and suddenly, a giant monster appears!")
+    print("You have no choice but to fight it.")
+    # Code for a combat sequence goes here
+    print("Congratulations, you defeated the monster!")
+    print("You see a staircase leading up.")
+    choice = input("Do you want to go up the staircase? (y/n) ").lower()
+    if choice == "y":
+        climb_stairs()
+    elif choice == "n":
+        go_back()
+    else:
+        print("Invalid choice. Please try again.")
+        open_stone_door()
+
+def open_chest():
+    print("You open the treasure chest and find a shiny new sword inside!")
+    print("You equip the sword and feel much more powerful.")
+    go_back()
+
+def climb_stairs():
+    print("You climb up the stairs and find yourself outside the cave.")
+    print("Congratulations, you have completed the game!")
+    play_again()
+
+def go_back():
+    print("You go back to the previous room.")
+    start_game()
+
+def play_again():
+    choice = input("Do you want to play again? (y/n) ").lower()
+    if choice == "y":
+        start_game()
+    elif choice == "n":
+        print("Thanks for playing!")
+    else:
+        print("Invalid choice. Please try again.")
+        play_again()
+
+start_game()
