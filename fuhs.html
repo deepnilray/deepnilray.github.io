@@ -1,59 +1,62 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Text-based Akinator</title>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/brython/3.10.2/brython.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/brython/3.10.2/brython_stdlib.js"></script>
+    <title>Text-based Akinator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/brython/3.10.2/brython.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/brython/3.10.2/brython_stdlib.js"></script>
 </head>
-<body>
-	<h1>Text-based Akinator</h1>
-	<div id="game"></div>
-	<script type="text/python">
-		import random
-		
-		# Define the list of chess players to guess from
-		players = ['Magnus Carlsen', 'Garry Kasparov', 'Viswanathan Anand', 'Hikaru Nakamura', 'Fabiano Caruana', 'Wesley So']
-		
-		# Define a function to ask the user a yes-or-no question and return their response
-		def ask_question(question):
-			response = input(question + ' (y/n) ')
-			while response.lower() not in ['y', 'n']:
-				response = input('Please enter y or n: ')
-			return response.lower() == 'y'
-		
-		# Define a function to ask a series of questions to narrow down the possibilities
-		def guess_player():
-			possible_players = list(players)
-			while len(possible_players) > 1:
-				# Ask a yes-or-no question about the current possibilities
-				question = 'Does your player have '
-				if len(possible_players) == len(players):
-					question += 'any of these traits: ' + ', '.join(possible_players) + '?'
-				else:
-					question += 'the following trait(s): ' + ', '.join(possible_players) + '?'
-				
-				# Narrow down the possibilities based on the user's response
-				if ask_question(question):
-					possible_players = [p for p in possible_players if p in players[:len(possible_players)//2]]
-				else:
-					possible_players = [p for p in possible_players if p in players[len(possible_players)//2:]]
-			
-			# Make the final guess
-			if len(possible_players) == 1:
-				print('I think your player is:', possible_players[0])
-			else:
-				print('Sorry, I could not guess your player.')
-		
-		# Define a function to play the game, which will call the above functions in the correct order
-		def play_game():
-			print('Think of a chess player and I will try to guess who it is.')
-			input('Press Enter to start.')
-			guess_player()
-			input('Press Enter to play again.')
-			play_game()
-		
-		# Start the game
-		play_game()
-	</script>
+<body onload="brython()">
+    <h1>Text-based Akinator</h1>
+    <div id="game"></div>
+    <script type="text/python">
+        from browser import document, html
+        import random
+        
+        # Define the list of chess players to guess from
+        players = ['Magnus Carlsen', 'Garry Kasparov', 'Viswanathan Anand', 'Hikaru Nakamura', 'Fabiano Caruana', 'Wesley So']
+        
+        # Define a function to ask the user a yes-or-no question and return their response
+        def ask_question(question):
+            response = input(question + ' (y/n) ')
+            while response.lower() not in ['y', 'n']:
+                response = input('Please enter y or n: ')
+            return response.lower() == 'y'
+        
+        # Define a function to ask a series of questions to narrow down the possibilities
+        def guess_player():
+            possible_players = list(players)
+            while len(possible_players) > 1:
+                # Ask a yes-or-no question about the current possibilities
+                question = 'Does your player have '
+                for attribute in attributes:
+                    if len(possible_players) > len(players) / 2:
+                        # Choose a random attribute if we have too many possibilities left
+                        attribute = random.choice(attributes)
+                    if ask_question(question + attribute + '?'):
+                        # Remove any players who don't have this attribute
+                        possible_players = [player for player in possible_players if attribute in player.lower()]
+                # If we've narrowed it down to one possibility, return that player
+                if len(possible_players) == 1:
+                    return possible_players[0]
+            # If we've gone through all the attributes and still have more than one possibility, choose one at random
+            return random.choice(possible_players)
+        
+        # Define the initial attributes to guess on
+        attributes = ['won a world championship', 'played in the Candidates Tournament', 'rated over 2700']
+        
+        # Create a function to start the game
+        def start_game():
+            # Ask the player to think of a chess player
+            document['game'] <= html.P('Think of a chess player and I will try to guess who it is.')
+            input('Press Enter to continue...')
+            # Ask a series of questions to narrow down the possibilities
+            player = guess_player()
+            # Display the guessed player to the user
+            document['game'] <= html.P('I think your player is ' + player + '!')
+            input('Press Enter to exit...')
+        
+        # Call the start_game function when the page loads
+        start_game()
+    </script>
 </body>
 </html>
