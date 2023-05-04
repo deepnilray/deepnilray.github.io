@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Text-based Akinator</title>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/brython/3.10.2/brython.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/brython/3.10.2/brython_stdlib.js"></script>
+</head>
+<body>
+	<h1>Text-based Akinator</h1>
+	<div id="game"></div>
+	<script type="text/python">
+		import random
+		
+		# Define the list of chess players to guess from
+		players = ['Magnus Carlsen', 'Garry Kasparov', 'Viswanathan Anand', 'Hikaru Nakamura', 'Fabiano Caruana', 'Wesley So']
+		
+		# Define a function to ask the user a yes-or-no question and return their response
+		def ask_question(question):
+			response = input(question + ' (y/n) ')
+			while response.lower() not in ['y', 'n']:
+				response = input('Please enter y or n: ')
+			return response.lower() == 'y'
+		
+		# Define a function to ask a series of questions to narrow down the possibilities
+		def guess_player():
+			possible_players = list(players)
+			while len(possible_players) > 1:
+				# Ask a yes-or-no question about the current possibilities
+				question = 'Does your player have '
+				if len(possible_players) == len(players):
+					question += 'any of these traits: ' + ', '.join(possible_players) + '?'
+				else:
+					question += 'the following trait(s): ' + ', '.join(possible_players) + '?'
+				
+				# Narrow down the possibilities based on the user's response
+				if ask_question(question):
+					possible_players = [p for p in possible_players if p in players[:len(possible_players)//2]]
+				else:
+					possible_players = [p for p in possible_players if p in players[len(possible_players)//2:]]
+			
+			# Make the final guess
+			if len(possible_players) == 1:
+				print('I think your player is:', possible_players[0])
+			else:
+				print('Sorry, I could not guess your player.')
+		
+		# Define a function to play the game, which will call the above functions in the correct order
+		def play_game():
+			print('Think of a chess player and I will try to guess who it is.')
+			input('Press Enter to start.')
+			guess_player()
+			input('Press Enter to play again.')
+			play_game()
+		
+		# Start the game
+		play_game()
+	</script>
+</body>
+</html>
