@@ -1,3 +1,17 @@
+<!DOCTYPE html>
+<html>
+  
+  <body>
+    <!-- Navigation bar code -->
+    <div class="navbar">
+      <a class="active" href="#">Home</a>
+      <a href="https://deepnilray.github.io/about%20me">About Me</a>
+      <a href="Contact">Contact</a>
+    </div>
+
+   
+  </body>
+</html>
 ## Deepnil Ray 
 My name is Deepnil Ray and I am an aspiring astrophysicist. I have achieved the honor of being a 3-time national topper at Vikram Sarabhai Science Foundation. In addition, I am an ASTEROID HUNTER who loves to talk about space, astronomy, and astrophotography.
 
