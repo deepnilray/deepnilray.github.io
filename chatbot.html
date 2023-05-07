@@ -1,93 +1,45 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Chatbot</title>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<style>
-		.chatbot-container {
-			display: flex;
-			flex-direction: column;
-			height: 500px;
-			width: 400px;
-			background-color: #f0f0f0;
-			padding: 20px;
-			border-radius: 10px;
-			overflow-y: scroll;
-		}
-		.chatbot-message {
-			background-color: #b2d8ff;
-			border-radius: 10px;
-			padding: 10px;
-			margin-bottom: 10px;
-			max-width: 80%;
-		}
-		.chatbot-message.bot {
-			align-self: flex-start;
-		}
-		.chatbot-message.user {
-			align-self: flex-end;
-			background-color: #7f7fff;
-			color: white;
-		}
-		.chatbot-input {
-			display: flex;
-			flex-direction: row;
-			align-items: center;
-			margin-top: 20px;
-		}
-		.chatbot-input input {
-			flex-grow: 1;
-			border-radius: 5px;
-			padding: 10px;
-			border: none;
-		}
-		.chatbot-input button {
-			border-radius: 5px;
-			padding: 10px;
-			margin-left: 10px;
-			border: none;
-			background-color: #b2d8ff;
-			color: white;
-			font-weight: bold;
-		}
-	</style>
+  <title>Chatbot</title>
+  <script>
+    function sendMessage() {
+      // Get user input message
+      var userInput = document.getElementById('userInput').value;
+      
+      // Display user message
+      var chatLog = document.getElementById('chatLog');
+      var userMessage = document.createElement('div');
+      userMessage.innerHTML = '<strong>You:</strong> ' + userInput;
+      chatLog.appendChild(userMessage);
+      
+      // Generate chatbot response
+      var chatbotResponse = getResponse(userInput);
+      
+      // Display chatbot response
+      var chatbotMessage = document.createElement('div');
+      chatbotMessage.innerHTML = '<strong>Chatbot:</strong> ' + chatbotResponse;
+      chatLog.appendChild(chatbotMessage);
+      
+      // Clear user input field
+      document.getElementById('userInput').value = '';
+    }
+    
+    function getResponse(userInput) {
+      // Replace this with your own chatbot logic
+      var responses = [
+        "Hello!",
+        "How are you?",
+        "What can I help you with?"
+      ];
+      return responses[Math.floor(Math.random() * responses.length)];
+    }
+  </script>
 </head>
 <body>
-	<div class="chatbot-container">
-		<div class="chatbot-message bot">Hi there! How can I assist you?</div>
-	</div>
-	<div class="chatbot-input">
-		<input type="text" placeholder="Type your message here...">
-		<button>Send</button>
-	</div>
-	<script>
-		const chatbotContainer = document.querySelector('.chatbot-container');
-		const chatbotInput = document.querySelector('.chatbot-input input');
-
-		function addMessage(message, sender) {
-			const messageElement = document.createElement('div');
-			messageElement.innerText = message;
-			messageElement.classList.add('chatbot-message');
-			messageElement.classList.add(sender);
-			chatbotContainer.appendChild(messageElement);
-			chatbotContainer.scrollTop = chatbotContainer.scrollHeight;
-		}
-
-		function handleUserInput() {
-			const message = chatbotInput.value;
-			addMessage(message, 'user');
-			chatbotInput.value = '';
-			// TODO: handle user input and generate bot response
-		}
-
-		chatbotInput.addEventListener('keyup', function(event) {
-			if (event.key === 'Enter') {
-				handleUserInput();
-			}
-		});
-
-		document.querySelector('.chatbot-input button').addEventListener('click', handleUserInput);
-	</script>
+  <h1>Chatbot</h1>
+  <div id="chatLog"></div>
+  <input type="text" id="userInput">
+  <button type="button" onclick="sendMessage()">Send</button>
 </body>
 </html>
