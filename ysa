@@ -1,0 +1,115 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .login-box {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            margin: 10px 0;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .error {
+            color: red;
+            font-size: 12px;
+        }
+        .hidden {
+            display: none;
+        }
+        iframe {
+            margin-top: 20px;
+            width: 560px;
+            height: 315px;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-box">
+        <h2>Login</h2>
+        <form id="loginForm">
+            <label for="name">Name:</label>
+            <input type="text" id="name" required>
+
+            <label for="username">Username:</label>
+            <input type="text" id="username" required>
+
+            <label for="password">Password:</label>
+            <input type="password" id="password" required>
+
+            <button type="submit">Login</button>
+            <p id="message" class="error"></p>
+        </form>
+
+        <!-- Hidden YouTube video -->
+        <div id="videoContainer" class="hidden">
+            <h3>Love you quee!</h3>
+            <iframe id="youtubeVideo" src="https://www.youtube.com/embed/ktvTqknDobU" title="Imagine Dragons - Radioactive" allowfullscreen></iframe>
+        </div>
+    </div>
+
+    <script>
+        // Predefined valid username and password
+        const validUsername = "ysa";
+        const validPassword = "pancake";
+
+        // Handle form submission
+        document.getElementById('loginForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent form from submitting the default way
+
+            // Get user input
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const message = document.getElementById('message');
+            const videoContainer = document.getElementById('videoContainer');
+
+            // Validate username and password
+            if (username === validUsername && password === validPassword) {
+                message.textContent = "Login successful!";
+                message.style.color = "green";
+
+                // Show the YouTube video
+                videoContainer.classList.remove('hidden');
+            } else {
+                message.textContent = "Invalid username or password.";
+                message.style.color = "red";
+
+                // Hide the YouTube video in case of a failed attempt
+                videoContainer.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>
