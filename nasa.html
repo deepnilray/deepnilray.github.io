@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retro Terminal - Exoplanet Info</title>
+    <style>
+        body {
+            background-color: black;
+            color: #00FF00; /* Retro green */
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* Ensure no scrollbar for alien walk */
+        }
+
+        .terminal {
+            width: 90%;
+            max-width: 1000px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #222;
+            border: 5px solid #00FF00;
+            box-shadow: 0 0 10px #00FF00;
+            text-align: left;
+            position: relative;
+            z-index: 10; /* Keep the terminal on top */
+        }
+
+        h1 {
+            font-size: 32px;
+            color: #00FF00;
+            text-align: center;
+        }
+
+        p {
+            font-size: 18px;
+            line-height: 1.6;
+        }
+
+        a {
+            color: #00FF00;
+            text-decoration: none;
+            border-bottom: 1px dotted #00FF00;
+        }
+
+        a:hover {
+            color: #FF00FF; /* Retro magenta hover */
+        }
+
+        .terminal-header {
+            border-bottom: 2px solid #00FF00;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .terminal-content {
+            padding: 10px;
+            background-color: #000;
+            border: 3px solid #00FF00;
+        }
+
+        .exoplanet-list ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .exoplanet-list li {
+            margin: 10px 0;
+        }
+
+        .exoplanet-list li::before {
+            content: ">";
+            margin-right: 10px;
+            color: #00FF00;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 14px;
+        }
+
+        /* Alien animation */
+        .alien {
+            position: absolute;
+            width: 100px;
+            top: 30%;
+            animation: walk 10s linear infinite;
+            z-index: 1; /* Behind the terminal */
+        }
+
+        .alien2 {
+            top: 50%;
+            width: 120px;
+            animation: walk 15s linear infinite;
+        }
+
+        .alien3 {
+            top: 70%;
+            width: 80px;
+            animation: walk 12s linear infinite;
+        }
+
+        @keyframes walk {
+            0% {
+                left: -150px;
+            }
+            100% {
+                left: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Alien figures walking -->
+    <img class="alien" src="alien1.png" alt="Alien walking">
+    <img class="alien alien2" src="alien2.png" alt="Alien walking">
+    <img class="alien alien3" src="alien3.png" alt="Alien walking">
+
+    <div class="terminal">
+        <div class="terminal-header">
+            <h1>Retro Terminal - Exoplanet Exploration</h1>
+            <p>Welcome to the retro terminal. Here you can explore the most fascinating exoplanets discovered by NASA's missions.</p>
+        </div>
+
+        <div class="terminal-content">
+            <p><strong>What is an Exoplanet?</strong></p>
+            <p>An exoplanet is a planet that exists outside of our solar system, orbiting a star other than the Sun. These mysterious worlds are at the forefront of astronomical research, and many are being discovered each year!</p>
+
+            <p><strong>Famous Exoplanets:</strong></p>
+            <div class="exoplanet-list">
+                <ul>
+                    <li>Kepler-452b: Known as "Earth’s Cousin," located 1,400 light years away.</li>
+                    <li>Proxima Centauri b: Closest known exoplanet, orbiting our nearest star.</li>
+                    <li>TRAPPIST-1e: Potentially habitable, one of the seven Earth-sized planets.</li>
+                    <li>HD 209458b: The first exoplanet discovered with an atmosphere.</li>
+                    <li>55 Cancri e: A "super-Earth" that orbits its star in just 18 hours.</li>
+                </ul>
+            </div>
+
+            <p>For more information on exoplanets, visit <a href="https://exoplanets.nasa.gov">NASA's Exoplanet Archive</a>.</p>
+        </div>
+
+        <footer>
+            <p>Retro Terminal Design | All Rights Reserved | <a href="https://nasa.gov">NASA</a></p>
+        </footer>
+    </div>
+
+</body>
+</html>
