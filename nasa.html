@@ -3,332 +3,152 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>1940s Terminal - Project Explorer</title>
+    <title>PROJECT EXPLORER</title>
     <style>
-        /* Basic terminal styling */
-        body {
-            background-color: black;
-            color: #00FF00;
-            font-family: 'Courier New', Courier, monospace;
+        body, html {
             margin: 0;
-            padding: 20px;
-            overflow: hidden; /* Prevent scrolling */
-            position: relative;
-            width: 600px; /* Set fixed width */
-            height: 400px; /* Set fixed height */
-            border: 5px solid #00FF00; /* Green border */
-            box-shadow: 0 0 20px #00FF00; /* Glow effect */
-            margin: auto; /* Center window */
+            padding: 0;
+            height: 100%;
+            background-color: #000;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
-
-        /* Title styling */
+        .terminal {
+            width: 90%;
+            max-width: 600px;
+            border: 2px solid #00ff00;
+            padding: 20px;
+            box-shadow: 0 0 20px #00ff00;
+            overflow-y: auto;
+            max-height: 80vh;
+        }
         h1 {
             text-align: center;
-            text-transform: uppercase;
-            border-bottom: 2px solid #00FF00;
-            padding-bottom: 10px;
+            margin-bottom: 20px;
+            text-shadow: 0 0 5px #00ff00;
+        }
+        .menu {
+            list-style-type: none;
+            padding: 0;
+            border: 1px solid #00ff00;
             margin-bottom: 20px;
         }
-
-        /* Menu styling */
-        .menu {
-            max-width: 100%;
-            margin: 0 auto;
+        .menu li {
+            padding: 5px 10px;
+            border-bottom: 1px solid #00ff00;
         }
-
-        .menu-item {
-            padding: 10px;
-            margin: 5px 0;
-            border: 1px solid #00FF00;
-            cursor: pointer;
-            transition: background-color 0.3s, color 0.3s;
-            position: relative;
+        .menu li:last-child {
+            border-bottom: none;
         }
-
-        .menu-item:hover {
-            background-color: #00FF00;
-            color: black;
+        .command-line {
+            margin-top: 20px;
         }
-
-        /* Sub-menu styling */
-        .sub-menu {
-            display: none;
-            margin-left: 20px;
+        #output {
+            white-space: pre-wrap;
+            margin-bottom: 10px;
         }
-
-        /* Output section styling */
-        .output {
-            margin-top: 30px;
-            padding: 15px;
-            border-top: 2px solid #00FF00;
-            min-height: 150px;
-            overflow-y: auto; /* Allow scrolling in output */
-            max-height: 150px; /* Set maximum height */
-        }
-
-        /* Blinking cursor effect */
-        .blinking-cursor {
-            display: inline-block;
-            width: 10px;
-            background-color: #00FF00;
-            animation: blink 1s step-start infinite;
-        }
-
-        @keyframes blink {
-            50% { background-color: transparent; }
-        }
-
-        /* Background alien imagery */
-        .alien-bg {
-            position: absolute;
+        input {
             width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            background-image: url('https://images.app.goo.gl/wbb5t2xxRo9sDJVSA'); /* Background alien GIF */
-            background-size: cover; /* Cover the entire window */
-            opacity: 0.1; /* Make background subtle */
-            z-index: -1; /* Send background behind other elements */
-        }
-
-        /* Login popup styling */
-        .login-popup {
-            display: none; /* Hidden by default */
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: rgba(0, 0, 0, 0.9); /* Dark background */
-            border: 3px solid #00FF00;
-            box-shadow: 0 0 20px #00FF00; /* Glow effect */
-            padding: 20px;
-            z-index: 10; /* Make sure it appears above other elements */
-        }
-
-        /* Login form styling */
-        .login-popup h2 {
-            text-align: center;
-            color: #00FF00;
-        }
-
-        .login-popup input[type="text"],
-        .login-popup input[type="password"] {
-            width: calc(100% - 20px);
-            padding: 10px;
-            margin: 5px 0;
-            border: 1px solid #00FF00;
-            background-color: black;
-            color: #00FF00;
-        }
-
-        .login-popup button {
-            width: 100%;
-            padding: 10px;
+            background-color: #000;
             border: none;
-            background-color: #00FF00;
-            color: black;
-            cursor: pointer;
-            transition: background-color 0.3s;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            outline: none;
         }
-
-        .login-popup button:hover {
-            background-color: #00CC00; /* Darker green on hover */
+        .blink {
+            animation: blink-animation 1s steps(5, start) infinite;
         }
-
-        .close-popup {
-            color: #FF0000;
-            cursor: pointer;
-            text-align: right;
+        @keyframes blink-animation {
+            to {
+                visibility: hidden;
+            }
         }
-
-        .error {
-            color: #FF0000;
-            margin-top: 10px;
-            text-align: center;
-        }
-
     </style>
 </head>
 <body>
-    <div class="alien-bg"></div> <!-- Alien Background -->
-    <h1>Project Explorer</h1>
-
-    <div class="menu">
-        <div class="menu-item" onclick="toggleSubMenu('overview')">
-            1. Project Overview 👽
-            <span class="blinking-cursor"></span>
+    <div class="terminal">
+        <h1>PROJECT EXPLORER</h1>
+        <ul class="menu">
+            <li>1. Project Overview 👽</li>
+            <li>2. Key Features 🔮</li>
+            <li>3. About the Team 👽</li>
+            <li>4. Contact Information 🔮</li>
+            <li>5. Login 🚀</li>
+        </ul>
+        <div id="output"></div>
+        <div class="command-line">
+            <span class="blink">></span> <input type="text" id="command-input" autofocus placeholder="Type here and press Enter">
         </div>
-        <div class="sub-menu" id="overview">
-            <div class="menu-item" onclick="displayContent('overview')">
-                1.1 Description
-            </div>
-            <div class="menu-item" onclick="displayContent('mission')">
-                1.2 Mission Statement
-            </div>
-        </div>
-
-        <div class="menu-item" onclick="toggleSubMenu('features')">
-            2. Key Features 👾
-            <span class="blinking-cursor"></span>
-        </div>
-        <div class="sub-menu" id="features">
-            <div class="menu-item" onclick="displayContent('energy')">
-                2.1 Energy Source
-            </div>
-            <div class="menu-item" onclick="displayContent('geology')">
-                2.2 Geological Features
-            </div>
-            <div class="menu-item" onclick="displayContent('biosphere')">
-                2.3 Biosphere
-            </div>
-            <div class="menu-item" onclick="displayContent('ecosystem')">
-                2.4 Ecosystem Dynamics
-            </div>
-        </div>
-
-        <div class="menu-item" onclick="toggleSubMenu('team')">
-            3. About the Team 👽
-            <span class="blinking-cursor"></span>
-        </div>
-        <div class="sub-menu" id="team">
-            <div class="menu-item" onclick="displayContent('members')">
-                3.1 Team Members
-            </div>
-            <div class="menu-item" onclick="displayContent('roles')">
-                3.2 Roles & Responsibilities
-            </div>
-        </div>
-
-        <div class="menu-item" onclick="toggleSubMenu('contact')">
-            4. Contact Information 👾
-            <span class="blinking-cursor"></span>
-        </div>
-        <div class="sub-menu" id="contact">
-            <div class="menu-item" onclick="displayContent('email')">
-                4.1 Email
-            </div>
-            <div class="menu-item" onclick="displayContent('social')">
-                4.2 Social Media
-            </div>
-        </div>
-
-        <div class="menu-item" onclick="openLoginPopup()">
-            5. Login 🚀
-            <span class="blinking-cursor"></span>
-        </div>
-    </div>
-
-    <div class="output" id="output">
-        <p>Awaiting your command... <span class="blinking-cursor"></span></p>
-    </div>
-
-    <!-- Login Popup -->
-    <div class="login-popup" id="login-popup">
-        <span class="close-popup" onclick="closeLoginPopup()">✖ Close</span>
-        <h2>Login</h2>
-        <input type="text" id="username" placeholder="Username" required>
-        <input type="password" id="password" placeholder="Password" required>
-        <button onclick="login()">Submit</button>
-        <div id="error-message" class="error"></div>
     </div>
 
     <script>
-        // Function to toggle sub-menus
-        function toggleSubMenu(id) {
-            var subMenu = document.getElementById(id);
-            if (subMenu.style.display === "block") {
-                subMenu.style.display = "none";
-            } else {
-                // Close other sub-menus
-                var allSubMenus = document.querySelectorAll('.sub-menu');
-                allSubMenus.forEach(function(menu) {
-                    menu.style.display = "none";
-                });
-                subMenu.style.display = "block";
-            }
+        const input = document.getElementById('command-input');
+        const output = document.getElementById('output');
+        let loggedIn = false;
+
+        function initializeTerminal() {
+            displayOutput("Welcome to PROJECT EXPLORER!\nType a number (1-5) to navigate the menu.");
         }
 
-        // Function to display content with a wait time
-        function displayContent(option) {
-            var content = "";
-            switch(option) {
-                case 'overview':
-                    content = `<h2>Project Overview</h2>
-                               <p>This project aims to simulate a 1940s-style terminal interface for a fictional project explorer.</p>`;
+        input.addEventListener('keyup', function(event) {
+            if (event.key === 'Enter') {
+                processCommand(this.value);
+                this.value = '';
+            }
+        });
+
+        function processCommand(command) {
+            displayOutput('> ' + command);
+
+            switch(command.toLowerCase()) {
+                case '1':
+                    displayOutput('Project Overview: A cutting-edge terminal-based project explorer.');
                     break;
-                case 'mission':
-                    content = `<h2>Mission Statement</h2>
-                               <p>To explore and document the unknown realms of the universe with a focus on education and outreach.</p>`;
+                case '2':
+                    displayOutput('Key Features: Interactive terminal, secure login, and more!');
                     break;
-                case 'energy':
-                    content = `<h2>Energy Source</h2>
-                     content = `<h2>Energy Source</h2>
-                               <p>The project examines various chemical compounds that could sustain life through chemosynthesis, such as hydrogen sulfide and methane.</p>`;
+                case '3':
+                    displayOutput('About the Team: A group of passionate developers pushing boundaries.');
                     break;
-                case 'geology':
-                    content = `<h2>Geological Features</h2>
-                               <p>Our target ocean worlds exhibit diverse geological characteristics, including hydrothermal vents and tectonic activity.</p>`;
+                case '4':
+                    displayOutput('Contact Information: email@example.com');
                     break;
-                case 'biosphere':
-                    content = `<h2>Biosphere</h2>
-                               <p>We investigate potential biospheres that could support extremophiles, showcasing life that thrives in harsh conditions.</p>`;
-                    break;
-                case 'ecosystem':
-                    content = `<h2>Ecosystem Dynamics</h2>
-                               <p>The dynamics of ecosystems in these ocean worlds are driven by chemical energy from the environment, supporting diverse life forms.</p>`;
-                    break;
-                case 'members':
-                    content = `<h2>Team Members</h2>
-                               <p>Our team consists of scientists, engineers, and educators passionate about astrobiology and exploration.</p>`;
-                    break;
-                case 'roles':
-                    content = `<h2>Roles & Responsibilities</h2>
-                               <p>Each team member contributes uniquely, ensuring a well-rounded approach to the project.</p>`;
-                    break;
-                case 'email':
-                    content = `<h2>Email</h2>
-                               <p>Contact us at: projectexplorer@example.com</p>`;
-                    break;
-                case 'social':
-                    content = `<h2>Social Media</h2>
-                               <p>Follow us on Twitter and Facebook: @ProjectExplorer</p>`;
+                case '5':
+                    if (!loggedIn) {
+                        displayOutput('Please enter your username:');
+                        input.setAttribute('data-state', 'username');
+                    } else {
+                        displayOutput('You are already logged in.');
+                    }
                     break;
                 default:
-                    content = "Unknown option.";
-            }
-
-            // Clear the output and display loading text
-            const output = document.getElementById("output");
-            output.innerHTML = `<p>Loading...</p>`;
-
-           
-        }
-
-        // Function to open login popup
-        function openLoginPopup() {
-            document.getElementById("login-popup").style.display = "block";
-        }
-
-        // Function to close login popup
-        function closeLoginPopup() {
-            document.getElementById("login-popup").style.display = "none";
-        }
-
-        // Function to handle login
-        function login() {
-            const username = document.getElementById("username").value;
-            const password = document.getElementById("password").value;
-            const errorMessage = document.getElementById("error-message");
-
-            // Simple login validation
-            if (username === "pancake" && password === "1738") {
-                errorMessage.innerText = "";
-                closeLoginPopup();
-                displayContent('overview'); // Optionally display content on successful login
-            } else {
-                errorMessage.innerText = "Invalid username or password!";
+                    if (input.getAttribute('data-state') === 'username') {
+                        displayOutput('Please enter your password:');
+                        input.setAttribute('data-state', 'password');
+                    } else if (input.getAttribute('data-state') === 'password') {
+                        if (command === '1738') {
+                            loggedIn = true;
+                            displayOutput('Love quenny');
+                        } else {
+                            displayOutput('Login failed. Please try again.');
+                        }
+                        input.removeAttribute('data-state');
+                    } else {
+                        displayOutput('Unknown command. Please enter a number from 1-5.');
+                    }
             }
         }
+
+        function displayOutput(message) {
+            output.textContent += message + '\n\n';
+            output.scrollTop = output.scrollHeight;
+        }
+
+        initializeTerminal();
     </script>
 </body>
-</html>          
+</html>
