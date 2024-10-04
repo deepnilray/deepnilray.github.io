@@ -12,6 +12,13 @@
             font-family: 'Courier New', Courier, monospace;
             margin: 0;
             padding: 20px;
+            overflow: hidden; /* Prevent scrolling */
+            position: relative;
+            width: 600px; /* Set fixed width */
+            height: 400px; /* Set fixed height */
+            border: 5px solid #00FF00; /* Green border */
+            box-shadow: 0 0 20px #00FF00; /* Glow effect */
+            margin: auto; /* Center window */
         }
 
         /* Title styling */
@@ -25,7 +32,7 @@
 
         /* Menu styling */
         .menu {
-            max-width: 800px;
+            max-width: 100%;
             margin: 0 auto;
         }
 
@@ -35,6 +42,7 @@
             border: 1px solid #00FF00;
             cursor: pointer;
             transition: background-color 0.3s, color 0.3s;
+            position: relative;
         }
 
         .menu-item:hover {
@@ -54,6 +62,8 @@
             padding: 15px;
             border-top: 2px solid #00FF00;
             min-height: 150px;
+            overflow-y: auto; /* Allow scrolling in output */
+            max-height: 150px; /* Set maximum height */
         }
 
         /* Blinking cursor effect */
@@ -68,6 +78,69 @@
             50% { background-color: transparent; }
         }
 
+        /* Background alien imagery */
+        .alien-bg {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            background-image: url('https://media.giphy.com/media/3o6MbaO1hJdrnkRx1e/giphy.gif'); /* Background alien GIF */
+            background-size: cover; /* Cover the entire window */
+            opacity: 0.1; /* Make background subtle */
+            z-index: -1; /* Send background behind other elements */
+        }
+
+        /* Login popup styling */
+        .login-popup {
+            display: none; /* Hidden by default */
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.9); /* Dark background */
+            border: 3px solid #00FF00;
+            box-shadow: 0 0 20px #00FF00; /* Glow effect */
+            padding: 20px;
+            z-index: 10; /* Make sure it appears above other elements */
+        }
+
+        /* Login form styling */
+        .login-popup h2 {
+            text-align: center;
+            color: #00FF00;
+        }
+
+        .login-popup input[type="text"],
+        .login-popup input[type="password"] {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #00FF00;
+            background-color: black;
+            color: #00FF00;
+        }
+
+        .login-popup button {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            background-color: #00FF00;
+            color: black;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .login-popup button:hover {
+            background-color: #00CC00; /* Darker green on hover */
+        }
+
+        .close-popup {
+            color: #FF0000;
+            cursor: pointer;
+            text-align: right;
+        }
+
         /* Responsive design */
         @media (max-width: 600px) {
             .menu, .output {
@@ -78,14 +151,21 @@
                 font-size: 0.9rem;
             }
         }
+
+        .error {
+            color: #FF0000;
+            margin-top: 10px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
+    <div class="alien-bg"></div> <!-- Alien Background -->
     <h1>Project Explorer</h1>
 
     <div class="menu">
         <div class="menu-item" onclick="toggleSubMenu('overview')">
-            1. Project Overview
+            1. Project Overview 👽
             <span class="blinking-cursor"></span>
         </div>
         <div class="sub-menu" id="overview">
@@ -98,7 +178,7 @@
         </div>
 
         <div class="menu-item" onclick="toggleSubMenu('features')">
-            2. Key Features
+            2. Key Features 👾
             <span class="blinking-cursor"></span>
         </div>
         <div class="sub-menu" id="features">
@@ -117,7 +197,7 @@
         </div>
 
         <div class="menu-item" onclick="toggleSubMenu('team')">
-            3. About the Team
+            3. About the Team 👽
             <span class="blinking-cursor"></span>
         </div>
         <div class="sub-menu" id="team">
@@ -130,7 +210,7 @@
         </div>
 
         <div class="menu-item" onclick="toggleSubMenu('contact')">
-            4. Contact Information
+            4. Contact Information 👾
             <span class="blinking-cursor"></span>
         </div>
         <div class="sub-menu" id="contact">
@@ -142,14 +222,24 @@
             </div>
         </div>
 
-        <div class="menu-item" onclick="displayContent('exit')">
-            5. Exit Program
+        <div class="menu-item" onclick="openLoginPopup()">
+            5. Login 🚀
             <span class="blinking-cursor"></span>
         </div>
     </div>
 
     <div class="output" id="output">
         <p>Awaiting your command... <span class="blinking-cursor"></span></p>
+    </div>
+
+    <!-- Login Popup -->
+    <div class="login-popup" id="login-popup">
+        <span class="close-popup" onclick="closeLoginPopup()">✖ Close</span>
+        <h2>Login</h2>
+        <input type="text" id="username" placeholder="Username" required>
+        <input type="password" id="password" placeholder="Password" required>
+        <button onclick="login()">Submit</button>
+        <div id="error-message" class="error"></div>
     </div>
 
     <script>
@@ -174,68 +264,8 @@
             switch(option) {
                 case 'overview':
                     content = `<h2>Project Overview</h2>
-                               <p>This project aims to simulate a 1940s-style computer terminal to present information about our unique habitable ocean world, Thalassara. Navigate through the menu to learn more about its features, the team behind the project, and how to get in touch.</p>`;
+                               <p>This project aims to simulate a 1940s-style terminal interface for a fictional project explorer.</p>`;
                     break;
                 case 'mission':
                     content = `<h2>Mission Statement</h2>
-                               <p>Our mission is to explore and visualize the potential of chemosynthetic ocean worlds, expanding our understanding of habitability beyond Earth-like parameters and inspiring future scientific endeavors.</p>`;
-                    break;
-                case 'energy':
-                    content = `<h2>Energy Source</h2>
-                               <p>Thalassara's primary energy sources are hydrogen sulfide (H₂S), methane (CH₄), and hydrogen (H₂) released from hydrothermal vents. Chemosynthetic organisms harness these chemicals to sustain the planet's diverse ecosystems.</p>`;
-                    break;
-                case 'geology':
-                    content = `<h2>Geological Features</h2>
-                               <p>The seafloor of Thalassara is marked by extensive hydrothermal vent fields, underwater mountain ranges, and mineral-rich chimneys. Periodic cryovolcanic eruptions introduce ammonia-rich slurries, creating transient nutrient sources for life.</p>`;
-                    break;
-                case 'biosphere':
-                    content = `<h2>Biosphere</h2>
-                               <p>Thalassara's biosphere is dominated by chemosynthetic microbes forming the base of complex food webs. Multicellular organisms such as silica-armored filterers, methane grazers, and bioluminescent predators thrive in this chemically fueled environment.</p>`;
-                    break;
-                case 'ecosystem':
-                    content = `<h2>Ecosystem Dynamics</h2>
-                               <p>Chemical energy flows from hydrothermal vents support primary producers, which in turn sustain higher trophic levels. Symbiotic relationships and nutrient cycling drive a resilient and dynamic ecosystem, promoting biodiversity through constant adaptation.</p>`;
-                    break;
-                case 'members':
-                    content = `<h2>Team Members</h2>
-                               <ul>
-                                   <li>Dr. Ada Lovelace - Project Lead</li>
-                                   <li>Prof. Isaac Newton - Geological Specialist</li>
-                                   <li>Dr. Marie Curie - Chemosynthesis Expert</li>
-                                   <li>Eng. Alan Turing - Systems Designer</li>
-                               </ul>`;
-                    break;
-                case 'roles':
-                    content = `<h2>Roles & Responsibilities</h2>
-                               <p><strong>Dr. Ada Lovelace:</strong> Oversees the entire project, ensuring all components integrate seamlessly.</p>
-                               <p><strong>Prof. Isaac Newton:</strong> Analyzes geological features and their impact on the biosphere.</p>
-                               <p><strong>Dr. Marie Curie:</strong> Studies chemosynthetic processes and their role in sustaining life.</p>
-                               <p><strong>Eng. Alan Turing:</strong> Develops the terminal interface and ensures interactive functionality.</p>`;
-                    break;
-                case 'email':
-                    content = `<h2>Contact via Email</h2>
-                               <p>You can reach us at <a href="mailto:team@thalassara.org" style="color: #00FF00;">team@thalassara.org</a></p>`;
-                    break;
-                case 'social':
-                    content = `<h2>Social Media</h2>
-                               <p>Follow our updates on:
-                               <ul>
-                                   <li><a href="#" style="color: #00FF00;">Twitter</a></li>
-                                   <li><a href="#" style="color: #00FF00;">LinkedIn</a></li>
-                                   <li><a href="#" style="color: #00FF00;">Facebook</a></li>
-                               </ul>
-                               </p>`;
-                    break;
-                case 'exit':
-                    content = `<h2>Exiting Program</h2>
-                               <p>Thank you for exploring the Project Explorer. Goodbye! <span class="blinking-cursor"></span></p>`;
-                    break;
-                default:
-                    content = `<p>Unknown option selected. Please try again.</p>`;
-            }
-
-            document.getElementById('output').innerHTML = content;
-        }
-    </script>
-</body>
-</html>
+                               <p>To explore and document the unknown realms of the universe with a focus on
