@@ -141,22 +141,12 @@
             text-align: right;
         }
 
-        /* Responsive design */
-        @media (max-width: 600px) {
-            .menu, .output {
-                padding: 10px;
-            }
-
-            .menu-item {
-                font-size: 0.9rem;
-            }
-        }
-
         .error {
             color: #FF0000;
             margin-top: 10px;
             text-align: center;
         }
+
     </style>
 </head>
 <body>
@@ -258,7 +248,7 @@
             }
         }
 
-        // Function to display content based on selection
+        // Function to display content with a wait time
         function displayContent(option) {
             var content = "";
             switch(option) {
@@ -268,4 +258,80 @@
                     break;
                 case 'mission':
                     content = `<h2>Mission Statement</h2>
-                               <p>To explore and document the unknown realms of the universe with a focus on
+                               <p>To explore and document the unknown realms of the universe with a focus on education and outreach.</p>`;
+                    break;
+                case 'energy':
+                    content = `<h2>Energy Source</h2>
+                     content = `<h2>Energy Source</h2>
+                               <p>The project examines various chemical compounds that could sustain life through chemosynthesis, such as hydrogen sulfide and methane.</p>`;
+                    break;
+                case 'geology':
+                    content = `<h2>Geological Features</h2>
+                               <p>Our target ocean worlds exhibit diverse geological characteristics, including hydrothermal vents and tectonic activity.</p>`;
+                    break;
+                case 'biosphere':
+                    content = `<h2>Biosphere</h2>
+                               <p>We investigate potential biospheres that could support extremophiles, showcasing life that thrives in harsh conditions.</p>`;
+                    break;
+                case 'ecosystem':
+                    content = `<h2>Ecosystem Dynamics</h2>
+                               <p>The dynamics of ecosystems in these ocean worlds are driven by chemical energy from the environment, supporting diverse life forms.</p>`;
+                    break;
+                case 'members':
+                    content = `<h2>Team Members</h2>
+                               <p>Our team consists of scientists, engineers, and educators passionate about astrobiology and exploration.</p>`;
+                    break;
+                case 'roles':
+                    content = `<h2>Roles & Responsibilities</h2>
+                               <p>Each team member contributes uniquely, ensuring a well-rounded approach to the project.</p>`;
+                    break;
+                case 'email':
+                    content = `<h2>Email</h2>
+                               <p>Contact us at: projectexplorer@example.com</p>`;
+                    break;
+                case 'social':
+                    content = `<h2>Social Media</h2>
+                               <p>Follow us on Twitter and Facebook: @ProjectExplorer</p>`;
+                    break;
+                default:
+                    content = "Unknown option.";
+            }
+
+            // Clear the output and display loading text
+            const output = document.getElementById("output");
+            output.innerHTML = `<p>Loading...</p>`;
+
+            // Simulate wait time before displaying the content
+            setTimeout(() => {
+                output.innerHTML = content;
+            }, 2000); // 2 seconds wait time
+        }
+
+        // Function to open login popup
+        function openLoginPopup() {
+            document.getElementById("login-popup").style.display = "block";
+        }
+
+        // Function to close login popup
+        function closeLoginPopup() {
+            document.getElementById("login-popup").style.display = "none";
+        }
+
+        // Function to handle login
+        function login() {
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+            const errorMessage = document.getElementById("error-message");
+
+            // Simple login validation
+            if (username === "pancake" && password === "1738") {
+                errorMessage.innerText = "";
+                closeLoginPopup();
+                displayContent('overview'); // Optionally display content on successful login
+            } else {
+                errorMessage.innerText = "Invalid username or password!";
+            }
+        }
+    </script>
+</body>
+</html>          
