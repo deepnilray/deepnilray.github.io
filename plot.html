@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const ThalassaraSimulator = () => {
   const [hydrothermalActivity, setHydrothermalActivity] = useState(50);
@@ -10,7 +10,6 @@ const ThalassaraSimulator = () => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setTime((prevTime) => prevTime + 1);
       updateEcosystem();
     }, 1000);
 
@@ -18,25 +17,37 @@ const ThalassaraSimulator = () => {
   }, []);
 
   const updateEcosystem = () => {
-    const newBacteria = chemosynthesisBacteria + 
-      (hydrothermalActivity / 10) * (Math.random() * 20 - 10) - 
-      (predators * 0.5);
-    
-    const newPredators = predators + 
-      (chemosynthesisBacteria / 1000) * (Math.random() * 2 - 1) - 
-      (predators * 0.1);
+    setTime(prevTime => {
+      const newTime = prevTime + 1;
 
-    setChemosynthesisBacteria(Math.max(0, Math.round(newBacteria)));
-    setPredators(Math.max(0, Math.round(newPredators)));
+      // Update bacteria count using the previous state
+      setChemosynthesisBacteria(prevBacteria => {
+        const newBacteria = prevBacteria + 
+          (hydrothermalActivity / 10) * (Math.random() * 20 - 10) - 
+          (predators * 0.5);
+        return Math.max(0, Math.round(newBacteria));
+      });
 
-    setData(prevData => [
-      ...prevData,
-      {
-        time,
-        bacteria: chemosynthesisBacteria,
-        predators: predators
-      }
-    ].slice(-20));
+      // Update predator count using the previous state
+      setPredators(prevPredators => {
+        const newPredators = prevPredators + 
+          (chemosynthesisBacteria / 1000) * (Math.random() * 2 - 1) - 
+          (prevPredators * 0.1);
+        return Math.max(0, Math.round(newPredators));
+      });
+
+      // Log the updated ecosystem data
+      setData(prevData => [
+        ...prevData,
+        {
+          time: newTime,
+          bacteria: chemosynthesisBacteria,
+          predators: predators
+        }
+      ].slice(-20));
+
+      return newTime; // Ensure we return the new time for the next iteration
+    });
   };
 
   return (
@@ -53,7 +64,7 @@ const ThalassaraSimulator = () => {
           max="100"
           value={hydrothermalActivity}
           onChange={(e) => setHydrothermalActivity(Number(e.target.value))}
-          className="w-full"
+          className="w-full accent-green-400"
         />
       </div>
 
@@ -68,15 +79,17 @@ const ThalassaraSimulator = () => {
         </div>
       </div>
 
-      <LineChart width={600} height={300} data={data}>
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="time" />
-        <YAxis />
-        <Tooltip />
-        <Legend />
-        <Line type="monotone" dataKey="bacteria" stroke="#4ade80" name="Bacteria" />
-        <Line type="monotone" dataKey="predators" stroke="#f87171" name="Predators" />
-      </LineChart>
+      <ResponsiveContainer width="100%" height={300}>
+        <LineChart data={data}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="time" />
+          <YAxis />
+          <Tooltip />
+          <Legend />
+          <Line type="monotone" dataKey="bacteria" stroke="#4ade80" name="Bacteria" />
+          <Line type="monotone" dataKey="predators" stroke="#f87171" name="Predators" />
+        </LineChart>
+      </ResponsiveContainer>
     </div>
   );
 };
