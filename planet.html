@@ -78,6 +78,9 @@
             <li>3. About the Team 👽</li>
             <li>4. Contact Information 🔮</li>
             <li>5. Login 🚀</li>
+            <li>6. Explore Planet Thalassara: <a href="https://deepnilray.github.io/thalassara.html" target="_blank">Link</a></li>
+            <li>7. Alien Life Forms: <a href="https://deepnilray.github.io/alien.html" target="_blank">Link</a></li>
+            <li>8. Data Plotter: <a href="https://deepnilray.github.io/plot.html" target="_blank">Link</a></li>
         </ul>
         <div id="output"></div>
         <div class="command-line">
@@ -91,7 +94,7 @@
         let loggedIn = false;
 
         function initializeTerminal() {
-            displayOutput("Welcome to PROJECT EXPLORER!\nType a number (1-5) to navigate the menu.");
+            displayOutput("Welcome to PROJECT EXPLORER!\nType a number (1-8) to navigate the menu.");
         }
 
         input.addEventListener('keyup', function(event) {
@@ -112,7 +115,7 @@
                     displayOutput('Key Features: Interactive terminal, secure login, and more!');
                     break;
                 case '3':
-                    displayOutput('About the Team: The Heisenberg team, led by Deepnil Ray, is pushing boundaries in tech development.');
+                    displayOutput('About the Team: Heisenberg, led by creator Deepnil Ray.');
                     break;
                 case '4':
                     displayOutput('Contact Information: deepnil.ray@gmail.com');
@@ -125,6 +128,15 @@
                         displayOutput('You are already logged in.');
                     }
                     break;
+                case '6':
+                    window.open('https://deepnilray.github.io/thalassara.html', '_blank');
+                    break;
+                case '7':
+                    window.open('https://deepnilray.github.io/alien.html', '_blank');
+                    break;
+                case '8':
+                    window.open('https://deepnilray.github.io/plot.html', '_blank');
+                    break;
                 default:
                     if (input.getAttribute('data-state') === 'username') {
                         displayOutput('Please enter your password:');
@@ -132,13 +144,13 @@
                     } else if (input.getAttribute('data-state') === 'password') {
                         if (command === '1738') {
                             loggedIn = true;
-                            displayOutput('Login successful. Welcome, Deepnil Ray!');
+                            displayOutput('Login successful. Welcome, Deepnil Ray.');
                         } else {
                             displayOutput('Login failed. Please try again.');
                         }
                         input.removeAttribute('data-state');
                     } else {
-                        displayOutput('Unknown command. Please enter a number from 1-5.');
+                        displayOutput('Unknown command. Please enter a number from 1-8.');
                     }
             }
         }
