@@ -1,0 +1,84 @@
+import React, { useState, useEffect } from 'react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
+
+const ThalassaraSimulator = () => {
+  const [hydrothermalActivity, setHydrothermalActivity] = useState(50);
+  const [chemosynthesisBacteria, setChemosynthesisBacteria] = useState(1000);
+  const [predators, setPredators] = useState(100);
+  const [time, setTime] = useState(0);
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTime((prevTime) => prevTime + 1);
+      updateEcosystem();
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const updateEcosystem = () => {
+    const newBacteria = chemosynthesisBacteria + 
+      (hydrothermalActivity / 10) * (Math.random() * 20 - 10) - 
+      (predators * 0.5);
+    
+    const newPredators = predators + 
+      (chemosynthesisBacteria / 1000) * (Math.random() * 2 - 1) - 
+      (predators * 0.1);
+
+    setChemosynthesisBacteria(Math.max(0, Math.round(newBacteria)));
+    setPredators(Math.max(0, Math.round(newPredators)));
+
+    setData(prevData => [
+      ...prevData,
+      {
+        time,
+        bacteria: chemosynthesisBacteria,
+        predators: predators
+      }
+    ].slice(-20));
+  };
+
+  return (
+    <div className="p-4 bg-gray-800 rounded-lg shadow-xl">
+      <h2 className="text-2xl font-bold mb-4 text-blue-300">Thalassara Ecosystem Simulator</h2>
+      
+      <div className="mb-4">
+        <label className="block text-sm font-medium text-gray-300 mb-2">
+          Hydrothermal Activity: {hydrothermalActivity}%
+        </label>
+        <input
+          type="range"
+          min="0"
+          max="100"
+          value={hydrothermalActivity}
+          onChange={(e) => setHydrothermalActivity(Number(e.target.value))}
+          className="w-full"
+        />
+      </div>
+
+      <div className="grid grid-cols-2 gap-4 mb-4">
+        <div className="bg-gray-700 p-4 rounded">
+          <h3 className="text-lg font-semibold mb-2 text-blue-200">Chemosynthesis Bacteria</h3>
+          <p className="text-2xl font-bold text-green-400">{chemosynthesisBacteria.toLocaleString()}</p>
+        </div>
+        <div className="bg-gray-700 p-4 rounded">
+          <h3 className="text-lg font-semibold mb-2 text-blue-200">Predators</h3>
+          <p className="text-2xl font-bold text-red-400">{predators.toLocaleString()}</p>
+        </div>
+      </div>
+
+      <LineChart width={600} height={300} data={data}>
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="time" />
+        <YAxis />
+        <Tooltip />
+        <Legend />
+        <Line type="monotone" dataKey="bacteria" stroke="#4ade80" name="Bacteria" />
+        <Line type="monotone" dataKey="predators" stroke="#f87171" name="Predators" />
+      </LineChart>
+    </div>
+  );
+};
+
+export default ThalassaraSimulator;
