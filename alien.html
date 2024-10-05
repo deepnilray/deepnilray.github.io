@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planet Thalassara Terminal</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            background-color: #000;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+        .terminal {
+            width: 80%;
+            max-width: 800px;
+            height: 80%;
+            border: 2px solid #00ff00;
+            padding: 20px;
+            box-shadow: 0 0 20px #00ff00;
+            overflow-y: auto;
+            position: relative;
+        }
+        .content {
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+        .visible {
+            opacity: 1;
+        }
+        h1, h2 {
+            color: #00ffff;
+        }
+        .cursor {
+            display: inline-block;
+            width: 10px;
+            height: 20px;
+            background-color: #00ff00;
+            animation: blink 0.7s infinite;
+        }
+        @keyframes blink {
+            0% { opacity: 0; }
+            50% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+        .command-line {
+            margin-top: 20px;
+        }
+        input {
+            width: calc(100% - 20px);
+            background-color: transparent;
+            border: none;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            outline: none;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="terminal">
+        <div id="output"></div>
+        <div class="command-line">
+            <span class="cursor"></span>
+            <input type="text" id="command-input" autofocus>
+        </div>
+    </div>
+
+    <script>
+        const terminal = document.querySelector('.terminal');
+        const output = document.getElementById('output');
+        const input = document.getElementById('command-input');
+        let currentSection = 0;
+        const sections = [
+            { title: "Planet Thalassara: A Chemosynthetic Ocean World", content: "Welcome to the Thalassara Information Terminal. Type 'next' to proceed or 'menu' to see available commands." },
+            { title: "Overview", content: "Thalassara is an ocean world 1,200 light-years from Earth, completely covered by a deep, global ocean beneath a thick icy crust. Twice the size of Earth, it has immense underwater mountain ranges, hydrothermal vents, and mineral-rich chimneys. Life here relies on chemical energy from the planet's geological activity due to the absence of sunlight." },
+            { title: "Energy Source", content: "Thalassara's energy comes from hydrothermal vents along ocean ridges. Magma heats ocean water, releasing chemicals like hydrogen sulfide (H₂S) and methane (CH₄), which chemosynthetic organisms use to generate energy." },
+            { title: "Key Metabolic Pathways", content: "1. Sulfur Oxidizers: Bacteria convert H₂S into energy.\n2. Methanogens: Archaea produce methane through chemosynthesis." },
+            { title: "Biosphere", content: "Microbes form mats around vents, supporting multicellular organisms like:\n1. Silica-Armored Filterers: Creatures filtering nutrient-rich plumes.\n2. Methane Grazers: Grazers that feed on methanogenic mats.\n3. Hydrothermal Predators: Bioluminescent predators relying on symbiotic bacteria." },
+            { title: "Ecosystem Dynamics", content: "Ecosystems are driven by chemical energy flows, with chemosynthetic microbes at the base supporting complex food webs. Symbiotic relationships are widespread, and tectonic activity drives biodiversity by constantly changing habitats." }
+        ];
+
+        function typeWriter(text, element, speed = 50) {
+            let i = 0;
+            function type() {
+                if (i < text.length) {
+                    element.innerHTML += text.charAt(i);
+                    i++;
+                    setTimeout(type, speed);
+                } else {
+                    element.innerHTML += '<br><br>';
+                    input.disabled = false;
+                    input.focus();
+                }
+            }
+            type();
+        }
+
+        function displaySection(index) {
+            const section = sections[index];
+            const sectionElement = document.createElement('div');
+            sectionElement.innerHTML = `<h2>${section.title}</h2>`;
+            output.appendChild(sectionElement);
+            input.disabled = true;
+            typeWriter(section.content, sectionElement);
+        }
+
+        function processCommand(command) {
+            switch(command.toLowerCase()) {
+                case 'next':
+                    if (currentSection < sections.length - 1) {
+                        currentSection++;
+                        displaySection(currentSection);
+                    } else {
+                        typeWriter("You've reached the end of the information. Type 'restart' to begin again or 'menu' for options.", output);
+                    }
+                    break;
+                case 'restart':
+                    output.innerHTML = '';
+                    currentSection = 0;
+                    displaySection(currentSection);
+                    break;
+                case 'menu':
+                    typeWriter("Available commands: next, restart, menu, clear", output);
+                    break;
+                case 'clear':
+                    output.innerHTML = '';
+                    break;
+                default:
+                    typeWriter("Unknown command. Type 'menu' for available options.", output);
+            }
+        }
+
+        input.addEventListener('keyup', function(event) {
+            if (event.key === 'Enter') {
+                const command = this.value;
+                typeWriter(`> ${command}`, output);
+                this.value = '';
+                processCommand(command);
+            }
+        });
+
+        displaySection(currentSection);
+    </script>
+</body>
+</html>
