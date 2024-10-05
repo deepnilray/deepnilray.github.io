@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planet Thalassara: A Chemosynthetic Ocean World</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background-color: #000;
+            color: #fff;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #00234b, #005792);
+            padding: 2rem 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px rgba(0, 183, 255, 0.7);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+        }
+
+        .ocean-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('/api/placeholder/1200/400') no-repeat center center;
+            background-size: cover;
+            opacity: 0.2;
+            z-index: -1;
+        }
+
+        main {
+            padding: 4rem 0;
+        }
+
+        section {
+            margin-bottom: 4rem;
+        }
+
+        h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            color: #00b7ff;
+        }
+
+        p {
+            margin-bottom: 1rem;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .feature-card {
+            background: linear-gradient(45deg, #001a2c, #003355);
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0, 183, 255, 0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #00ffea;
+        }
+
+        .glow-text {
+            text-shadow: 0 0 5px rgba(0, 255, 234, 0.7);
+        }
+
+        .highlight {
+            background: linear-gradient(90deg, #00b7ff, #00ffea);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: bold;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .floating-element {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        footer {
+            background-color: #001a2c;
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 4rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="ocean-bg"></div>
+        <div class="container">
+            <h1 class="glow-text">Planet Thalassara</h1>
+            <p class="subtitle">A Chemosynthetic Ocean World</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <section>
+            <h2>Overview</h2>
+            <p>Thalassara, an ocean world <span class="highlight">1,200 light-years</span> from Earth, is entirely covered by a deep ocean beneath an icy crust. Twice Earth's size, it features underwater mountain ranges, hydrothermal vents, and mineral-rich chimneys. Life thrives on chemical energy from the planet's geological activities, as sunlight is absent.</p>
+        </section>
+
+        <section>
+            <h2>Energy Source</h2>
+            <p>Hydrothermal vents along ocean ridges provide Thalassara's energy. Magma heats water, releasing chemicals like hydrogen sulfide (H₂S) and methane (CH₄), which chemosynthetic organisms convert into energy.</p>
+            <div class="feature-grid">
+                <div class="feature-card floating-element">
+                    <h3>Sulfur Oxidizers</h3>
+                    <p>Convert H₂S into energy, fixing carbon dioxide into organic matter.</p>
+                </div>
+                <div class="feature-card floating-element">
+                    <h3>Methanogens</h3>
+                    <p>Produce methane, forming a unique food web.</p>
+                </div>
+                <div class="feature-card floating-element">
+                    <h3>Hydrogen Utilizers</h3>
+                    <p>Oxidize H₂ for energy.</p>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>Geological Features</h2>
+            <p>Thalassara's seafloor, shaped by tectonic activity, features mid-ocean ridges, hydrothermal vent fields like <span class="highlight">"Sulfur Springs"</span> and <span class="highlight">"Methane Fissures,"</span> and volcanic hotspots that spew nutrient-rich plumes. Occasional cryovolcanism adds ammonia-rich nutrients from the icy crust.</p>
+        </section>
+
+        <section>
+            <h2>Biosphere</h2>
+            <p>Chemosynthetic bacteria and archaea form the base of Thalassara's food webs. Unique multicellular organisms include:</p>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h3>Silica-Armored Filterers</h3>
+                    <p>Filter nutrient-rich plumes with symbiotic sulfur bacteria.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Methane Grazers</h3>
+                    <p>Feed on methanogenic mats.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Hydrothermal Predators</h3>
+                    <p>Bioluminescent creatures, relying on chemosynthetic symbionts for energy and camouflage.</p>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>Ecosystem Dynamics</h2>
+            <p>Thalassara's ecosystems revolve around chemical energy flows, with primary producers supporting higher trophic levels. Tectonic activity and vent emissions create dynamic habitats, promoting biodiversity. Symbiotic relationships are common, mirroring Earth's deep-sea vent communities.</p>
+        </section>
+
+        <section>
+            <h2>Conclusion</h2>
+            <p>Thalassara highlights life's ability to thrive on chemical energy, challenging traditional views of habitability and suggesting the potential for diverse life forms in other hidden oceans across the universe.</p>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Planet Thalassara Research Institute</p>
+    </footer>
+</body>
+</html>
