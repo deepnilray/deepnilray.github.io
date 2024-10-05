@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Planet Thalassara: A Chemosynthetic Ocean World</title>
+    <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;700&display=swap');
 
@@ -64,9 +69,16 @@
 
         section {
             margin-bottom: 4rem;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
         }
 
-        
+        section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
         h2 {
             font-size: 2.5rem;
             margin-bottom: 1.5rem;
@@ -129,9 +141,46 @@
             padding: 2rem 0;
             margin-top: 4rem;
         }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(-100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .animate-fadeIn {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .animate-slideIn {
+            animation: slideIn 0.5s ease-out;
+        }
+
+        /* Particle animation */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            background-color: rgba(0, 183, 255, 0.5);
+            border-radius: 50%;
+        }
     </style>
 </head>
 <body>
+    <div class="particles" id="particles"></div>
+
     <header>
         <div class="ocean-bg"></div>
         <div class="container">
@@ -203,5 +252,139 @@
     <footer>
         <p>&copy; 2024 Planet Thalassara Research Institute</p>
     </footer>
+
+    <div id="bot-container"></div>
+
+    <script type="text/babel">
+        const ThalassaraBot = () => {
+          const [isOpen, setIsOpen] = React.useState(false);
+          const [currentMessage, setCurrentMessage] = React.useState(0);
+          const [isTyping, setIsTyping] = React.useState(false);
+
+          const messages = [
+            "Welcome to Planet Thalassara! I'm ThalBot, your guide to this fascinating ocean world.",
+            "Thalassara is a unique planet entirely covered by a deep ocean beneath an icy crust.",
+            "Life here thrives on chemical energy from hydrothermal vents, without any sunlight!",
+            "Explore our website to learn about the amazing creatures and geological features of Thalassara.",
+            "If you have any questions, feel free to ask! Enjoy your virtual visit to our chemosynthetic world!"
+          ];
+
+          React.useEffect(() => {
+            if (isOpen && currentMessage < messages.length) {
+              setIsTyping(true);
+              const timer = setTimeout(() => {
+                setIsTyping(false);
+                setCurrentMessage(prev => prev + 1);
+              }, 3000);
+              return () => clearTimeout(timer);
+            }
+          }, [isOpen, currentMessage]);
+
+          return (
+            <div className="fixed bottom-4 right-4 z-50">
+              {!isOpen && (
+                <button
+                  onClick={() => setIsOpen(true)}
+                  className="bg-blue-500 hover:bg-blue-600 text-white rounded-full p-4 shadow-lg transition-all duration-300 animate-bounce"
+                >
+                  <lucide-icon name="message-circle"></lucide-icon>
+                </button>
+              )}
+              {isOpen && (
+                <div className="bg-gray-800 rounded-lg shadow-xl p-4 w-80 max-w-full animate-fadeIn">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-xl font-bold text-blue-300">ThalBot</h3>
+                    <button
+                      onClick={() => {
+                        setIsOpen(false);
+                        setCurrentMessage(0);
+                      }}
+                      className="text-gray-400 hover:text-white"
+                    >
+                      ×
+                    </button>
+                  </div>
+                  <div className="h-60 overflow-y-auto mb-4">
+                    {messages.slice(0, currentMessage).map((msg, index) => (
+                      <div key={index} className="bg-gray-700 rounded p-2 mb-2 animate-slideIn">
+                        {msg}
+                      </div>
+                    ))}
+                    {isTyping && (
+                      <div className="text-blue-300 animate-pulse">ThalBot is typing...</div>
+                    )}
+                  </div>
+                  {currentMessage >= messages.length && (
+                    <button
+                      onClick={() => {
+                        setCurrentMessage(0);
+                        setIsTyping(true);
+                      }}
+                      className="bg-blue-500 hover:bg-blue-600 text-white rounded px-4 py-2 w-full transition-colors duration-300"
+                    >
+                      Restart Introduction
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        };
+
+        ReactDOM.render(<ThalassaraBot />, document.getElementById('bot-container'));
+    </script>
+
+    <script>
+        // Intersection Observer for section animations
+        const sections = document.querySelectorAll('section');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        sections.forEach(section => {
+            observer.observe(section);
+        });
+
+        // Particle animation
+        function createParticle() {
+            const particle = document.createElement('div');
+            particle.classList.add('particle');
+            
+            const size = Math.random() * 5 + 2;
+            particle.style.width = `${size}px`;
+            particle.style.height = `${size}px`;
+            
+            const startPositionX = Math.random() * window.innerWidth;
+            const startPositionY = window.innerHeight + size;
+            
+            particle.style.left = `${startPositionX}px`;
+            particle.style.top = `${startPositionY}px`;
+            
+            const duration = Math.random() * 10 + 5;
+            const delay = Math.random() * 5;
+            
+            particle.animate([
+                { transform: `translate(0, 0)` },
+                { transform: `translate(${Math.random() * 200 - 100}px, -${window.innerHeight + size}px)` }
+            ], {
+                duration: duration * 1000,
+                delay: delay * 1000,
+                fill: 'forwards'
+            });
+            
+            document.getElementById('particles').appendChild(particle);
+            
+            setTimeout(() => {
+                particle.remove();
+            }, (duration + delay) * 1000);
+        }
+
+        // Create particles at regular intervals
+        setInterval(createParticle, 200);
+    </script>
 </body>
 </html>
