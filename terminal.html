@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PROJECT EXPLORER</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            background-color: #000;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .terminal {
+            width: 90%;
+            max-width: 600px;
+            border: 2px solid #00ff00;
+            padding: 20px;
+            box-shadow: 0 0 20px #00ff00;
+            overflow-y: auto;
+            max-height: 80vh;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            text-shadow: 0 0 5px #00ff00;
+        }
+        .menu {
+            list-style-type: none;
+            padding: 0;
+            border: 1px solid #00ff00;
+            margin-bottom: 20px;
+        }
+        .menu li {
+            padding: 5px 10px;
+            border-bottom: 1px solid #00ff00;
+        }
+        .menu li:last-child {
+            border-bottom: none;
+        }
+        .command-line {
+            margin-top: 20px;
+        }
+        #output {
+            white-space: pre-wrap;
+            margin-bottom: 10px;
+        }
+        input {
+            width: 100%;
+            background-color: #000;
+            border: none;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            outline: none;
+        }
+        .blink {
+            animation: blink-animation 1s steps(5, start) infinite;
+        }
+        @keyframes blink-animation {
+            to {
+                visibility: hidden;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="terminal">
+        <h1>PROJECT EXPLORER</h1>
+        <ul class="menu">
+            <li>1. Project Overview 👽</li>
+            <li>2. Key Features 🔮</li>
+            <li>3. About the Team 👽</li>
+            <li>4. Contact Information 🔮</li>
+            <li>5. Login 🚀</li>
+            <li>6. Explore Planet Thalassara: <a href="https://deepnilray.github.io/thalassara.html" target="_blank">Link</a></li>
+            <li>7. Alien Life Forms: <a href="https://deepnilray.github.io/alien.html" target="_blank">Link</a></li>
+            <li>8. Data Plotter: <a href="https://deepnilray.github.io/plot.html" target="_blank">Link</a></li>
+        </ul>
+        <div id="output"></div>
+        <div class="command-line">
+            <span class="blink">></span> <input type="text" id="command-input" autofocus placeholder="Type here and press Enter">
+        </div>
+    </div>
+
+    <script>
+        const input = document.getElementById('command-input');
+        const output = document.getElementById('output');
+        let loggedIn = false;
+
+        function initializeTerminal() {
+            displayOutput("Welcome to PROJECT EXPLORER!\nType a number (1-8) to navigate the menu.");
+        }
+
+        input.addEventListener('keyup', function(event) {
+            if (event.key === 'Enter') {
+                processCommand(this.value);
+                this.value = '';
+            }
+        });
+
+        function processCommand(command) {
+            displayOutput('> ' + command);
+
+            switch(command.toLowerCase()) {
+                case '1':
+                    displayOutput('Project Overview: A cutting-edge terminal-based project explorer.');
+                    break;
+                case '2':
+                    displayOutput('Key Features: Interactive terminal, secure login, and more!');
+                    break;
+                case '3':
+                    displayOutput('About the Team: Heisenberg, led by creator Deepnil Ray.');
+                    break;
+                case '4':
+                    displayOutput('Contact Information: deepnil.ray@gmail.com');
+                    break;
+                case '5':
+                    if (!loggedIn) {
+                        displayOutput('Please enter your username:');
+                        input.setAttribute('data-state', 'username');
+                    } else {
+                        displayOutput('You are already logged in.');
+                    }
+                    break;
+                case '6':
+                    window.open('https://deepnilray.github.io/thalassara.html', '_blank');
+                    break;
+                case '7':
+                    window.open('https://deepnilray.github.io/alien.html', '_blank');
+                    break;
+                case '8':
+                    window.open('https://deepnilray.github.io/plot.html', '_blank');
+                    break;
+                default:
+                    if (input.getAttribute('data-state') === 'username') {
+                        displayOutput('Please enter your password:');
+                        input.setAttribute('data-state', 'password');
+                    } else if (input.getAttribute('data-state') === 'password') {
+                        if (command === '1738') {
+                            loggedIn = true;
+                            displayOutput('Love queeny');
+                        } else {
+                            displayOutput('Login failed. Please try again.');
+                        }
+                        input.removeAttribute('data-state');
+                    } else {
+                        displayOutput('Unknown command. Please enter a number from 1-8.');
+                    }
+            }
+        }
+
+        function displayOutput(message) {
+            output.textContent += message + '\n\n';
+            output.scrollTop = output.scrollHeight;
+        }
+
+        initializeTerminal();
+    </script>
+</body>
+</html>
