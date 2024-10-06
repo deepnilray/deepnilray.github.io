@@ -26,6 +26,10 @@
             box-shadow: 0 0 20px #00ff00;
             overflow-y: auto;
             position: relative;
+            background-color: #000; /* Ensures the background remains black */
+        }
+        #output {
+            white-space: pre-wrap; /* Preserves line breaks */
         }
         .content {
             opacity: 0;
@@ -71,7 +75,7 @@
         <div id="output"></div>
         <div class="command-line">
             <span class="cursor"></span>
-            <input type="text" id="command-input" autofocus>
+            <input type="text" id="command-input" autofocus autocomplete="off">
         </div>
     </div>
 
@@ -81,19 +85,45 @@
         const input = document.getElementById('command-input');
         let currentSection = 0;
         const sections = [
-            { title: "Planet Thalassara: A Chemosynthetic Ocean World", content: "Welcome to the Thalassara Information Terminal. Type 'next' to proceed or 'menu' to see available commands." },
-            { title: "Overview", content: "Thalassara is an ocean world 1,200 light-years from Earth, completely covered by a deep, global ocean beneath a thick icy crust. Twice the size of Earth, it has immense underwater mountain ranges, hydrothermal vents, and mineral-rich chimneys. Life here relies on chemical energy from the planet's geological activity due to the absence of sunlight." },
-            { title: "Energy Source", content: "Thalassara's energy comes from hydrothermal vents along ocean ridges. Magma heats ocean water, releasing chemicals like hydrogen sulfide (H₂S) and methane (CH₄), which chemosynthetic organisms use to generate energy." },
-            { title: "Key Metabolic Pathways", content: "1. Sulfur Oxidizers: Bacteria convert H₂S into energy.\n2. Methanogens: Archaea produce methane through chemosynthesis." },
-            { title: "Biosphere", content: "Microbes form mats around vents, supporting multicellular organisms like:\n1. Silica-Armored Filterers: Creatures filtering nutrient-rich plumes.\n2. Methane Grazers: Grazers that feed on methanogenic mats.\n3. Hydrothermal Predators: Bioluminescent predators relying on symbiotic bacteria." },
-            { title: "Ecosystem Dynamics", content: "Ecosystems are driven by chemical energy flows, with chemosynthetic microbes at the base supporting complex food webs. Symbiotic relationships are widespread, and tectonic activity drives biodiversity by constantly changing habitats." }
+            { 
+                title: "Planet Thalassara: A Chemosynthetic Ocean World", 
+                content: "Welcome to the Thalassara Information Terminal. Type 'next' to proceed or 'menu' to see available commands." 
+            },
+            { 
+                title: "Overview", 
+                content: "Thalassara is an ocean world 1,200 light-years from Earth, completely covered by a deep, global ocean beneath a thick icy crust. Twice the size of Earth, it has immense underwater mountain ranges, hydrothermal vents, and mineral-rich chimneys. Life here relies on chemical energy from the planet's geological activity due to the absence of sunlight." 
+            },
+            { 
+                title: "Energy Source", 
+                content: "Thalassara's energy comes from hydrothermal vents along ocean ridges. Magma heats ocean water, releasing chemicals like hydrogen sulfide (H₂S) and methane (CH₄), which chemosynthetic organisms use to generate energy." 
+            },
+            { 
+                title: "Key Metabolic Pathways", 
+                content: "1. Sulfur Oxidizers: Bacteria convert H₂S into energy.\n2. Methanogens: Archaea produce methane through chemosynthesis." 
+            },
+            { 
+                title: "Biosphere", 
+                content: "Microbes form mats around vents, supporting multicellular organisms like:\n1. Silica-Armored Filterers: Creatures filtering nutrient-rich plumes.\n2. Methane Grazers: Grazers that feed on methanogenic mats.\n3. Hydrothermal Predators: Bioluminescent predators relying on symbiotic bacteria." 
+            },
+            { 
+                title: "Ecosystem Dynamics", 
+                content: "Ecosystems are driven by chemical energy flows, with chemosynthetic microbes at the base supporting complex food webs. Symbiotic relationships are widespread, and tectonic activity drives biodiversity by constantly changing habitats." 
+            },
+            { 
+                title: "Arecibo Observatory", 
+                content: "The Arecibo Observatory was a large radio telescope located in Puerto Rico, renowned for its role in astronomical research and the famous Arecibo message sent into space in 1974. The message was an attempt to communicate with potential extraterrestrial intelligence, encoding information about human beings and our location in the galaxy." 
+            }
         ];
 
         function typeWriter(text, element, speed = 50) {
             let i = 0;
             function type() {
                 if (i < text.length) {
-                    element.innerHTML += text.charAt(i);
+                    if (text.charAt(i) === "\n") {
+                        element.innerHTML += '<br>';
+                    } else {
+                        element.innerHTML += text.charAt(i);
+                    }
                     i++;
                     setTimeout(type, speed);
                 } else {
@@ -106,6 +136,10 @@
         }
 
         function displaySection(index) {
+            if (index >= sections.length) {
+                typeWriter("You've reached the end of the information. Type 'restart' to begin again or 'menu' for options.", output);
+                return;
+            }
             const section = sections[index];
             const sectionElement = document.createElement('div');
             sectionElement.innerHTML = `<h2>${section.title}</h2>`;
@@ -114,14 +148,31 @@
             typeWriter(section.content, sectionElement);
         }
 
+        function displayArecibo() {
+            const areciboSection = sections.find(section => section.title === "Arecibo Observatory");
+            if (areciboSection) {
+                const sectionElement = document.createElement('div');
+                sectionElement.innerHTML = `<h2>${areciboSection.title}</h2>`;
+                output.appendChild(sectionElement);
+                input.disabled = true;
+                typeWriter(areciboSection.content, sectionElement);
+            } else {
+                typeWriter("Arecibo information is not available.", output);
+            }
+        }
+
         function processCommand(command) {
             switch(command.toLowerCase()) {
                 case 'next':
-                    if (currentSection < sections.length - 1) {
+                    if (currentSection < sections.length - 2) { // Adjusted to exclude Arecibo from 'next' sequence
                         currentSection++;
                         displaySection(currentSection);
+                    } else if (currentSection === sections.length - 2) { // Second last section
+                        currentSection++;
+                        displaySection(currentSection);
+                        typeWriter("Type 'arecibo' to learn about the Arecibo Observatory, or 'restart' to begin again.", output);
                     } else {
-                        typeWriter("You've reached the end of the information. Type 'restart' to begin again or 'menu' for options.", output);
+                        typeWriter("You've reached the end of the information. Type 'restart' to begin again or 'menu' to see available commands.", output);
                     }
                     break;
                 case 'restart':
@@ -130,10 +181,13 @@
                     displaySection(currentSection);
                     break;
                 case 'menu':
-                    typeWriter("Available commands: next, restart, menu, clear", output);
+                    typeWriter("Available commands:\n- next: Proceed to the next section\n- arecibo: Learn about the Arecibo Observatory\n- restart: Restart the terminal\n- clear: Clear the terminal output", output);
                     break;
                 case 'clear':
                     output.innerHTML = '';
+                    break;
+                case 'arecibo':
+                    displayArecibo();
                     break;
                 default:
                     typeWriter("Unknown command. Type 'menu' for available options.", output);
@@ -142,13 +196,16 @@
 
         input.addEventListener('keyup', function(event) {
             if (event.key === 'Enter') {
-                const command = this.value;
-                typeWriter(`> ${command}`, output);
-                this.value = '';
-                processCommand(command);
+                const command = this.value.trim();
+                if (command.length > 0) {
+                    typeWriter(`> ${command}`, output);
+                    this.value = '';
+                    processCommand(command);
+                }
             }
         });
 
+        // Initialize with the first section
         displaySection(currentSection);
     </script>
 </body>
