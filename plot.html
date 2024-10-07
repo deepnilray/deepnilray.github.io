@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Predator-Prey Dynamics Simulator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      margin: 0;
+    }
+    .slider-label {
+      margin-bottom: 10px;
+    }
+    .container {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+    .chart-container, .controls-container {
+      width: 48%;
+      margin-bottom: 20px;
+    }
+    #chart {
+      width: 100%;
+      height: 400px;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <h2>Predator-Prey Dynamics Simulator</h2>
+
+  <div class="container">
+    <div class="chart-container">
+      <canvas id="chart"></canvas>
+    </div>
+
+    <div class="controls-container">
+      <div class="control">
+        <label class="slider-label">α (Prey Growth Rate): <span id="alphaValue">1.5</span></label><br>
+        <input type="range" id="alpha" min="0.1" max="3" step="0.1" value="1.5" onchange="updateSliders()">
+      </div>
+
+      <div class="control">
+        <label class="slider-label">β (Predation Rate): <span id="betaValue">0.02</span></label><br>
+        <input type="range" id="beta" min="0.001" max="0.1" step="0.001" value="0.02" onchange="updateSliders()">
+      </div>
+
+      <div class="control">
+        <label class="slider-label">δ (Predator Death Rate): <span id="deltaValue">0.8</span></label><br>
+        <input type="range" id="delta" min="0.1" max="2" step="0.1" value="0.8" onchange="updateSliders()">
+      </div>
+
+      <div class="control">
+        <label class="slider-label">γ (Predator Reproduction Rate): <span id="gammaValue">0.01</span></label><br>
+        <input type="range" id="gamma" min="0.001" max="0.05" step="0.001" value="0.01" onchange="updateSliders()">
+      </div>
+
+      <div class="control">
+        <label class="slider-label">Initial Prey Population: <span id="preyValue">100</span></label><br>
+        <input type="range" id="initialPrey" min="10" max="200" step="10" value="100" onchange="updateSliders()">
+      </div>
+
+      <div class="control">
+        <label class="slider-label">Initial Predator Population: <span id="predatorValue">20</span></label><br>
+        <input type="range" id="initialPredator" min="5" max="50" step="5" value="20" onchange="updateSliders()">
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Lotka-Volterra simulation variables
+    let alpha = parseFloat(document.getElementById('alpha').value);
+    let beta = parseFloat(document.getElementById('beta').value);
+    let delta = parseFloat(document.getElementById('delta').value);
+    let gamma = parseFloat(document.getElementById('gamma').value);
+    let initialPrey = parseInt(document.getElementById('initialPrey').value);
+    let initialPredator = parseInt(document.getElementById('initialPredator').value);
+
+    const updateSliders = () => {
+      alpha = parseFloat(document.getElementById('alpha').value);
+      beta = parseFloat(document.getElementById('beta').value);
+      delta = parseFloat(document.getElementById('delta').value);
+      gamma = parseFloat(document.getElementById('gamma').value);
+      initialPrey = parseInt(document.getElementById('initialPrey').value);
+      initialPredator = parseInt(document.getElementById('initialPredator').value);
+
+      document.getElementById('alphaValue').textContent = alpha;
+      document.getElementById('betaValue').textContent = beta;
+      document.getElementById('deltaValue').textContent = delta;
+      document.getElementById('gammaValue').textContent = gamma;
+      document.getElementById('preyValue').textContent = initialPrey;
+      document.getElementById('predatorValue').textContent = initialPredator;
+
+      updateChart();
+    };
+
+    // Generate data points
+    const generateData = () => {
+      let prey = initialPrey;
+      let predator = initialPredator;
+      const data = [];
+
+      for (let t = 0; t < 100; t++) {
+        data.push({ t, prey, predator });
+
+        // Lotka-Volterra equations
+        const dPrey = alpha * prey - beta * prey * predator;
+        const dPredator = gamma * prey * predator - delta * predator;
+
+        prey += dPrey;
+        predator += dPredator;
+
+        // Ensure populations don't go negative
+        prey = Math.max(0, prey);
+        predator = Math.max(0, predator);
+      }
+
+      return data;
+    };
+
+    // Chart setup using Chart.js
+    const ctx = document.getElementById('chart').getContext('2d');
+    const chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        datasets: [
+          {
+            label: 'Prey Population',
+            data: [],
+            borderColor: 'rgba(75, 192, 192, 1)',
+            fill: false,
+            yAxisID: 'y-axis-1'
+          },
+          {
+            label: 'Predator Population',
+            data: [],
+            borderColor: 'rgba(255, 99, 132, 1)',
+            fill: false,
+            yAxisID: 'y-axis-2'
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          x: {
+            type: 'linear',
+            position: 'bottom',
+            title: {
+              display: true,
+              text: 'Time'
+            }
+          },
+          'y-axis-1': {
+            type: 'linear',
+            position: 'left',
+            title: {
+              display: true,
+              text: 'Prey Population'
+            }
+          },
+          'y-axis-2': {
+            type: 'linear',
+            position: 'right',
+            title: {
+              display: true,
+              text: 'Predator Population'
+            },
+            grid: {
+              drawOnChartArea: false
+            }
+          }
+        }
+      }
+    });
+
+    const updateChart = () => {
+      const newData = generateData();
+
+      chart.data.labels = newData.map((row) => row.t);
+      chart.data.datasets[0].data = newData.map((row) => row.prey);
+      chart.data.datasets[1].data = newData.map((row) => row.predator);
+
+      chart.update();
+    };
+
+    // Initialize chart with default data
+    updateChart();
+  </script>
+</body>
+</html>
