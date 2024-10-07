@@ -5,86 +5,213 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PROJECT EXPLORER</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+
         body, html {
             margin: 0;
             padding: 0;
             height: 100%;
             background-color: #000;
-            color: #00ff00;
-            font-family: 'Courier New', monospace;
+            color: #33ff33;
+            font-family: 'VT323', monospace;
+            overflow: hidden;
+        }
+        .container {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, #000000, #001a00);
+        }
+        .planet-container {
+            flex: 1;
             display: flex;
             justify-content: center;
             align-items: center;
+            position: relative;
+        }
+        .planet {
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: 
+                radial-gradient(circle at 100px 100px, #2d862d, #000);
+            box-shadow: 
+                inset 0 0 50px #fff,
+                inset 20px 0 80px #0f0,
+                inset -20px 0 80px #0f0,
+                inset 20px 0 300px #0f0,
+                inset -20px 0 300px #0f0,
+                0 0 50px #fff,
+                -10px 0 80px #0f0,
+                10px 0 80px #0f0;
+            animation: rotate 20s linear infinite, pulsate 4s ease-in-out infinite;
+        }
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        @keyframes pulsate {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .planet::before {
+            content: '';
+            position: absolute;
+            top: 10%;
+            left: 10%;
+            width: 80%;
+            height: 80%;
+            border-radius: 50%;
+            background: 
+                radial-gradient(circle at 50% 120%, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0) 70%);
+            filter: blur(5px);
+        }
+        .ring {
+            position: absolute;
+            width: 400px;
+            height: 80px;
+            border-radius: 50%;
+            background: transparent;
+            border: 20px solid rgba(0, 255, 0, 0.3);
+            transform: rotateX(75deg);
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+        }
+        .stars {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+        .star {
+            position: absolute;
+            background-color: #fff;
+            border-radius: 50%;
+            animation: twinkle 2s infinite alternate;
+        }
+        @keyframes twinkle {
+            0% { opacity: 0.2; transform: scale(1); }
+            100% { opacity: 1; transform: scale(1.2); }
+        }
+        .rocket {
+            position: absolute;
+            width: 20px;
+            height: 40px;
+            background-color: #ccc;
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+            animation: fly 10s linear infinite;
+        }
+        @keyframes fly {
+            0% { transform: translateY(100vh) scale(0.1); }
+            100% { transform: translateY(-100vh) scale(1); }
         }
         .terminal {
+            flex: 1;
             width: 90%;
             max-width: 600px;
-            border: 2px solid #00ff00;
+            border: 2px solid #33ff33;
             padding: 20px;
-            box-shadow: 0 0 20px #00ff00;
+            box-shadow: 0 0 20px #33ff33;
             overflow-y: auto;
             max-height: 80vh;
+            margin: 20px;
+            background: rgba(0, 20, 0, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            font-family: 'VT323', monospace;
+            font-size: 18px;
         }
         h1 {
             text-align: center;
             margin-bottom: 20px;
-            text-shadow: 0 0 5px #00ff00;
+            text-shadow: 0 0 10px #33ff33;
+            font-size: 2.5em;
+            letter-spacing: 3px;
+            font-family: 'Orbitron', sans-serif;
         }
         .menu {
             list-style-type: none;
             padding: 0;
-            border: 1px solid #00ff00;
+            border: 1px solid #33ff33;
             margin-bottom: 20px;
+            border-radius: 10px;
+            overflow: hidden;
         }
         .menu li {
-            padding: 5px 10px;
-            border-bottom: 1px solid #00ff00;
+            padding: 10px;
+            border-bottom: 1px solid #33ff33;
+            transition: background-color 0.3s, color 0.3s;
         }
         .menu li:last-child {
             border-bottom: none;
         }
+        .menu li:hover {
+            background-color: rgba(0, 255, 0, 0.2);
+            color: #ffffff;
+        }
         .command-line {
             margin-top: 20px;
+            display: flex;
+            align-items: center;
         }
         #output {
             white-space: pre-wrap;
             margin-bottom: 10px;
+            line-height: 1.5;
         }
         input {
-            width: 100%;
-            background-color: #000;
+            flex-grow: 1;
+            background-color: transparent;
             border: none;
-            color: #00ff00;
-            font-family: 'Courier New', monospace;
-            font-size: 16px;
+            color: #33ff33;
+            font-family: 'VT323', monospace;
+            font-size: 18px;
             outline: none;
+            caret-color: #33ff33;
         }
         .blink {
             animation: blink-animation 1s steps(5, start) infinite;
+            margin-right: 10px;
+            font-size: 20px;
         }
         @keyframes blink-animation {
-            to {
-                visibility: hidden;
-            }
+            to { visibility: hidden; }
+        }
+        a {
+            color: #00ff00;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        a:hover {
+            color: #ffff00;
+            text-shadow: 0 0 5px #ffff00;
         }
     </style>
 </head>
 <body>
-    <div class="terminal">
-        <h1>PROJECT EXPLORER</h1>
-        <ul class="menu">
-            <li>1. Project Overview 👽</li>
-            <li>2. Key Features 🔮</li>
-            <li>3. About the Team 👽</li>
-            <li>4. Contact Information 🔮</li>
-            <li>5. Login 🚀</li>
-            <li>6. Explore Planet Thalassara: <a href="https://deepnilray.github.io/thalassara.html" target="_blank">Link</a></li>
-            <li>7. Alien Life Forms: <a href="https://deepnilray.github.io/alien.html" target="_blank">Link</a></li>
-            <li>8. Data Plotter: <a href="https://deepnilray.github.io/plot.html" target="_blank">Link</a></li>
-        </ul>
-        <div id="output"></div>
-        <div class="command-line">
-            <span class="blink">></span> <input type="text" id="command-input" autofocus placeholder="Type here and press Enter">
+    <div class="container">
+        <div class="planet-container">
+            <div class="stars"></div>
+            <div class="planet"></div>
+            <div class="ring"></div>
+        </div>
+        <div class="terminal">
+            <h1>PROJECT EXPLORER</h1>
+            <ul class="menu">
+                <li>1. Project Overview 👽</li>
+                <li>2. Key Features 🔮</li>
+                <li>3. About the Team 👽</li>
+                <li>4. Contact Information 🔮</li>
+                <li>5. Login 🚀</li>
+                <li>6. Explore Planet Thalassara: <a href="https://deepnilray.github.io/thalassara.html" target="_blank">Link</a></li>
+                <li>7. Alien Life Forms: <a href="https://deepnilray.github.io/alien.html" target="_blank">Link</a></li>
+                <li>8. Data Plotter: <a href="https://deepnilray.github.io/plot.html" target="_blank">Link</a></li>
+                <li>9. How to Reach Guide 🌟</li>
+            </ul>
+            <div id="output"></div>
+            <div class="command-line">
+                <span class="blink">></span>
+                <input type="text" id="command-input" autofocus placeholder="Type here and press Enter">
+            </div>
         </div>
     </div>
 
@@ -94,7 +221,7 @@
         let loggedIn = false;
 
         function initializeTerminal() {
-            displayOutput("Welcome to PROJECT EXPLORER!\nType a number (1-8) to navigate the menu.");
+            displayOutput("Welcome to PROJECT EXPLORER!\nType a number (1-9) to navigate the menu.");
         }
 
         input.addEventListener('keyup', function(event) {
@@ -109,13 +236,13 @@
 
             switch(command.toLowerCase()) {
                 case '1':
-                    displayOutput('Project Overview: A cutting-edge terminal-based project explorer.');
+                    displayOutput('Project Overview: A cutting-edge terminal-based project explorer with an immersive space theme and a stylized CSS planet.');
                     break;
                 case '2':
-                    displayOutput('Key Features: Interactive terminal, secure login, and more!');
+                    displayOutput('Key Features: Interactive terminal, secure login, stunning visuals including a CSS-generated planet, and seamless navigation.');
                     break;
                 case '3':
-                    displayOutput('About the Team: Heisenberg, led by creator Deepnil Ray.');
+                    displayOutput('About the Team: Heisenberg, led by visionary creator Deepnil Ray.');
                     break;
                 case '4':
                     displayOutput('Contact Information: deepnil.ray@gmail.com');
@@ -137,6 +264,9 @@
                 case '8':
                     window.open('https://deepnilray.github.io/plot.html', '_blank');
                     break;
+                case '9':
+                    displayOutput('How to Reach Guide for K-type Planet (1200 light years from Earth):\n\n1. Warp Drive: Engage your ship\'s warp drive to cover vast distances.\n2. Hyperspace Jump: Use advanced hyperspace technology for near-instantaneous travel.\n3. Wormhole Navigation: Locate and traverse stable wormholes for shortcuts.\n4. Time Dilation: Utilize relativistic effects for subjective time reduction.\n5. Cryogenic Sleep: For long journeys, use cryogenic pods to preserve crew.\n6. AI Navigation: Employ advanced AI for optimal route planning.\n7. Fuel Management: Use antimatter or dark energy for efficient propulsion.\n8. Shielding: Ensure proper shielding against cosmic radiation.\n9. Communication: Maintain quantum entanglement comms with Earth.\n10. Final Approach: Use sub-light engines for precise maneuvering upon arrival.\n\nEstimated Travel Time: Varies based on technology, ranging from several years to decades.');
+                    break;
                 default:
                     if (input.getAttribute('data-state') === 'username') {
                         displayOutput('Please enter your password:');
@@ -144,13 +274,13 @@
                     } else if (input.getAttribute('data-state') === 'password') {
                         if (command === '1738') {
                             loggedIn = true;
-                            displayOutput('Love queeny');
+                            displayOutput('Access granted. Welcome, explorer!');
                         } else {
-                            displayOutput('Login failed. Please try again.');
+                            displayOutput('Access denied. Please try again.');
                         }
                         input.removeAttribute('data-state');
                     } else {
-                        displayOutput('Unknown command. Please enter a number from 1-8.');
+                        displayOutput('Unknown command. Please enter a number from 1-9.');
                     }
             }
         }
@@ -160,7 +290,34 @@
             output.scrollTop = output.scrollHeight;
         }
 
+        function createStars() {
+            const starsContainer = document.querySelector('.stars');
+            for (let i = 0; i < 300; i++) {
+                const star = document.createElement('div');
+                star.classList.add('star');
+                star.style.width = `${Math.random() * 3}px`;
+                star.style.height = star.style.width;
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.top = `${Math.random() * 100}%`;
+                star.style.animationDelay = `${Math.random() * 2}s`;
+                starsContainer.appendChild(star);
+            }
+        }
+
+        function createRockets() {
+            const planetContainer = document.querySelector('.planet-container');
+            for (let i = 0; i < 5; i++) {
+                const rocket = document.createElement('div');
+                rocket.classList.add('rocket');
+                rocket.style.left = `${Math.random() * 100}%`;
+                rocket.style.animationDelay = `${Math.random() * 5}s`;
+                planetContainer.appendChild(rocket);
+            }
+        }
+
         initializeTerminal();
+        createStars();
+        createRockets();
     </script>
 </body>
 </html>
