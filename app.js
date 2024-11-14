@@ -1,87 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Voice Interaction with Hugging Face</title>
+  <meta charset="UTF-8">
+  <title>Audio Transcription with Whisper API</title>
 </head>
 <body>
-    <h1>Say something and I will respond!</h1>
-    <button onclick="startVoiceRecognition()">Start Listening</button>
-    <button onclick="getAIResponse()">Get AI Response</button>
-    <div id="output"></div>
+  <h1>Transcribe Voice Using Whisper API</h1>
+  <button onclick="startRecording()">Start Recording</button>
+  <button onclick="stopRecording()">Stop Recording</button>
+  <div id="output"></div>
 
-    <script>
-        let voiceInput = ''; // Store the voice input
+  <script>
+    let mediaRecorder;
+    let audioChunks = [];
 
-        // Web Speech API for voice recognition (Speech-to-Text)
-        const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-        recognition.lang = 'en-US';
-        recognition.interimResults = false;
-        recognition.maxAlternatives = 1;
+    // Start recording audio
+    async function startRecording() {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaRecorder = new MediaRecorder(stream);
+      
+      mediaRecorder.ondataavailable = (event) => {
+        audioChunks.push(event.data);
+      };
 
-        recognition.onstart = () => {
-            console.log('Voice recognition started...');
-        };
+      mediaRecorder.onstop = async () => {
+        const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+        audioChunks = [];
+        
+        // Send audio to Whisper model API
+        const transcribedText = await transcribeAudio(audioBlob);
+        document.getElementById('output').textContent = "Transcription: " + transcribedText;
+      };
 
-        recognition.onresult = (event) => {
-            voiceInput = event.results[0][0].transcript;
-            console.log('Recognized voice input: ', voiceInput);
-            document.getElementById('output').textContent = 'You said: ' + voiceInput;
-        };
+      mediaRecorder.start();
+      console.log("Recording started...");
+      document.getElementById('output').textContent = "Listening...";
+    }
 
-        recognition.onerror = (event) => {
-            console.log('Error occurred: ', event.error);
-            document.getElementById('output').textContent = "Error: " + event.error;
-        };
+    // Stop recording
+    function stopRecording() {
+      if (mediaRecorder) {
+        mediaRecorder.stop();
+        console.log("Recording stopped.");
+      }
+    }
 
-        // Start the voice recognition
-        function startVoiceRecognition() {
-            recognition.start();
-        }
+    // Function to transcribe audio using Whisper API
+    async function transcribeAudio(audioBlob) {
+      const formData = new FormData();
+      formData.append('file', audioBlob, 'recording.wav');
 
-        // Define the Hugging Face API URL and your API Key
-        const url = 'https://api-inference.huggingface.co/models/distilgpt2'; // Example API URL
-        const apiKey = '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'; // Replace with your Hugging Face API key
+      const response = await fetch('https://api-inference.huggingface.co/models/openai/whisper-large-v2', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer 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', // Replace with your Hugging Face API key
+        },
+        body: formData
+      });
 
-        // Function to send the voice input to Hugging Face API and get the response
-        async function getAIResponse() {
-            if (!voiceInput) {
-                document.getElementById('output').textContent = "Please speak something first!";
-                return;
-            }
-
-            // Send the voice input to the Hugging Face API
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${apiKey}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ inputs: voiceInput })
-            });
-
-            const data = await response.json();
-
-            // Handle the API response
-            if (data.error) {
-                document.getElementById('output').textContent = "Error: " + data.error;
-            } else {
-                const aiResponse = data[0].generated_text;
-                document.getElementById('output').textContent = "AI Response: " + aiResponse;
-                speakText(aiResponse); // Speak the AI response
-            }
-        }
-
-        // Function to use Speech Synthesis API for reading the AI response
-        function speakText(text) {
-            const speech = new SpeechSynthesisUtterance(text);
-            speech.lang = 'en-US';
-            speech.volume = 1;
-            speech.rate = 1;
-            speech.pitch = 1;
-            window.speechSynthesis.speak(speech);
-        }
-    </script>
+      const result = await response.json();
+      if (result.error) {
+        console.error('Error:', result.error);
+        return "Error in transcription.";
+      } else {
+        return result.text;
+      }
+    }
+  </script>
 </body>
 </html>
