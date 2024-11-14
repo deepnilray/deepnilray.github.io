@@ -3,329 +3,141 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jarvis Web Assistant</title>
+    <title>Voice Chat with Jarvis</title>
     <style>
-        :root {
-            --primary-color: #007bff;
-            --secondary-color: #6c757d;
-            --success-color: #28a745;
-            --background: #1a1a1a;
-            --text-color: #ffffff;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
-            font-family: 'Arial', sans-serif;
-            background-color: var(--background);
-            color: var(--text-color);
-            line-height: 1.6;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            color: #333;
+            margin: 0;
+            padding: 20px;
         }
-
         .container {
-            width: 100%;
-            max-width: 800px;
-            padding: 2rem;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-
-        .jarvis-interface {
-            background: #2a2a2a;
-            border-radius: 15px;
-            padding: 2rem;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-            margin-bottom: 2rem;
-        }
-
-        .status-circle {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            margin: 0 auto 2rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #333;
-            border: 3px solid var(--primary-color);
-            transition: all 0.3s ease;
-        }
-
-        .status-circle.listening {
-            border-color: var(--success-color);
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-            0% {
-                box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.4);
-            }
-            70% {
-                box-shadow: 0 0 0 20px rgba(40, 167, 69, 0);
-            }
-            100% {
-                box-shadow: 0 0 0 0 rgba(40, 167, 69, 0);
-            }
-        }
-
-        .status-text {
-            font-size: 1.2rem;
-            text-align: center;
-            margin-bottom: 1rem;
-        }
-
-        .output-container {
-            background: #333;
-            border-radius: 10px;
-            padding: 1rem;
-            margin: 1rem 0;
-            max-height: 300px;
+        .chat {
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            height: 300px;
             overflow-y: auto;
         }
-
-        .command-list {
-            background: #333;
-            border-radius: 10px;
-            padding: 1rem;
-            margin-top: 2rem;
+        .chat p {
+            margin: 10px 0;
+            padding: 5px;
+            border-radius: 5px;
         }
-
-        .command-list h3 {
-            color: var(--primary-color);
-            margin-bottom: 1rem;
+        .chat .user {
+            background-color: #e0e0e0;
+            text-align: right;
         }
-
-        .command-list ul {
-            list-style: none;
+        .chat .bot {
+            background-color: #d1f7c4;
+            text-align: left;
         }
-
-        .command-list li {
-            margin-bottom: 0.5rem;
-            padding-left: 1rem;
-            border-left: 3px solid var(--primary-color);
-        }
-
-        button {
-            background-color: var(--primary-color);
+        .button {
+            background-color: #4CAF50;
             color: white;
+            padding: 10px 20px;
+            font-size: 18px;
             border: none;
-            padding: 1rem 2rem;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 1rem;
-            transition: background-color 0.3s ease;
-            margin: 1rem 0;
+            width: 100%;
         }
-
-        button:hover {
-            background-color: #0056b3;
-        }
-
-        button:disabled {
-            background-color: var(--secondary-color);
-            cursor: not-allowed;
-        }
-
-        .message {
-            margin: 0.5rem 0;
-            padding: 0.5rem;
-            border-radius: 5px;
-        }
-
-        .user-message {
-            background: rgba(0, 123, 255, 0.2);
-        }
-
-        .jarvis-message {
-            background: rgba(40, 167, 69, 0.2);
+        .button:hover {
+            background-color: #45a049;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="jarvis-interface">
-            <div class="status-circle" id="statusCircle">
-                <img src="/api/placeholder/64/64" alt="Jarvis Icon" id="jarvisIcon">
-            </div>
-            <div class="status-text" id="statusText">Click Start to activate Jarvis</div>
-            <button id="startButton">Start Jarvis</button>
-            <div class="output-container" id="outputContainer"></div>
-        </div>
-
-        <div class="command-list">
-            <h3>Available Commands:</h3>
-            <ul>
-                <li>"Open Google"</li>
-                <li>"Open YouTube"</li>
-                <li>"Open Stack Overflow"</li>
-                <li>"Open Lichess"</li>
-                <li>"What is your name?"</li>
-                <li>"What time is it?"</li>
-                <li>"Where is [location]"</li>
-                <li>"Search Wikipedia for [topic]"</li>
-                <li>"Bye" - Exit Jarvis</li>
-            </ul>
-        </div>
+        <h2>Voice Chat with Jarvis</h2>
+        <div id="chat" class="chat"></div>
+        <button id="start-btn" class="button">Start Talking</button>
     </div>
 
     <script>
-        class JarvisWeb {
-            constructor() {
-                this.recognition = null;
-                this.synthesis = window.speechSynthesis;
-                this.isListening = false;
-                this.setupSpeechRecognition();
-                this.setupUI();
-            }
+        const startBtn = document.getElementById("start-btn");
+        const chat = document.getElementById("chat");
 
-            setupSpeechRecognition() {
-                if ('webkitSpeechRecognition' in window) {
-                    this.recognition = new webkitSpeechRecognition();
-                    this.recognition.continuous = false;
-                    this.recognition.interimResults = false;
-                    this.recognition.lang = 'en-US';
+        // OpenAI API Key (Never expose API key in client-side code like this in production)
+        const API_KEY = "YOUR_OPENAI_API_KEY";
 
-                    this.recognition.onresult = (event) => {
-                        const command = event.results[0][0].transcript.toLowerCase();
-                        this.addMessage('user', command);
-                        this.processCommand(command);
-                    };
+        // Initialize Speech Recognition API
+        const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        recognition.continuous = false;
+        recognition.interimResults = false;
 
-                    this.recognition.onend = () => {
-                        if (this.isListening) {
-                            this.recognition.start();
-                        } else {
-                            this.updateStatus('Click Start to activate Jarvis');
-                        }
-                    };
-                } else {
-                    this.updateStatus('Speech recognition not supported in this browser');
-                }
-            }
+        // Initialize Speech Synthesis API
+        const synth = window.speechSynthesis;
 
-            setupUI() {
-                this.startButton = document.getElementById('startButton');
-                this.statusText = document.getElementById('statusText');
-                this.statusCircle = document.getElementById('statusCircle');
-                this.outputContainer = document.getElementById('outputContainer');
+        // Start the Speech Recognition when the button is clicked
+        startBtn.addEventListener("click", () => {
+            recognition.start();
+            startBtn.disabled = true;
+            startBtn.innerHTML = "Listening...";
+        });
 
-                this.startButton.addEventListener('click', () => {
-                    if (!this.isListening) {
-                        this.start();
-                    } else {
-                        this.stop();
-                    }
-                });
-            }
+        // Handle speech input and interaction with OpenAI
+        recognition.onresult = async (event) => {
+            const userInput = event.results[0][0].transcript;
+            addMessage(userInput, 'user');
+            const botResponse = await getBotResponse(userInput);
+            addMessage(botResponse, 'bot');
+            speak(botResponse);
+            startBtn.disabled = false;
+            startBtn.innerHTML = "Start Talking";
+        };
 
-            start() {
-                if (this.recognition) {
-                    this.isListening = true;
-                    this.recognition.start();
-                    this.startButton.textContent = 'Stop Jarvis';
-                    this.updateStatus('Listening...');
-                    this.statusCircle.classList.add('listening');
-                    this.wishMe();
-                }
-            }
+        recognition.onerror = (event) => {
+            console.error("Speech recognition error", event.error);
+            startBtn.disabled = false;
+            startBtn.innerHTML = "Start Talking";
+        };
 
-            stop() {
-                if (this.recognition) {
-                    this.isListening = false;
-                    this.recognition.stop();
-                    this.startButton.textContent = 'Start Jarvis';
-                    this.updateStatus('Click Start to activate Jarvis');
-                    this.statusCircle.classList.remove('listening');
-                }
-            }
+        // Function to get bot's response from OpenAI API
+        async function getBotResponse(userInput) {
+            const conversation = "You: " + userInput + "\nJarvis: ";
+            const response = await fetch('https://api.openai.com/v1/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${API_KEY}`
+                },
+                body: JSON.stringify({
+                    model: 'text-davinci-003',
+                    prompt: conversation,
+                    max_tokens: 100,
+                    temperature: 0.7
+                })
+            });
 
-            updateStatus(text) {
-                this.statusText.textContent = text;
-            }
-
-            addMessage(type, text) {
-                const message = document.createElement('div');
-                message.classList.add('message', `${type}-message`);
-                message.textContent = `${type === 'user' ? 'You' : 'Jarvis'}: ${text}`;
-                this.outputContainer.appendChild(message);
-                this.outputContainer.scrollTop = this.outputContainer.scrollHeight;
-            }
-
-            speak(text) {
-                const utterance = new SpeechSynthesisUtterance(text);
-                this.synthesis.speak(utterance);
-                this.addMessage('jarvis', text);
-            }
-
-            wishMe() {
-                const hour = new Date().getHours();
-                let greeting = '';
-
-                if (hour >= 0 && hour < 12) {
-                    greeting = 'Good Morning!';
-                } else if (hour >= 12 && hour < 18) {
-                    greeting = 'Good Afternoon!';
-                } else {
-                    greeting = 'Good Evening!';
-                }
-
-                this.speak(`${greeting} I am Jarvis, how can I help you?`);
-            }
-
-            processCommand(command) {
-                if (command.includes('open google')) {
-                    this.speak('Opening Google');
-                    window.open('https://google.com', '_blank');
-                }
-                else if (command.includes('open youtube')) {
-                    this.speak('Opening YouTube');
-                    window.open('https://youtube.com', '_blank');
-                }
-                else if (command.includes('open stack overflow')) {
-                    this.speak('Opening Stack Overflow');
-                    window.open('https://stackoverflow.com', '_blank');
-                }
-                else if (command.includes('open lichess')) {
-                    this.speak('Opening Lichess');
-                    window.open('https://lichess.org', '_blank');
-                }
-                else if (command.includes('what is your name')) {
-                    this.speak('My name is Jarvis');
-                }
-                else if (command.includes('what time is it')) {
-                    const time = new Date().toLocaleTimeString();
-                    this.speak(`The time is ${time}`);
-                }
-                else if (command.includes('where is')) {
-                    const location = command.split('where is')[1].trim();
-                    this.speak(`Showing you where ${location} is`);
-                    window.open(`https://www.google.com/maps/search/${encodeURIComponent(location)}`, '_blank');
-                }
-                else if (command.includes('wikipedia')) {
-                    const search = command.replace('wikipedia', '').trim();
-                    this.speak(`Searching Wikipedia for ${search}`);
-                    window.open(`https://en.wikipedia.org/wiki/${encodeURIComponent(search)}`, '_blank');
-                }
-                else if (command.includes('bye')) {
-                    this.speak('Goodbye! Have a nice day');
-                    setTimeout(() => this.stop(), 2000);
-                }
-                else {
-                    this.speak("I'm sorry, I didn't understand that command");
-                }
-            }
+            const data = await response.json();
+            const botResponse = data.choices[0].text.trim();
+            return botResponse;
         }
 
-        // Initialize Jarvis when the page loads
-        window.addEventListener('load', () => {
-            window.jarvis = new JarvisWeb();
-        });
+        // Function to add messages to the chat UI
+        function addMessage(message, sender) {
+            const messageElement = document.createElement("p");
+            messageElement.classList.add(sender);
+            messageElement.textContent = message;
+            chat.appendChild(messageElement);
+            chat.scrollTop = chat.scrollHeight; // Scroll to the bottom
+        }
+
+        // Function to speak the bot's response using Speech Synthesis
+        function speak(text) {
+            const utterance = new SpeechSynthesisUtterance(text);
+            synth.speak(utterance);
+        }
     </script>
 </body>
 </html>
