@@ -68,7 +68,7 @@
         const chat = document.getElementById("chat");
 
         // OpenAI API Key (Never expose API key in client-side code like this in production)
-        const API_KEY = "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";
+        const API_KEY = "sk-XXXXXXXXXXXXXX";  // Replace with your actual API Key
 
         // Initialize Speech Recognition API
         const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
@@ -80,6 +80,7 @@
 
         // Start the Speech Recognition when the button is clicked
         startBtn.addEventListener("click", () => {
+            console.log('Starting speech recognition...');
             recognition.start();
             startBtn.disabled = true;
             startBtn.innerHTML = "Listening...";
@@ -100,6 +101,15 @@
             console.error("Speech recognition error", event.error);
             startBtn.disabled = false;
             startBtn.innerHTML = "Start Talking";
+            
+            // Add more specific error handling
+            if (event.error === 'no-speech') {
+                console.log("No speech detected. Try speaking louder or closer to the microphone.");
+            } else if (event.error === 'audio-capture') {
+                console.log("No microphone detected.");
+            } else if (event.error === 'not-allowed') {
+                console.log("Microphone access denied. Check your browser settings.");
+            }
         };
 
         // Function to get bot's response from OpenAI API
@@ -120,6 +130,7 @@
             });
 
             const data = await response.json();
+            console.log('API Response:', data);  // Debugging log
             const botResponse = data.choices[0].text.trim();
             return botResponse;
         }
@@ -138,6 +149,18 @@
             const utterance = new SpeechSynthesisUtterance(text);
             synth.speak(utterance);
         }
+
+        // Log available microphone devices (for debugging)
+        navigator.mediaDevices.enumerateDevices()
+            .then(devices => {
+                devices.forEach(device => {
+                    if (device.kind === 'audioinput') {
+                        console.log("Microphone found: " + device.label);
+                    }
+                });
+            })
+            .catch(err => console.error("Error listing devices: ", err));
+
     </script>
 </body>
 </html>
