@@ -68,7 +68,7 @@
         const chat = document.getElementById("chat");
 
         // OpenAI API Key (Never expose API key in client-side code like this in production)
-        const API_KEY = "sk-XXXXXXXXXXXXXX";  // Replace with your actual API Key
+        const API_KEY = "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";  // Replace with your actual API Key
 
         // Initialize Speech Recognition API
         const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
@@ -89,10 +89,22 @@
         // Handle speech input and interaction with OpenAI
         recognition.onresult = async (event) => {
             const userInput = event.results[0][0].transcript;
+            console.log("User Input:", userInput);  // Log the recognized speech input
+            
+            // Add the user input to the chat UI
             addMessage(userInput, 'user');
+            
+            // Call OpenAI API for bot's response
             const botResponse = await getBotResponse(userInput);
+            console.log("Bot Response:", botResponse);  // Log the bot's response
+            
+            // Display bot's response in the chat
             addMessage(botResponse, 'bot');
+            
+            // Make the bot speak the response
             speak(botResponse);
+            
+            // Enable the button again and reset text
             startBtn.disabled = false;
             startBtn.innerHTML = "Start Talking";
         };
@@ -115,23 +127,31 @@
         // Function to get bot's response from OpenAI API
         async function getBotResponse(userInput) {
             const conversation = "You: " + userInput + "\nJarvis: ";
+            console.log("Sending to API:", conversation);  // Log the conversation prompt being sent
+
+            // Make the API request to OpenAI
             const response = await fetch('https://api.openai.com/v1/completions', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${API_KEY}`
+                    'Authorization': `Bearer ${API_KEY}`  // Ensure you use your correct API key here
                 },
                 body: JSON.stringify({
-                    model: 'text-davinci-003',
+                    model: 'text-davinci-003', // Make sure you are using the correct model
                     prompt: conversation,
                     max_tokens: 100,
                     temperature: 0.7
                 })
             });
 
+            // Parse the response and log it to check the result
             const data = await response.json();
-            console.log('API Response:', data);  // Debugging log
+            console.log("API Response:", data);  // Log the entire response object
+
+            // Extract the response text and trim any unwanted whitespace
             const botResponse = data.choices[0].text.trim();
+            console.log("Bot's Final Response:", botResponse);  // Log the final response text
+            
             return botResponse;
         }
 
