@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deepnil Ray - Astrophysicist</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Mono:wght@400;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #000;
+            color: #00ff00;
+            font-family: 'Space Mono', monospace;
+            overflow: hidden;
+        }
+        
+        /* Terminal Intro */
+        .terminal-intro {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 1s ease-out;
+        }
+        
+        .terminal-window {
+            width: 80%;
+            max-width: 800px;
+            background: #1a1a1a;
+            border: 2px solid #00ff00;
+            border-radius: 10px;
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.3);
+        }
+        
+        .terminal-header {
+            background: #333;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #00ff00;
+        }
+        
+        .terminal-buttons {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .terminal-button {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        .close { background: #ff5f56; }
+        .minimize { background: #ffbd2e; }
+        .maximize { background: #27ca3f; }
+        
+        .terminal-title {
+            margin-left: 15px;
+            color: #00ff00;
+            font-size: 14px;
+        }
+        
+        .terminal-body {
+            padding: 20px;
+            height: 400px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .terminal-text {
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        
+        .cursor {
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+        
+        /* Star Wars Intro */
+        .starwars-intro {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at center, #1e3c72 0%, #000 70%);
+            z-index: 999;
+            display: none;
+            overflow: hidden;
+        }
+        
+        .stars {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 2s infinite alternate;
+        }
+        
+        @keyframes twinkle {
+            0% { opacity: 0.3; }
+            100% { opacity: 1; }
+        }
+        
+        .crawl-container {
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            max-width: 600px;
+            perspective: 400px;
+            animation: crawl 15s linear forwards;
+        }
+        
+        .crawl-text {
+            color: #ffd700;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 18px;
+            line-height: 1.6;
+            text-align: center;
+            transform: rotateX(25deg);
+        }
+        
+        @keyframes crawl {
+            0% { top: 100%; }
+            100% { top: -50%; }
+        }
+        
+        .vader-section {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, #000 0%, #1a1a1a 50%, #000 100%);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 998;
+        }
+        
+        .vader-container {
+            text-align: center;
+            color: #ff0000;
+        }
+        
+        .vader-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px #ff0000;
+        }
+        
+        .vader-breathing {
+            font-size: 48px;
+            animation: breathe 3s infinite;
+        }
+        
+        @keyframes breathe {
+            0%, 100% { opacity: 0.7; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.1); }
+        }
+        
+        /* Main Website */
+        .main-site {
+            display: none;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        .space-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        
+        .floating-star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: float 10s infinite linear;
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(100vh) rotate(0deg); }
+            100% { transform: translateY(-100px) rotate(360deg); }
+        }
+        
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 15px 50px;
+            z-index: 100;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.3);
+        }
+        
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 24px;
+            font-weight: 900;
+            color: #ffd700;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+        
+        .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .nav-links a:hover {
+            color: #ffd700;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+        }
+        
+        .hero {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 0 50px;
+            position: relative;
+        }
+        
+        .hero-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 4rem;
+            font-weight: 900;
+            color: #fff;
+            margin-bottom: 20px;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes glow {
+            from { text-shadow: 0 0 30px rgba(255, 255, 255, 0.5); }
+            to { text-shadow: 0 0 50px rgba(255, 215, 0, 0.8), 0 0 60px rgba(255, 215, 0, 0.6); }
+        }
+        
+        .hero-subtitle {
+            font-size: 1.5rem;
+            color: #ffd700;
+            margin-bottom: 30px;
+            font-family: 'Orbitron', sans-serif;
+        }
+        
+        .hero-description {
+            font-size: 1.1rem;
+            color: #ccc;
+            max-width: 600px;
+            line-height: 1.6;
+            margin-bottom: 40px;
+        }
+        
+        .cta-button {
+            background: linear-gradient(45deg, #ffd700, #ffed4e);
+            color: #000;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.4);
+        }
+        
+        .section {
+            padding: 100px 50px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .section-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            color: #ffd700;
+            text-align: center;
+            margin-bottom: 50px;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+        }
+        
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            border-radius: 15px;
+            padding: 30px;
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-10px);
+            border-color: rgba(255, 215, 0, 0.5);
+            box-shadow: 0 20px 40px rgba(255, 215, 0, 0.1);
+        }
+        
+        .card-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.3rem;
+            color: #ffd700;
+            margin-bottom: 15px;
+        }
+        
+        .card-text {
+            color: #ccc;
+            line-height: 1.6;
+        }
+        
+        .hidden {
+            opacity: 0;
+        }
+        
+        @media (max-width: 768px) {
+            .hero-title { font-size: 2.5rem; }
+            .section { padding: 50px 20px; }
+            .navbar { padding: 15px 20px; }
+            .nav-links { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Terminal Intro -->
+    <div class="terminal-intro" id="terminalIntro">
+        <div class="terminal-window">
+            <div class="terminal-header">
+                <div class="terminal-buttons">
+                    <div class="terminal-button close"></div>
+                    <div class="terminal-button minimize"></div>
+                    <div class="terminal-button maximize"></div>
+                </div>
+                <div class="terminal-title">deepnil@universe:~</div>
+            </div>
+            <div class="terminal-body">
+                <div class="terminal-text" id="terminalText"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Star Wars Intro -->
+    <div class="starwars-intro" id="starwarsIntro">
+        <div class="stars" id="stars"></div>
+        <div class="crawl-container">
+            <div class="crawl-text">
+                <h1 style="font-size: 2rem; margin-bottom: 30px;">DEEPNIL RAY</h1>
+                <p>A long time ago in a galaxy far, far away....</p>
+                <br>
+                <p>A brilliant mind emerged from the cosmic void, destined to bridge worlds of science, ethics, and discovery.</p>
+                <br>
+                <p>From discovering asteroid 2022 UO26 to leading NoRCEL's mission for life's origins, DEEPNIL RAY ventures forth as Deputy CEO, researcher, and visionary educator.</p>
+                <br>
+                <p>Armed with fellowship at ISRO, Harvard-Smithsonian collaborations, and an unwavering commitment to interdisciplinary exploration, he seeks to reshape how we learn, discover, and steward our cosmic home.</p>
+                <br>
+                <p>The journey into infinite possibilities begins now...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Darth Vader Section -->
+    <div class="vader-section" id="vaderSection">
+        <div class="vader-container">
+            <div class="vader-text">Welcome, young astrophysicist...</div>
+            <div class="vader-breathing">⚫</div>
+            <div style="margin-top: 20px; color: #ffd700; font-size: 18px;">
+                The Force is strong with this one...
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Website -->
+    <div class="main-site" id="mainSite">
+        <div class="space-bg" id="spaceBg"></div>
+        
+        <nav class="navbar">
+            <div class="nav-content">
+                <div class="logo">DEEPNIL RAY</div>
+                <div class="nav-links">
+                    <a href="#home">Home</a>
+                    <a href="#research">Research</a>
+                    <a href="#achievements">Achievements</a>
+                    <a href="#leadership">Leadership</a>
+                    <a href="#vision">Vision</a>
+                    <a href="#contact">Connect</a>
+                </div>
+            </div>
+        </nav>
+
+        <section class="hero" id="home">
+            <h1 class="hero-title">DEEPNIL RAY</h1>
+            <h2 class="hero-subtitle">Deputy CEO of NoRCEL | Asteroid Discoverer | Interdisciplinary Researcher</h2>
+            <p class="hero-description">
+                From discovering asteroid 2022 UO26 to leading international research at NoRCEL, I bridge astrophysics, 
+                astrobiology, AI ethics, and planetary science. My mission: exploring life's origins across the cosmos 
+                while reshaping education and fostering the next generation of boundary-pushing explorers.
+            </p>
+            <button class="cta-button" onclick="scrollToSection('research')">
+                Explore My Universe
+            </button>
+        </section>
+
+        <section class="section" id="research">
+            <h2 class="section-title">Interdisciplinary Research</h2>
+            <div class="cards-grid">
+                <div class="card">
+                    <h3 class="card-title">Astrobiology & Extremophiles</h3>
+                    <p class="card-text">
+                        Investigating extremophiles and their role in understanding life's potential across the cosmos, 
+                        bridging the gap between terrestrial biology and extraterrestrial possibilities.
+                    </p>
+                </div>
+                <div class="card">
+                    <h3 class="card-title">Star Formation & Dynamics</h3>
+                    <p class="card-text">
+                        Analyzing stellar birth processes and asteroid dynamics, contributing to our understanding 
+                        of planetary system formation and evolution through observational astronomy.
+                    </p>
+                </div>
+                <div class="card">
+                    <h3 class="card-title">AI Ethics & Autonomous Systems</h3>
+                    <p class="card-text">
+                        Exploring ethical implications in artificial intelligence through works like "Ethics in Motion," 
+                        examining care ethics in autonomous vehicles and responsible AI development.
+                    </p>
+                </div>
+                <div class="card">
+                    <h3 class="card-title">Chemical Evolution of Life</h3>
+                    <p class="card-text">
+                        Leading research initiatives at NoRCEL on the origins and evolution of life, 
+                        fostering international collaboration in prebiotic chemistry and planetary stewardship.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="achievements">
+            <h2 class="section-title">Major Achievements</h2>
+            <div class="cards-grid">
+                <div class="card">
+                    <h3 class="card-title">Asteroid Discovery: 2022 UO26</h3>
+                    <p class="card-text">
+                        Officially discovered and named asteroid 2022 UO26, confirmed by NASA through 
+                        the International Astronomical Search Collaboration (IASC) - a testament to dedication 
+                        in observational astronomy and celestial mechanics.
+                    </p>
+                </div>
+                <div class="card">
+                    <h3 class="card-title">ISRO & VSSC Fellowship</h3>
+                    <p class="card-text">
+                        Selected for prestigious internships at Indian Space Research Organisation (ISRO) 
+                        and Vikram Sarabhai Space Centre through highly competitive scholarship programs, 
+                        contributing to India's space exploration mission.
+                    </p>
+                </div>
+                <div class="card">
+                    <h3 class="card-title">International Recognition</h3>
+                    <p class="card-text">
+                        National topper in multiple scientific competitions, honors in global math and science 
+                        Olympiads, and telescope image processing for Institute of Astrophysics of Canary Islands, 
+                        featured in Open University publications.
+                    </p>
+                </div>
+                <div class="card">
+                    <h3 class="card-title">Harvard-Smithsonian Collaboration</h3>
+                    <p class="card-text">
+                        Active participant in Harvard-Smithsonian's DIY Planet Search program and TESS data analysis, 
+                        contributing to exoplanet discovery and characterization efforts at the forefront of astronomical research.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="leadership">
+            <h2 class="section-title">Leadership & Impact</h2>
+            <div class="cards-grid">
+                <div class="card">
+                    <h3 class="card-title">Deputy CEO of NoRCEL</h3>
+                    <p class="card-text">
+                        Leading the Network of Researchers on Chemical Evolution of Life, an international UK-based 
+                        organization fostering cross-disciplinary collaboration in origin-of-life studies and 
+                        sustainable planetary stewardship.
+                    </p>
+                </div>
+                <div class="card">
+                    <h3 class="card-title">Science Communication</h3>
+                    <p class="card-text">
+                        Authored children's books about space travel, recorded audiobooks for visually impaired 
+                        individuals, and actively engages global scientific communities through multiple platforms 
+                        including ResearchGate, SSRN, and academic publications.
+                    </p>
+                </div>
+                <div class="card">
+                    <h3 class="card-title">Educational Innovation</h3>
+                    <p class="card-text">
+                        Championing passion-driven education models that break free from rigid curricula, 
+                        empowering early-career researchers through editorial publications and fellowship programs 
+                        that foster interdisciplinary exploration.
+                    </p>
+                </div>
+                <div class="card">
+                    <h3 class="card-title">Published Research</h3>
+                    <p class="card-text">
+                        Academic writings published through prestigious platforms including SSRN, Springer, and Elsevier, 
+                        bridging scientific analysis with philosophical and ethical inquiry across multiple disciplines.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="vision">
+            <h2 class="section-title">Vision & Philosophy</h2>
+            <div style="max-width: 800px; margin: 0 auto; text-align: center;">
+                <div class="card" style="margin-bottom: 30px;">
+                    <h3 class="card-title">"Fighter Alone in the Rain"</h3>
+                    <p class="card-text" style="font-style: italic; font-size: 1.1rem;">
+                        "After personal losses and challenges, I've learned that resilience isn't just surviving the storm—
+                        it's dancing in the rain while building tomorrow's rainbow. Every setback becomes a setup for 
+                        breakthrough, every question a pathway to discovery."
+                    </p>
+                </div>
+                <div class="card">
+                    <h3 class="card-title">Future Mission</h3>
+                    <p class="card-text">
+                        My vision extends beyond research to transformation—returning home to build alternative educational models 
+                        that inspire the next generation of boundary-pushing explorers. Like Vikram Sarabhai once ignited India's 
+                        space dreams, I aspire to kindle passion-driven learning that transcends traditional limitations, 
+                        fostering minds that see possibilities where others see problems.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="contact">
+            <h2 class="section-title">Contact</h2>
+            <div style="text-align: center; color: #ccc; font-size: 1.1rem; line-height: 1.8;">
+                <p>Ready to explore the cosmos together?</p>
+                <p style="margin-top: 20px;">
+                    <strong style="color: #ffd700;">Email:</strong> deepnil.ray@universe.edu
+                </p>
+                <p>
+                    <strong style="color: #ffd700;">Research Gate:</strong> /DeepnilRay
+                </p>
+                <p>
+                    <strong style="color: #ffd700;">ORCID:</strong> 0000-0000-0000-0000
+                </p>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Terminal typing effect
+        const terminalCommands = [
+            "Connecting to NoRCEL networks...",
+            "Loading asteroid 2022 UO26 orbital data...",
+            "Accessing ISRO research archives...",
+            "Syncing with Harvard-Smithsonian DIY Planet Search...",
+            "Processing TESS exoplanet observations...",
+            "Welcome to Deepnil Ray's Universe",
+            "Deputy CEO | Researcher | Discoverer",
+            "Preparing interdisciplinary journey...",
+            "May the Force be with you...",
+            "Launching in 3... 2... 1..."
+        ];
+
+        let currentCommand = 0;
+        let currentChar = 0;
+        const terminalText = document.getElementById('terminalText');
+
+        function typeCommand() {
+            if (currentCommand < terminalCommands.length) {
+                if (currentChar < terminalCommands[currentCommand].length) {
+                    terminalText.innerHTML += terminalCommands[currentCommand].charAt(currentChar);
+                    currentChar++;
+                    setTimeout(typeCommand, 50);
+                } else {
+                    terminalText.innerHTML += '<br>><span class="cursor">_</span><br>';
+                    currentCommand++;
+                    currentChar = 0;
+                    setTimeout(typeCommand, 800);
+                }
+            } else {
+                setTimeout(startStarWarsIntro, 1500);
+            }
+        }
+
+        function startStarWarsIntro() {
+            document.getElementById('terminalIntro').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('terminalIntro').style.display = 'none';
+                document.getElementById('starwarsIntro').style.display = 'block';
+                generateStars();
+                setTimeout(showVaderSection, 15000);
+            }, 1000);
+        }
+
+        function showVaderSection() {
+            document.getElementById('starwarsIntro').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('starwarsIntro').style.display = 'none';
+                document.getElementById('vaderSection').style.display = 'flex';
+                setTimeout(showMainSite, 4000);
+            }, 1000);
+        }
+
+        function showMainSite() {
+            document.getElementById('vaderSection').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('vaderSection').style.display = 'none';
+                document.getElementById('mainSite').style.display = 'block';
+                document.body.style.overflow = 'auto';
+                generateFloatingStars();
+            }, 1000);
+        }
+
+        function generateStars() {
+            const starsContainer = document.getElementById('stars');
+            for (let i = 0; i < 200; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.width = Math.random() * 3 + 1 + 'px';
+                star.style.height = star.style.width;
+                star.style.animationDelay = Math.random() * 2 + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+
+        function generateFloatingStars() {
+            const spaceBg = document.getElementById('spaceBg');
+            setInterval(() => {
+                const star = document.createElement('div');
+                star.className = 'floating-star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.width = Math.random() * 3 + 1 + 'px';
+                star.style.height = star.style.width;
+                star.style.animationDuration = (Math.random() * 10 + 5) + 's';
+                spaceBg.appendChild(star);
+                
+                setTimeout(() => {
+                    star.remove();
+                }, 15000);
+            }, 500);
+        }
+
+        function scrollToSection(sectionId) {
+            document.getElementById(sectionId).scrollIntoView({
+                behavior: 'smooth'
+            });
+        }
+
+        // Start the terminal intro
+        setTimeout(typeCommand, 1000);
+
+        // Smooth scrolling for nav links
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').substring(1);
+                scrollToSection(targetId);
+            });
+        });
+    </script>
+</body>
+</html>
