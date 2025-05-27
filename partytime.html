@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday Ysa! 🎉</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            color: #fff;
+            overflow-x: hidden;
+            min-height: 100vh;
+            animation: backgroundShift 8s ease-in-out infinite alternate;
+        }
+        
+        @keyframes backgroundShift {
+            0% { background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%); }
+            50% { background: linear-gradient(135deg, #f093fb 0%, #50a3a2 50%, #667eea 100%); }
+            100% { background: linear-gradient(135deg, #764ba2 0%, #f093fb 50%, #667eea 100%); }
+        }
+        
+        .bg-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .floating-shape {
+            position: absolute;
+            opacity: 0.15;
+            font-size: 3rem;
+            animation: floatAround 20s infinite linear;
+        }
+        
+        .floating-shape:nth-child(1) { top: 10%; left: 10%; animation-delay: 0s; }
+        .floating-shape:nth-child(2) { top: 60%; right: 15%; animation-delay: 5s; font-size: 2.5rem; }
+        .floating-shape:nth-child(3) { bottom: 20%; left: 20%; animation-delay: 10s; font-size: 4rem; }
+        .floating-shape:nth-child(4) { top: 30%; right: 30%; animation-delay: 15s; font-size: 2rem; }
+        
+        @keyframes floatAround {
+            0% { transform: rotate(0deg) translateX(50px) rotate(0deg); }
+            100% { transform: rotate(360deg) translateX(50px) rotate(-360deg); }
+        }
+        
+        .intro-page {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            padding: 20px;
+            z-index: 10;
+        }
+        
+        .intro-content {
+            text-align: center;
+            max-width: 700px;
+            backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.1);
+            padding: 60px 50px;
+            border-radius: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.1);
+            animation: contentFloat 4s ease-in-out infinite alternate;
+        }
+        
+        @keyframes contentFloat {
+            0% { transform: translateY(0px) scale(1); }
+            100% { transform: translateY(-15px) scale(1.02); }
+        }
+        
+        .intro-title {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 700;
+            margin-bottom: 25px;
+            background: linear-gradient(45deg, #fff, #f0f8ff, #fff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: titlePulse 3s ease-in-out infinite;
+        }
+        
+        @keyframes titlePulse {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.3); }
+        }
+        
+        .intro-message {
+            font-size: 1.3rem;
+            font-weight: 400;
+            margin-bottom: 40px;
+            opacity: 0.9;
+            line-height: 1.7;
+        }
+        
+        .countdown-container {
+            background: linear-gradient(45deg, #ff6b95, #4ecdc4);
+            border: none;
+            padding: 25px 45px;
+            border-radius: 50px;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 600;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2); }
+            50% { transform: scale(1.05); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3); }
+        }
+        
+        .birthday-page {
+            display: none;
+            min-height: 100vh;
+            position: relative;
+            padding: 20px;
+        }
+        
+        .animals-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+        }
+        
+        .animal {
+            position: absolute;
+            font-size: 3.5rem;
+            cursor: pointer;
+            pointer-events: auto;
+            transition: all 0.4s ease;
+            animation: animalFloat 6s infinite ease-in-out;
+            filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.3));
+            user-select: none;
+        }
+        
+        .animal:hover {
+            transform: scale(1.4) rotate(15deg);
+            filter: drop-shadow(0 0 30px gold);
+        }
+        
+        .animal:active {
+            transform: scale(1.6) rotate(-15deg);
+        }
+        
+        @keyframes animalFloat {
+            0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.8; }
+            25% { transform: translateY(-25px) rotate(3deg); opacity: 1; }
+            50% { transform: translateY(-50px) rotate(-3deg); opacity: 0.9; }
+            75% { transform: translateY(-25px) rotate(2deg); opacity: 1; }
+        }
+        
+        .animal:nth-child(1) { top: 15%; left: 8%; animation-delay: 0s; }
+        .animal:nth-child(2) { top: 70%; right: 12%; animation-delay: 1s; }
+        .animal:nth-child(3) { bottom: 25%; left: 15%; animation-delay: 2s; }
+        .animal:nth-child(4) { top: 20%; right: 20%; animation-delay: 3s; }
+        .animal:nth-child(5) { top: 45%; left: 5%; animation-delay: 4s; }
+        .animal:nth-child(6) { bottom: 40%; right: 25%; animation-delay: 5s; }
+        .animal:nth-child(7) { top: 35%; right: 45%; animation-delay: 6s; }
+        .animal:nth-child(8) { bottom: 15%; left: 40%; animation-delay: 7s; }
+        
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            text-align: center;
+            z-index: 10;
+            position: relative;
+            max-width: 900px;
+            margin: 0 auto;
+            backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.1);
+            padding: 60px 50px;
+            border-radius: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.1);
+        }
+        
+        .birthday-title {
+            font-size: clamp(3rem, 6vw, 5rem);
+            font-weight: 700;
+            margin-bottom: 25px;
+            background: linear-gradient(45deg, #fff, #f0f8ff, #fff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: titleGlow 4s ease-in-out infinite alternate;
+        }
+        
+        @keyframes titleGlow {
+            0% { filter: brightness(1) drop-shadow(0 0 20px rgba(255, 255, 255, 0.3)); }
+            100% { filter: brightness(1.4) drop-shadow(0 0 40px rgba(255, 255, 255, 0.6)); }
+        }
+        
+        .subtitle {
+            font-size: 1.4rem;
+            font-weight: 500;
+            margin-bottom: 40px;
+            opacity: 0.9;
+            line-height: 1.6;
+            color: #f0f8ff;
+        }
+        
+        .music-section {
+            margin: 40px 0;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            width: 100%;
+        }
+        
+        .music-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 25px;
+            color: #4ecdc4;
+            text-shadow: 0 0 20px rgba(78, 205, 196, 0.5);
+        }
+        
+        .song-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .song-item {
+            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .song-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .music-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin: 30px 0;
+        }
+        
+        .music-link {
+            color: white;
+            text-decoration: none;
+            padding: 18px 25px;
+            background: linear-gradient(45deg, rgba(78, 205, 196, 0.3), rgba(255, 107, 149, 0.3));
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .music-link:hover {
+            background: linear-gradient(45deg, rgba(78, 205, 196, 0.5), rgba(255, 107, 149, 0.5));
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .special-button {
+            background: linear-gradient(45deg, #ff6b95, #4ecdc4, #667eea);
+            background-size: 200% 200%;
+            border: none;
+            padding: 20px 40px;
+            border-radius: 50px;
+            color: white;
+            font-size: 1.3rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 20px 10px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            animation: gradientShift 3s ease infinite;
+        }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .special-button:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.3);
+        }
+        
+        .birthday-message {
+            font-size: 1.1rem;
+            font-weight: 400;
+            margin: 40px 0;
+            line-height: 1.8;
+            opacity: 0.9;
+            padding: 25px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            border-left: 4px solid #4ecdc4;
+        }
+        
+        .celebration-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+        
+        .confetti {
+            position: absolute;
+            font-size: 2rem;
+            animation: confettiFall 4s linear infinite;
+        }
+        
+        @keyframes confettiFall {
+            0% { 
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% { 
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+        
+        .message-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(45deg, #ff6b95, #4ecdc4);
+            color: white;
+            padding: 30px 40px;
+            border-radius: 20px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            text-align: center;
+            z-index: 1001;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            animation: popupAppear 0.5s ease;
+            max-width: 90%;
+        }
+        
+        @keyframes popupAppear {
+            0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+        
+        .now-playing {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(78, 205, 196, 0.9);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 25px;
+            font-weight: 500;
+            z-index: 999;
+            animation: slideInRight 0.5s ease;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            max-width: 300px;
+        }
+        
+        @keyframes slideInRight {
+            0% { transform: translateX(100px); opacity: 0; }
+            100% { transform: translateX(0); opacity: 1; }
+        }
+        
+        .sparkle {
+            position: fixed;
+            pointer-events: none;
+            font-size: 1rem;
+            z-index: 100;
+            animation: sparkleAnimation 2s ease-out forwards;
+        }
+        
+        @keyframes sparkleAnimation {
+            0% { opacity: 1; transform: scale(0) rotate(0deg); }
+            50% { opacity: 1; transform: scale(1) rotate(180deg); }
+            100% { opacity: 0; transform: scale(0) rotate(360deg); }
+        }
+        
+        .hidden { 
+            display: none !important; 
+        }
+        
+        @media (max-width: 768px) {
+            .intro-content, .main-content {
+                padding: 40px 25px;
+                margin: 15px;
+            }
+            
+            .animal {
+                font-size: 2.5rem;
+            }
+            
+            .song-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .music-links {
+                grid-template-columns: 1fr;
+            }
+            
+            .now-playing {
+                top: 10px;
+                right: 10px;
+                padding: 12px 20px;
+                font-size: 0.9rem;
+                max-width: 250px;
+            }
+            
+            .special-button {
+                font-size: 1.1rem;
+                padding: 18px 35px;
+                margin: 15px 5px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .intro-content, .main-content {
+                padding: 30px 20px;
+                margin: 10px;
+            }
+            
+            .music-section {
+                padding: 20px;
+            }
+            
+            .song-grid {
+                gap: 10px;
+            }
+            
+            .music-links {
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-elements">
+        <div class="floating-shape">🎵</div>
+        <div class="floating-shape">🎂</div>
+        <div class="floating-shape">🎉</div>
+        <div class="floating-shape">✨</div>
+    </div>
+
+    <div class="intro-page" id="introPage">
+        <div class="intro-content">
+            <h1 class="intro-title">🎵 Birthday Symphony 🎵</h1>
+            <p class="intro-message">
+                Get ready for something magical!<br>
+                The celebration is about to begin for someone very special... ✨
+            </p>
+            <div class="countdown-container">
+                <div id="countdownText">🎵 Starting celebration in <span id="countdown">3</span> seconds... 🎵</div>
+                <div style="margin-top: 10px; font-size: 0.9rem;">✨ Prepare for an interactive experience! ✨</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="birthday-page" id="birthdayPage">
+        <div class="animals-container">
+            <div class="animal" data-message="🐦 Chirping birthday melodies just for you! 🎵">🐦</div>
+            <div class="animal" data-message="🐺 Howling happy birthday under the stars! 🌙">🐺</div>
+            <div class="animal" data-message="🦊 Slyly wishing you the most amazing day! ✨">🦊</div>
+            <div class="animal" data-message="🐸 Hopping with joy for your special day! 🎂">🐸</div>
+            <div class="animal" data-message="🦉 Wisely celebrating your wonderful existence! 🎉">🦉</div>
+            <div class="animal" data-message="🐙 Eight arms full of birthday hugs! 🤗">🐙</div>
+            <div class="animal" data-message="🦋 Dancing through the air in celebration! 💃">🦋</div>
+            <div class="animal" data-message="🐱 Purring with happiness for you! 😸">🐱</div>
+        </div>
+        
+        <div class="main-content">
+            <h1 class="birthday-title">Happy Birthday Ysa! 🎉</h1>
+            <p class="subtitle">Another orbit around the sun, and you make it shine brighter ✨</p>
+            
+            <div class="music-section">
+                <h3 class="music-title">🎵 Your Personal Soundtrack 🎵</h3>
+                <div class="song-grid">
+                    <div class="song-item">🎶 Like "Believer" - transforming storms into symphonies</div>
+                    <div class="song-item">🎶 Like "Sweater Weather" - comfort in every season</div>
+                    <div class="song-item">🎶 Like "Thunder" - electric energy that lights up rooms</div>
+                    <div class="song-item">🎶 Like "Natural" - authentically, beautifully you</div>
+                    <div class="song-item">🎶 Like "Demons" - finding beauty in complexity</div>
+                    <div class="song-item">🎶 Like "Radioactive" - changing everything you touch</div>
+                </div>
+                
+                <p style="margin: 20px 0; font-weight: 500; opacity: 0.8;">🎧 Click to listen (opens in new tab):</p>
+                
+                <div class="music-links">
+                    <a href="https://www.youtube.com/watch?v=7wtfhZwyrcc" target="_blank" class="music-link" onclick="showNowPlaying('Believer - Imagine Dragons')">
+                        🔥 Believer - Imagine Dragons
+                    </a>
+                    <a href="https://www.youtube.com/watch?v=GCdwKhTtNNw" target="_blank" class="music-link" onclick="showNowPlaying('Sweater Weather - The Neighbourhood')">
+                        🌙 Sweater Weather - The Neighbourhood
+                    </a>
+                    <a href="https://www.youtube.com/watch?v=fKopy74weus" target="_blank" class="music-link" onclick="showNowPlaying('Thunder - Imagine Dragons')">
+                        ⚡ Thunder - Imagine Dragons
+                    </a>
+                    <a href="https://www.youtube.com/watch?v=0I647GU3Jsc" target="_blank" class="music-link" onclick="showNowPlaying('Natural - Imagine Dragons')">
+                        🌿 Natural - Imagine Dragons
+                    </a>
+                </div>
+                
+                <button class="special-button" onclick="window.open('https://open.spotify.com/playlist/37i9dQZF1DWZeKCadgRdKQ', '_blank')">
+                    🎧 Full Birthday Playlist
+                </button>
+            </div>
+            
+            <div class="birthday-message">
+                💫 Hey Ysa! Some people are background music – pleasant but forgettable. But you? You're the song that gets stuck in my head in the best way possible. The one I catch myself humming without realizing it. Another year of existing in a way that makes the world feel less empty and infinitely more interesting. Here's to whatever frequency you're broadcasting on – may it never lose its signal. 🎵
+            </div>
+            
+            <div style="margin-top: 40px;">
+                <button class="special-button" onclick="startCelebration()">
+                    🎉 Start the Grand Celebration! 🎊
+                </button>
+                <button class="special-button" onclick="playRandomSong()">
+                    🎵 Surprise Me with Music! 🎶
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let countdownNum = 3;
+        const countdownInterval = setInterval(() => {
+            countdownNum--;
+            const countdownEl = document.getElementById('countdown');
+            if (countdownEl) {
+                countdownEl.textContent = countdownNum;
+            }
+            
+            if (countdownNum <= 0) {
+                clearInterval(countdownInterval);
+                startBirthdayExperience();
+            }
+        }, 1000);
+
+        function startBirthdayExperience() {
+            const introPage = document.getElementById('introPage');
+            const birthdayPage = document.getElementById('birthdayPage');
+            
+            introPage.style.transition = 'all 1s ease';
+            introPage.style.opacity = '0';
+            introPage.style.transform = 'scale(0.8)';
+            
+            setTimeout(() => {
+                introPage.style.display = 'none';
+                birthdayPage.style.display = 'block';
+                birthdayPage.style.opacity = '0';
+                
+                setTimeout(() => {
+                    birthdayPage.style.transition = 'opacity 1s ease';
+                    birthdayPage.style.opacity = '1';
+                    initializeAnimals();
+                    showWelcomeMessage();
+                }, 100);
+            }, 1000);
+        }
+
+        function initializeAnimals() {
+            const animals = document.querySelectorAll('.animal');
+            animals.forEach(animal => {
+                animal.addEventListener('click', function() {
+                    const message = this.getAttribute('data-message');
+                    showAnimalMessage(message);
+                    createConfetti(this);
+                });
+            });
+        }
+
+        function showAnimalMessage(message) {
+            const popup = document.createElement('div');
+            popup.className = 'message-popup';
+            popup.innerHTML = message;
+            document.body.appendChild(popup);
+            
+            setTimeout(() => {
+                popup.style.animation = 'popupAppear 0.5s ease reverse';
+                setTimeout(() => {
+                    if (popup.parentNode) {
+                        popup.remove();
+                    }
+                }, 500);
+            }, 3000);
+        }
+
+        function createConfetti(source) {
+            const colors = ['🎉', '🎊', '✨', '🌟', '💫', '🎈'];
+            const rect = source.getBoundingClientRect();
+            
+            for (let i = 0; i < 10; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.textContent = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.left = rect.left + rect.width / 2 + 'px';
+                confetti.style.top = rect.top + 'px';
+                confetti.style.animationDelay = Math.random() * 0.5 + 's';
+                confetti.style.animationDuration = (2 + Math.random() * 2) + 's';
+                document.body.appendChild(confetti);
+                
+                setTimeout(() => {
+                    if (confetti.parentNode) {
+                        confetti.remove();
+                    }
+                }, 4000);
+            }
+        }
+
+        function showWelcomeMessage() {
+            const welcome = document.createElement('div');
+            welcome.innerHTML = `
+                <div style="text-align: center;">
+                    🎉 Welcome to Ysa's Interactive Birthday! 🎉<br>
+                    <div style="margin-top: 15px; font-size: 1rem; opacity: 0.9;">
+                        🐾 Click the floating animals for surprises!<br>
+                        🎵 Enjoy the music and celebration! 🎵
+                    </div>
+                </div>
+            `;
+            welcome.className = 'message-popup';
+            document.body.appendChild(welcome);
+            
+            setTimeout(() => {
+                welcome.style.animation = 'popupAppear 0.5s ease reverse';
+                setTimeout(() => {
+                    if (welcome.parentNode) {
+                        welcome.remove();
+                    }
+                }, 500);
+            }, 5000);
+        }
+
+        function showNowPlaying(songName) {
+            const existing = document.querySelector('.now-playing');
+            if (existing) existing.remove();
+            
+            const nowPlaying = document.createElement('div');
+            nowPlaying.className = 'now-playing';
+            nowPlaying.innerHTML = `🎵 Now Playing: ${songName}`;
+            document.body.appendChild(nowPlaying);
+            
+            setTimeout(() => {
+                nowPlaying.style.animation = 'slideInRight 0.5s ease reverse';
+                setTimeout(() => {
+                    if (nowPlaying.parentNode) {
+                        nowPlaying.remove();
+                    }
+                }, 500);
+            }, 4000);
+        }
+
+        function startCelebration() {
+            const celebrationContainer = document.createElement('div');
+            celebrationContainer.className = 'celebration-overlay';
+            document.body.appendChild(celebrationContainer);
+            
+            const confettiTypes = ['🎉', '🎊', '✨', '🌟', '💫', '🎈', '🎂', '🎁'];
+            
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.textContent = confettiTypes[Math.floor(Math.random() * confettiTypes.length)];
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.animationDuration = (3 + Math.random() * 2) + 's';
+                    confetti.style.animationDelay = Math.random() * 0.5 + 's';
+                    celebrationContainer.appendChild(confetti);
+                }, i * 50);
+            }
+            
+            showAnimalMessage('🎉 HAPPY BIRTHDAY YSA! 🎉<br>🎊 The ultimate celebration is here! 🎊');
+            
+            setTimeout(() => {
+                if (celebrationContainer.parentNode) {
+                    celebrationContainer.remove();
+                }
+            }, 8000);
+        }
+
+        function playRandomSong() {
+            const songs = [
+                { name: 'Believer - Imagine Dragons', url: 'https://www.youtube.com/watch?v=7wtfhZwyrcc' },
+                { name: 'Sweater Weather - The Neighbourhood', url: 'https://www.youtube.com/watch?v=GCdwKhTtNNw' },
+                { name: 'Thunder - Imagine Dragons', url: 'https://www.youtube.com/watch?v=fKopy74weus' },
+                { name: 'Natural - Imagine Dragons', url: 'https://www.youtube.com/watch?v=0I647GU3Jsc' }
+            ];
+            
+            const randomSong = songs[Math.floor(Math.random() * songs.length)];
+            showNowPlaying(randomSong.name);
+            window.open(randomSong.url, '_blank');
+        }
+    </script>
+</body>
+</html>
