@@ -14,7 +14,7 @@ If you're interested in keeping up with my latest updates and insights on the co
 - [terminal.html](terminal.html)
 - [thalassara.html](thalassara.html)
 - [useless_clock.html](useless_clock.html)
-
+- [Exoplanets](exoplanet.html)
 
 Thanks for stopping by and I hope you enjoy exploring the universe with me!
 
