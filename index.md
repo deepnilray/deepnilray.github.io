@@ -7,8 +7,6 @@ I am thrilled to announce that I recently discovered an asteroid, which has been
 If you're interested in keeping up with my latest updates and insights on the cosmos, you can follow me on Twitter at [@deepnil_astro](https://twitter.com/deepnil_astro) . I post about everything from the latest discoveries in astrophysics to stunning images of galaxies and nebulae. here are the other pages you visit from here
 # My Files
 - [alien.html](alien.html)
-- [assssistant.html](assssistant.html)
-- [canitspeak.html](canitspeak.html)
 - [intro.html](intro.html)
 - [nasa.html](nasa.html)
 - [notahorse.html](notahorse.html)
@@ -16,7 +14,6 @@ If you're interested in keeping up with my latest updates and insights on the co
 - [terminal.html](terminal.html)
 - [thalassara.html](thalassara.html)
 - [useless_clock.html](useless_clock.html)
-- Thank you
 
 
 Thanks for stopping by and I hope you enjoy exploring the universe with me!
