@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exoplanet Encyclopedia - The Ultimate Guide to Worlds Beyond</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #000000;
+            color: #e0e0e0;
+            line-height: 1.8;
+            overflow-x: hidden;
+        }
+
+        .stars-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(10, 10, 30, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(138, 43, 226, 0.3);
+        }
+
+        .nav-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 30px;
+        }
+
+        .logo {
+            font-size: 1.5em;
+            font-weight: bold;
+            background: linear-gradient(45deg, #ff6b9d, #c06bff, #6bb3ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: #e0e0e0;
+            text-decoration: none;
+            transition: all 0.3s;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        .nav-links a:hover {
+            color: #c06bff;
+            background: rgba(192, 107, 255, 0.1);
+        }
+
+        .hero {
+            position: relative;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 0 20px;
+            overflow: hidden;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 1000px;
+        }
+
+        .hero h1 {
+            font-size: 5em;
+            background: linear-gradient(45deg, #ff6b9d, #c06bff, #6bb3ff, #4ade80);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .hero p {
+            font-size: 1.5em;
+            color: #a0a0ff;
+            margin-bottom: 40px;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 15px 40px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-size: 1.1em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #ff6b9d, #c06bff);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 30px rgba(192, 107, 255, 0.5);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #c06bff;
+            border: 2px solid #c06bff;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(192, 107, 255, 0.1);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 60px 30px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .section {
+            background: linear-gradient(135deg, rgba(20, 20, 60, 0.4), rgba(40, 20, 60, 0.4));
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 25px;
+            padding: 60px;
+            margin-bottom: 80px;
+            transition: all 0.3s ease;
+        }
+
+        .section:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 60px rgba(192, 107, 255, 0.3);
+        }
+
+        h2 {
+            color: #ff6b9d;
+            font-size: 3em;
+            margin-bottom: 30px;
+            border-bottom: 3px solid rgba(255, 107, 157, 0.3);
+            padding-bottom: 15px;
+        }
+
+        h3 {
+            color: #a0a0ff;
+            font-size: 2em;
+            margin-top: 40px;
+            margin-bottom: 20px;
+        }
+
+        .grid {
+            display: grid;
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .grid-2 { grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); }
+        .grid-3 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+        .grid-4 { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+
+        .card {
+            background: linear-gradient(135deg, rgba(99, 39, 255, 0.2), rgba(255, 107, 157, 0.2));
+            border-radius: 20px;
+            padding: 35px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 10px 40px rgba(192, 107, 255, 0.4);
+        }
+
+        .card-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .card h4 {
+            color: #6bb3ff;
+            font-size: 1.5em;
+            margin-bottom: 15px;
+        }
+
+        .timeline {
+            position: relative;
+            padding: 40px 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(180deg, #ff6b9d, #c06bff, #6bb3ff);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 60px;
+            display: flex;
+            align-items: center;
+        }
+
+        .timeline-item:nth-child(odd) {
+            flex-direction: row;
+        }
+
+        .timeline-item:nth-child(even) {
+            flex-direction: row-reverse;
+        }
+
+        .timeline-content {
+            width: 45%;
+            background: rgba(30, 30, 80, 0.6);
+            padding: 30px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .timeline-dot {
+            width: 20px;
+            height: 20px;
+            background: #c06bff;
+            border-radius: 50%;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 0 20px #c06bff;
+        }
+
+        .interactive-box {
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 20px;
+            padding: 40px;
+            margin: 40px 0;
+            border: 2px solid rgba(192, 107, 255, 0.3);
+        }
+
+        .planet-showcase {
+            display: flex;
+            gap: 40px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .planet-visual {
+            flex: 1;
+            min-width: 300px;
+            height: 400px;
+            position: relative;
+        }
+
+        .planet {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: rotate 20s linear infinite;
+        }
+
+        .planet-earth {
+            background: linear-gradient(135deg, #4fc3f7, #0288d1, #1565c0);
+            box-shadow: 0 0 60px rgba(79, 195, 247, 0.8), inset -30px -30px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .planet-jupiter {
+            background: linear-gradient(135deg, #d4a574, #c08552, #a66e3f);
+            box-shadow: 0 0 60px rgba(212, 165, 116, 0.8), inset -30px -30px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .planet-neptune {
+            background: linear-gradient(135deg, #5b9bd5, #2e5c8a, #1a3a5c);
+            box-shadow: 0 0 60px rgba(91, 155, 213, 0.8), inset -30px -30px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        @keyframes rotate {
+            from { transform: translate(-50%, -50%) rotate(0deg); }
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        .planet-info {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 25px;
+            margin: 40px 0;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, rgba(255, 107, 157, 0.2), rgba(192, 107, 255, 0.2));
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s;
+        }
+
+        .stat-box:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 25px rgba(192, 107, 255, 0.4);
+        }
+
+        .stat-number {
+            font-size: 3em;
+            font-weight: bold;
+            background: linear-gradient(45deg, #ff6b9d, #c06bff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 30px;
+            background: rgba(20, 20, 60, 0.4);
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .comparison-table th {
+            background: linear-gradient(135deg, #ff6b9d, #c06bff);
+            padding: 20px;
+            text-align: left;
+            font-size: 1.2em;
+        }
+
+        .comparison-table td {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .comparison-table tr:hover {
+            background: rgba(192, 107, 255, 0.1);
+        }
+
+        .quiz-section {
+            background: linear-gradient(135deg, rgba(192, 107, 255, 0.2), rgba(79, 195, 247, 0.2));
+            padding: 40px;
+            border-radius: 20px;
+            margin-top: 40px;
+        }
+
+        .quiz-question {
+            margin-bottom: 30px;
+        }
+
+        .quiz-options {
+            display: grid;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .quiz-option {
+            background: rgba(30, 30, 80, 0.6);
+            padding: 15px 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .quiz-option:hover {
+            background: rgba(192, 107, 255, 0.3);
+            border-color: #c06bff;
+        }
+
+        .accordion {
+            margin-top: 30px;
+        }
+
+        .accordion-item {
+            background: rgba(30, 30, 80, 0.4);
+            margin-bottom: 15px;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .accordion-header {
+            padding: 20px 30px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+        }
+
+        .accordion-header:hover {
+            background: rgba(192, 107, 255, 0.1);
+        }
+
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            padding: 0 30px;
+        }
+
+        .accordion-content.active {
+            max-height: 500px;
+            padding: 20px 30px;
+        }
+
+        .image-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .gallery-item {
+            aspect-ratio: 1;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .gallery-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 40px rgba(192, 107, 255, 0.5);
+        }
+
+        .gallery-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
+            padding: 20px;
+            transform: translateY(100%);
+            transition: transform 0.3s;
+        }
+
+        .gallery-item:hover .gallery-overlay {
+            transform: translateY(0);
+        }
+
+        .feature-highlight {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: center;
+            margin: 60px 0;
+        }
+
+        .feature-image {
+            width: 100%;
+            height: 400px;
+            background: linear-gradient(135deg, #ff6b9d, #c06bff, #6bb3ff);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8em;
+        }
+
+        .footer {
+            background: rgba(10, 10, 30, 0.95);
+            padding: 60px 0 30px;
+            border-top: 2px solid rgba(192, 107, 255, 0.3);
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 30px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+        }
+
+        .footer-section h3 {
+            color: #ff6b9d;
+            margin-bottom: 20px;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 10px;
+        }
+
+        .footer-links a {
+            color: #a0a0ff;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: #c06bff;
+        }
+
+        .copyright {
+            text-align: center;
+            padding: 30px;
+            margin-top: 40px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #888;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 3em; }
+            h2 { font-size: 2em; }
+            .section { padding: 30px; }
+            .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+            .timeline::before { left: 30px; }
+            .timeline-content { width: 100%; margin-left: 60px; }
+            .timeline-item { flex-direction: row !important; }
+            .timeline-dot { left: 30px; }
+            .feature-highlight { grid-template-columns: 1fr; }
+            .nav-links { display: none; }
+        }
+
+        .pulse {
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body>
+    <canvas class="stars-canvas" id="starsCanvas"></canvas>
+
+    <nav>
+        <div class="nav-content">
+            <div class="logo">🌌 Exoplanet Encyclopedia</div>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#discovery">Discovery</a></li>
+                <li><a href="#types">Types</a></li>
+                <li><a href="#methods">Detection</a></li>
+                <li><a href="#habitable">Habitable Zones</a></li>
+                <li><a href="#missions">Missions</a></li>
+                <li><a href="#quiz">Quiz</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <h1>Explore Distant Worlds</h1>
+            <p>Journey beyond our solar system to discover thousands of alien planets orbiting distant stars</p>
+            <div class="cta-buttons">
+                <a href="#discovery" class="btn btn-primary">Start Exploring</a>
+                <a href="#quiz" class="btn btn-secondary">Test Your Knowledge</a>
+            </div>
+        </div>
+    </section>
+
+    <div class="container">
+        <!-- Introduction -->
+        <div class="section" id="discovery">
+            <h2>🌍 What Are Exoplanets?</h2>
+            <p style="font-size: 1.2em; margin-bottom: 30px;">Exoplanets, or extrasolar planets, are worlds that orbit stars other than our Sun. They represent one of the most exciting frontiers in astronomy, offering glimpses into the incredible diversity of planetary systems throughout our galaxy.</p>
+            
+            <div class="stat-grid">
+                <div class="stat-box">
+                    <span class="stat-number">5,500+</span>
+                    <p>Confirmed Exoplanets</p>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-number">4,000+</span>
+                    <p>Planetary Systems</p>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-number">9,900+</span>
+                    <p>Candidates Awaiting Confirmation</p>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-number">60+</span>
+                    <p>Potentially Habitable</p>
+                </div>
+            </div>
+
+            <div class="interactive-box">
+                <h3>The Scale of Discovery</h3>
+                <p>Since the first confirmed detection of an exoplanet orbiting a sun-like star in 1995 (51 Pegasi b), our knowledge has exploded exponentially. The Kepler Space Telescope alone discovered over 2,600 confirmed exoplanets during its mission from 2009 to 2018. Today, we're discovering new worlds at an unprecedented rate, with ground-based observatories and space telescopes working in tandem.</p>
+                <p style="margin-top: 20px;">These discoveries have revolutionized our understanding of planet formation, orbital mechanics, and the potential prevalence of life in the universe. We've found planets that challenge our theories, from "hot Jupiters" that orbit their stars in mere days to rogue planets drifting alone through interstellar space.</p>
+            </div>
+        </div>
+
+        <!-- Timeline of Discovery -->
+        <div class="section">
+            <h2>📅 Timeline of Exoplanet Discovery</h2>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <h4>1992 - First Confirmed Exoplanets</h4>
+                        <p>Astronomers Aleksander Wolszczan and Dale Frail discover the first confirmed exoplanets orbiting a pulsar (PSR B1257+12). These harsh, radiation-blasted worlds proved that planets could exist in extreme environments.</p>
+                    </div>
+                    <div class="timeline-dot"></div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <h4>1995 - First Sun-Like Star Planet</h4>
+                        <p>Michel Mayor and Didier Queloz discover 51 Pegasi b, the first exoplanet found orbiting a sun-like star. This "hot Jupiter" revolutionized planet formation theories and earned them the 2019 Nobel Prize in Physics.</p>
+                    </div>
+                    <div class="timeline-dot"></div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <h4>2009 - Kepler Space Telescope Launch</h4>
+                        <p>NASA's Kepler mission begins its planet-hunting journey, using the transit method to discover thousands of exoplanets. It would go on to revolutionize our statistical understanding of planetary systems.</p>
+                    </div>
+                    <div class="timeline-dot"></div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <h4>2015 - First Earth-Size Planet in Habitable Zone</h4>
+                        <p>Kepler-452b is discovered - a planet roughly Earth-sized in the habitable zone of a sun-like star. The "Earth's cousin" captures public imagination about potentially habitable worlds.</p>
+                    </div>
+                    <div class="timeline-dot"></div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <h4>2017 - TRAPPIST-1 System</h4>
+                        <p>Astronomers announce the discovery of seven Earth-sized planets orbiting TRAPPIST-1, with three in the habitable zone. This system becomes a prime target for studying potentially habitable worlds.</p>
+                    </div>
+                    <div class="timeline-dot"></div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <h4>2018 - TESS Mission Begins</h4>
+                        <p>NASA's Transiting Exoplanet Survey Satellite (TESS) launches, designed to find exoplanets around nearby bright stars, making them ideal targets for atmospheric studies.</p>
+                    </div>
+                    <div class="timeline-dot"></div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <h4>2022 - James Webb's First Exoplanet Data</h4>
+                        <p>The James Webb Space Telescope captures its first exoplanet atmospheric spectra, revealing detailed chemical compositions including water vapor, clouds, and even hints of photochemistry.</p>
+                    </div>
+                    <div class="timeline-dot"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detection Methods -->
+        <div class="section" id="methods">
+            <h2>🔬 How We Detect Exoplanets</h2>
+            <p style="font-size: 1.2em; margin-bottom: 40px;">Detecting planets light-years away requires ingenious techniques. Here are the primary methods astronomers use to discover these distant worlds:</p>
+            
+            <div class="grid grid-2">
+                <div class="card">
+                    <span class="card-icon">🌑</span>
+                    <h4>Transit Photometry</h4>
+                    <p><strong>How it works:</strong> When a planet passes in front of its star (from our perspective), it blocks a tiny fraction of the star's light, causing a measurable dip in brightness.</p>
+                    <p style="margin-top: 15px;"><strong>What we learn:</strong> Planet size, orbital period, and with follow-up observations, atmospheric composition.</p>
+                    <p style="margin-top: 15px;"><strong>Success rate:</strong> Responsible for ~75% of all confirmed exoplanets. Kepler and TESS missions use this method.</p>
+                    <p style="margin-top: 15px;"><strong>Limitations:</strong> Only works if the planet's orbit is aligned with our line of sight. Typically detects about 0.5-1% of planets around target stars.</p>
+                </div>
+
+                <div class="card">
+                    <span class="card-icon">📊</span>
+                    <h4>Radial Velocity (Doppler Method)</h4>
+                    <p><strong>How it works:</strong> A planet's gravity causes its host star to wobble slightly. This wobble shifts the star's light spectrum due to the Doppler effect - similar to how an ambulance siren changes pitch as it passes.</p>
+                    <p style="margin-top: 15px;"><strong>What we learn:</strong> Planet mass (or minimum mass), orbital period, and orbital eccentricity.</p>
+                    <p style="margin-top: 15px;"><strong>Success rate:</strong> ~20% of confirmed exoplanets. This was the first method to successfully detect exoplanets around sun-like stars.</p>
+                    <p style="margin-top: 15px;"><strong>Limitations:</strong> More sensitive to massive planets close to their stars. Requires very precise spectrographic measurements.</p>
+                </div>
+
+                <div class="card">
+                    <span class="card-icon">🔭</span>
+                    <h4>Direct Imaging</h4>
+                    <p><strong>How it works:</strong> Using coronagraphs or starshades to block out a star's overwhelming light, allowing telescopes to photograph planets directly. Young, massive planets glow with infrared heat, making them easier to image.</p>
+                    <p style="margin-top: 15px;"><strong>What we learn:</strong> Direct information about the planet's atmosphere, temperature, and orbit. Can detect multiple planets in the same system.</p>
+                    <p style="margin-top: 15px;"><strong>Success rate:</strong> ~1% of confirmed exoplanets. Extremely challenging due to the vast brightness difference between stars and planets.</p>
+                    <p style="margin-top: 15px;"><strong>Best targets:</strong> Young, massive planets orbiting far from their host stars.</p>
+                </div>
+
+                <div class="card">
+                    <span class="card-icon">🔍</span>
+                    <h4>Gravitational Microlensing</h4>
+                    <p><strong>How it works:</strong> When a star (with a planet) passes in front of a more distant background star, gravity bends and magnifies the background star's light. A planet causes a distinct spike in the light curve.</p>
+                    <p style="margin-top: 15px;"><strong>What we learn:</strong> Can detect planets at great distances from Earth and planets very far from their host stars, including free-floating rogue planets.</p>
+                    <p style="margin-top: 15px;"><strong>Success rate:</strong> ~3% of confirmed exoplanets. Each event is unique and typically can't be repeated.</p>
+                    <p style="margin-top: 15px;"><strong>Special advantage:</strong> Can detect low-mass planets that other methods might miss.</p>
+                </div>
+
+                <div class="card">
+                    <span class="card-icon">⚡</span>
+                    <h4>Astrometry</h4>
+                    <p><strong>How it works:</strong> Measures the precise position of a star in the sky over time. A planet's gravity causes the star to move in a small ellipse against the background of more distant stars.</p>
+                    <p style="margin-top: 15px;"><strong>What we learn:</strong> Planet mass and orbital characteristics with high precision.</p>
+                    <p style="margin-top: 15px;"><strong>Current status:</strong> Limited confirmations so far, but the Gaia space telescope is expected to detect thousands of exoplanets using this method.</p>
+                    <p style="margin-top: 15px;"><strong>Future potential:</strong> Next-generation telescopes will make this a powerful detection method.</p>
+                </div>
+
+                <div class="card">
+                    <span class="card-icon">⏱️</span>
+                    <h4>Transit Timing Variations (TTV)</h4>
+                    <p><strong>How it works:</strong> When multiple planets orbit the same star, their gravitational interactions cause slight variations in transit timing. By analyzing these variations, we can infer the presence of additional planets.</p>
+                    <p style="margin-top: 15px;"><strong>What we learn:</strong> Can detect non-transiting planets and provide precise mass measurements.</p>
+                    <p style="margin-top: 15px;"><strong>Success rate:</strong> Relatively new technique that has confirmed dozens of planets, particularly in multi-planet systems.</p>
+                    <p style="margin-top: 15px;"><strong>Advantage:</strong> Can find planets that don't transit their stars themselves.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Types of Exoplanets -->
+        <div class="section" id="types">
+            <h2>🪐 Types of Exoplanets</h2>
+            <p style="font-size: 1.2em; margin-bottom: 40px;">Exoplanets come in an astonishing variety of sizes, compositions, and environments. Here are the main categories:</p>
+            
+            <div class="grid grid-3">
+                <div class="card">
+                    <span class="card-icon">🔥</span>
+                    <h4>Hot Jupiters</h4>
+                    <p><strong>Size:</strong> Similar to or larger than Jupiter</p>
+                    <p><strong>Composition:</strong> Gas giants (hydrogen & helium)</p>
+                    <p><strong>Characteristics:</strong> Orbit extremely close to their stars (closer than Mercury to our Sun), with orbital periods of just days. Surface temperatures exceed 1,000°C (1,800°F), hot enough to vaporize metals.</p>
+                    <p style="margin-top: 15px;"><strong>Examples:</strong> 51 Pegasi b (the first discovered), HD 209458 b (Osiris)</p>
+                    <p style="margin-top: 15px;"><strong>Mystery:</strong> Their existence challenged planet formation theories - how did such massive planets end up so close to their stars?</p>
+                </div>
+
+                <div class="card">
+                    <span class="card-icon">🌍</span>
+                    <h4>Super-Earths</h4>
+                    <p><strong>Size:</strong> 1.5 to 2 times Earth's radius</p>
+                    <p><strong>Composition:</strong> Rocky planets with possible thick atmospheres</p>
+                    <p><strong>Characteristics:</strong> More massive than Earth but lighter than Neptune. Can be rocky, icy, or have thick atmospheres. Some may have oceans or continents. These are the most common type in our galaxy, though our solar system has none.</p>
+                    <p style="margin-top: 15px;"><strong>Examples:</strong> Kepler-452b, Proxima Centauri b, LHS 1140 b</p>
+                    <p style="margin-top: 15px;"><strong>Habitability:</strong> Prime candidates for finding life, especially those in habitable zones.</p>
+                </div>
+
+                <div class="card">
+                    <span class="card-icon">🌊</span>
+                    <h4>Mini-Neptunes</h4>
+                    <p><strong>Size:</strong> 2 to 4 times Earth's radius</p>
+                    <p><strong>Composition:</strong> Rocky core with thick hydrogen-helium atmospheres</p>
+                    <p><strong>Characteristics:</strong> The most abundant type of exoplanet discovered. Smaller than Neptune but larger than Earth. May have water worlds beneath their atmospheres. Scientists debate whether they have rocky surfaces or are entirely gaseous.</p>
+                    <p style="margin-top: 15px;"><strong>Examples:</strong> Kepler-138d, K2-18b, TOI-270 d</p>
+                    <p style="margin-top: 15px;"><strong>Research focus:</strong> Understanding the "radius gap" - why planets of certain sizes are rare.</p>
+                </div>
+
+                <div class="card">
+                    <span class="card-icon">❄️</span>
+                    <h4>Ice Giants</h4>
+                    <p><strong>Size:</strong> Similar to Uranus or Neptune</p>
+                    <p><strong>Composition:</strong> Water, methane, and ammonia ices with rocky cores</p>
+                    <p><strong>Characteristics:</strong> These planets have thick atmospheres over mantles of icy materials. They're much less common in exoplanet surveys than hot Jupiters or super-Earths, possibly because they're harder to detect.</p>
+                    <p style="margin-top: 15px;"><strong>Examples:</strong> HAT-P-26b (warm Neptune), GJ 3470 b</p>
+                    <p style="margin-top: 15px;"><strong>Interesting fact:</strong> Some may have diamond rain in their interiors due to extreme pressure.</p>
+                </div>
+
+                <div class="card">
+                    <span class="card-icon">🌑</span>
+                    <h4>Gas Giants</h4>
+                    <p><strong>Size:</strong> Jupiter-sized or larger</p>
+                    <p><strong>Composition:</strong> Primarily hydrogen and helium</p>
+                    <p><strong>Characteristics:</strong> Similar to Jupiter and Saturn. Can orbit at various distances from their stars. "Cold Jupiters" orbit far from their stars like our Jupiter, while others orbit at intermediate distances.</p>
+                    <p style="margin-top: 15px;"><strong>Examples:</strong> HD 106906 b, Beta Pictoris b, 51 Eridani b</p>
+                    <p style="margin-top: 15px;"><strong>Role in systems:</strong> May protect inner rocky planets from asteroid impacts, like Jupiter does for Earth.</p>
+                </div>
+
+                <div class="card">
+                    <span class="card-icon">🪨</span>
+                    <h4>Terrestrial/Rocky Planets</h4>
+                    <p><strong>Size:</strong> Similar to Earth or smaller</p>
+                    <p><strong>Composition:</strong> Primarily rock and metal</p>
+                    <p><strong>Characteristics:</strong> Similar to Earth, Venus, Mars, and Mercury. May have thin atmospheres or none at all. These are the holy grail of exoplanet research for finding Earth-like life.</p>
+                    <p style="margin-top: 15px;"><strong>Examples:</strong> TRAPPIST-1e, Kepler-186f, Proxima Centauri b</p>
+                    <p style="margin-top: 15px;"><strong>Challenge:</strong> Small size makes them harder to detect than larger planets.</p>
+                </div>
+
+                <div class="card">
+                    <span class="card-icon">🌋</span>
+                    <h4>Lava Worlds</h4>
+                    <p><strong>Size:</strong> Various, but typically rocky</p>
+                    <p><strong>Composition:</strong> Rock and metal with molten surfaces</p>
+                    <p><strong>Characteristics:</strong> Orbit so close to their stars that surface rock melts into lava oceans. Daytime temperatures can exceed 2,000°C (3,600°F). May have atmospheres of vaporized rock.</p>
+                    <p style="margin-top: 15px;"><strong>Examples:</strong> Kepler-10b, CoRoT-7b, K2-141b</p>
+                    <p style="margin-top: 15px;"><strong>Extreme conditions:</strong> Some may have one side permanently facing their star, with lava on one side and solid rock on the other.</p>
+                </div>
+
+                <div class="card">
+                    <span class="card-icon">💧</span>
+                    <h4>Ocean Worlds</h4>
+                    <p><strong>Size:</strong> Typically super-Earth sized</p>
+                    <p><strong>Composition:</strong> Deep global oceans over rocky cores</p>
+                    <p><strong>Characteristics:</strong> Planets covered entirely by deep water oceans, potentially hundreds of kilometers deep. May have exotic high-pressure ice at the bottom of their oceans. Some scientists theorize these could harbor life in subsurface oceans.</p>
+                    <p style="margin-top: 15px;"><strong>Examples:</strong> GJ 1214 b, Kepler-22b (candidate)</p>
+                    <p style="margin-top: 15px;"><strong>Astrobiology interest:</strong> Could life evolve in perpetual darkness under thick ice?</p>
+                </div>
+
+                <div class="card">
+                    <span class="card-icon">🌌</span>
+                    <h4>Rogue Planets</h4>
+                    <p><strong>Size:</strong> Various sizes</p>
+                    <p><strong>Composition:</strong> Any composition</p>
+                    <p><strong>Characteristics:</strong> Planets that don't orbit any star, drifting alone through interstellar space. Ejected from their original systems or formed independently. Could be numerous in the galaxy - possibly billions.</p>
+                    <p style="margin-top: 15px;"><strong>Examples:</strong> CFBDSIR 2149-0403, PSO J318.5-22</p>
+                    <p style="margin-top: 15px;"><strong>Speculation:</strong> Could some retain enough internal heat to support subsurface oceans and potentially life?</p>
+                </div>
+            </div>
+
+            <div class="interactive-box" style="margin-top: 60px;">
+                <h3>🌡️ Temperature Extremes</h3>
+                <div class="comparison-table">
+                    <table style="width: 100%;">
+                        <tr>
+                            <th>Planet Type</th>
+                            <th>Temperature Range</th>
+                            <th>Comparison</th>
+                        </tr>
+                        <tr>
+                            <td>Ultra-Hot Jupiters</td>
+                            <td>2,000°C - 4,000°C</td>
+                            <td>Hotter than some stars!</td>
+                        </tr>
+                        <tr>
+                            <td>Hot Jupiters</td>
+                            <td>1,000°C - 2,000°C</td>
+                            <td>Hot enough to melt iron</td>
+                        </tr>
+                        <tr>
+                            <td>Lava Worlds</td>
+                            <td>1,200°C - 3,000°C</td>
+                            <td>Surface is molten rock</td>
+                        </tr>
+                        <tr>
+                            <td>Habitable Zone Planets</td>
+                            <td>-50°C - 50°C</td>
+                            <td>Similar to Earth's range</td>
+                        </tr>
+                        <tr>
+                            <td>Ice Giants</td>
+                            <td>-200°C - -100°C</td>
+                            <td>Colder than Antarctica</td>
+                        </tr>
+                        <tr>
+                            <td>Rogue Planets</td>
+                            <td>-230°C or colder</td>
+                            <td>Nearly absolute zero</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Habitable Zones -->
+        <div class="section" id="habitable">
+            <h2>🌱 The Habitable Zone: Where Life Could Exist</h2>
+            <p style="font-size: 1.2em; margin-bottom: 30px;">The habitable zone (also called the "Goldilocks zone") is the region around a star where conditions might be just right for liquid water to exist on a planet's surface - not too hot, not too cold. This is considered the primary criterion for habitability as we know it.</p>
+
+            <div class="feature-highlight">
+                <div class="feature-image">🌍💧</div>
+                <div>
+                    <h3>What Defines the Habitable Zone?</h3>
+                    <p>The habitable zone's location depends on the star's temperature and brightness:</p>
+                    <ul style="margin-left: 25px; margin-top: 20px; line-height: 2;">
+                        <li><strong>Hot, massive stars:</strong> Habitable zone is far from the star</li>
+                        <li><strong>Cool, small stars (red dwarfs):</strong> Habitable zone is very close to the star</li>
+                        <li><strong>Sun-like stars:</strong> Habitable zone similar to Earth's orbit</li>
+                    </ul>
+                    <p style="margin-top: 20px;">For our Sun, the habitable zone extends from about 0.95 AU (just inside Earth's orbit) to 1.37 AU (between Earth and Mars).</p>
+                </div>
+            </div>
+
+            <h3>Factors Beyond the Habitable Zone</h3>
+            <div class="grid grid-2">
+                <div class="card">
+                    <h4>🌫️ Atmospheric Composition</h4>
+                    <p>A thick greenhouse atmosphere can warm a planet beyond the outer edge of the habitable zone. Conversely, a thin atmosphere might not trap enough heat even within the zone.</p>
+                </div>
+                <div class="card">
+                    <h4>🧲 Magnetic Field</h4>
+                    <p>Protects atmosphere from being stripped away by stellar wind. Without it, even a habitable-zone planet could lose its water and become barren like Mars.</p>
+                </div>
+                <div class="card">
+                    <h4>🌋 Geological Activity</h4>
+                    <p>Volcanoes and plate tectonics recycle carbon and regulate climate over geological timescales, potentially extending habitability.</p>
+                </div>
+                <div class="card">
+                    <h4>☄️ Planetary System Architecture</h4>
+                    <p>Giant planets in outer orbits can shield inner planets from comets and asteroids, while also delivering water during formation.</p>
+                </div>
+            </div>
+
+            <div class="interactive-box" style="margin-top: 40px;">
+                <h3>🌟 Notable Potentially Habitable Exoplanets</h3>
+                <div class="accordion">
+                    <div class="accordion-item">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">
+                            <span><strong>Proxima Centauri b</strong> - Our Nearest Exoplanet Neighbor</span>
+                            <span>▼</span>
+                        </div>
+                        <div class="accordion-content">
+                            <p><strong>Distance:</strong> 4.24 light-years</p>
+                            <p><strong>Discovery:</strong> 2016</p>
+                            <p><strong>Mass:</strong> ~1.27 Earth masses</p>
+                            <p><strong>Orbital period:</strong> 11.2 days</p>
+                            <p style="margin-top: 15px;">This rocky planet orbits within the habitable zone of Proxima Centauri, the closest star to our Sun. However, it faces challenges: the star is a red dwarf that produces powerful flares, potentially stripping away the planet's atmosphere. If it has retained an atmosphere and magnetic field, it could potentially harbor life.</p>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">
+                            <span><strong>TRAPPIST-1e</strong> - Earth's Twin?</span>
+                            <span>▼</span>
+                        </div>
+                        <div class="accordion-content">
+                            <p><strong>Distance:</strong> 41 light-years</p>
+                            <p><strong>Discovery:</strong> 2017</p>
+                            <p><strong>Mass:</strong> ~0.69 Earth masses</p>
+                            <p><strong>Orbital period:</strong> 6.1 days</p>
+                            <p style="margin-top: 15px;">Part of a remarkable seven-planet system, TRAPPIST-1e is considered one of the most Earth-like exoplanets discovered. It sits squarely in the habitable zone with a density suggesting a rocky composition. The James Webb Space Telescope is studying its atmosphere for signs of water vapor and other biosignatures.</p>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">
+                            <span><strong>Kepler-452b</strong> - Earth's Older Cousin</span>
+                            <span>▼</span>
+                        </div>
+                        <div class="accordion-content">
+                            <p><strong>Distance:</strong> 1,800 light-years</p>
+                            <p><strong>Discovery:</strong> 2015</p>
+                            <p><strong>Size:</strong> ~1.5 Earth radii</p>
+                            <p><strong>Orbital period:</strong> 385 days</p>
+                            <p style="margin-top: 15px;">Orbiting a sun-like star in a 385-day orbit (similar to Earth's year), Kepler-452b is located in its star's habitable zone. The star is 1.5 billion years older than our Sun, giving life (if it exists) more time to develop. However, the planet is significantly larger than Earth and may be a mini-Neptune rather than a rocky super-Earth.</p>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">
+                            <span><strong>LHS 1140 b</strong> - Dense Super-Earth</span>
+                            <span>▼</span>
+                        </div>
+                        <div class="accordion-content">
+                            <p><strong>Distance:</strong> 49 light-years</p>
+                            <p><strong>Discovery:</strong> 2017</p>
+                            <p><strong>Mass:</strong> ~6.6 Earth masses</p>
+                            <p><strong>Orbital period:</strong> 24.7 days</p>
+                            <p style="margin-top: 15px;">This dense rocky super-Earth orbits a quiet red dwarf star, making it an excellent candidate for atmospheric studies. Its high density suggests an iron-rich core. Recent observations hint at a possible atmosphere, making it a priority target for the James Webb Space Telescope.</p>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">
+                            <span><strong>K2-18 b</strong> - Water World with Potential Biosignatures</span>
+                            <span>▼</span>
+                        </div>
+                        <div class="accordion-content">
+                            <p><strong>Distance:</strong> 124 light-years</p>
+                            <p><strong>Discovery:</strong> 2015</p>
+                            <p><strong>Mass:</strong> ~8.6 Earth masses</p>
+                            <p><strong>Orbital period:</strong> 33 days</p>
+                            <p style="margin-top: 15px;">In 2023, JWST detected potential biosignature gases in K2-18 b's atmosphere, including dimethyl sulfide - a molecule on Earth produced only by life. Water vapor and carbon dioxide were also confirmed. However, scientists remain cautious as this mini-Neptune may not have a solid surface, possibly being more ocean world than Earth-like planet.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Space Missions -->
+        <div class="section" id="missions">
+            <h2>🚀 Missions Hunting for Exoplanets</h2>
+            <p style="font-size: 1.2em; margin-bottom: 40px;">Multiple space missions and ground-based observatories are dedicated to discovering and studying exoplanets:</p>
+
+            <div class="grid grid-2">
+                <div class="card">
+                    <span class="card-icon">🛰️</span>
+                    <h4>Kepler Space Telescope (2009-2018)</h4>
+                    <p><strong>Status:</strong> Mission ended</p>
+                    <p><strong>Achievements:</strong> Discovered 2,662 confirmed exoplanets by continuously monitoring 150,000 stars in a single patch of sky. Revolutionized our statistical understanding of planetary systems.</p>
+                    <p style="margin-top: 15px;"><strong>Key findings:</strong> Planets are incredibly common - likely more planets than stars in our galaxy. Small planets are more common than large ones.</p>
+                    <p style="margin-top: 15px;"><strong>Legacy:</strong> The K2 extended mission continued until 2018, discovering hundreds more planets.</p>
+                </div>
+
+                <div class="card">
+                    <span class="card-icon">🔭</span>
+                    <h4>TESS (2018-Present)</h4>
+                    <p><strong>Status:</strong> Active</p>
+                    <p><strong>Mission:</strong> Transiting Exoplanet Survey Satellite surveys 85% of the sky, focusing on nearby bright stars. Makes exoplanets ideal targets for follow-up atmospheric studies.</p>
+                    <p style="margin-top: 15px;"><strong>Discoveries:</strong> Over 400 confirmed exoplanets and 6,000+ candidates.</p>
+                    <p style="margin-top: 15px;"><strong>Advantage:</strong> Targets nearby stars, making planets easier to study with other telescopes.</p>
+                </div>
+
+                <div class="card">
+                    <span class="card-icon">✨</span>
+                    <h4>James Webb Space Telescope (2021-Present)</h4>
+                    <p><strong>Status:</strong> Active</p>
+                    <p><strong>Mission:</strong> While not primarily an exoplanet hunter, JWST's infrared capabilities allow unprecedented atmospheric characterization of known exoplanets.</p>
+                    <p style="margin-top: 15px;"><strong>Breakthroughs:</strong> Detailed atmospheric spectra revealing molecules like water, carbon dioxide, methane, and potential biosignatures.</p>
+                    <p style="margin-top: 15px;"><strong>Impact:</strong> Transforming exoplanet science from detection to detailed characterization.</p>
+                </div>
+
+                <div class="card">
+                    <span class="card-icon">🌍</span>
+                    <h4>Ground-Based Observatories</h4>
+                    <p><strong>Key players:</strong> ESO's VLT, Keck Observatory, Gemini, Subaru</p>
+                    <p><strong>Methods:</strong> Radial velocity, direct imaging, and spectroscopic follow-up</p>
+                    <p style="margin-top: 15px;"><strong>Advantages:</strong> Can be upgraded with new instruments, adaptable to new discoveries, cheaper than space missions.</p>
+                    <p style="margin-top: 15px;"><strong>Future:</strong> Extremely Large Telescopes (ELTs) currently under construction will revolutionize exoplanet direct imaging.</p>
+                </div>
+
+                <div class="card">
+                    <span class="card-icon">🔮</span>
+                    <h4>Upcoming: Nancy Grace Roman (2027)</h4>
+                    <p><strong>Status:</strong> In development</p>
+                    <p><strong>Mission:</strong> Will use gravitational microlensing to discover thousands of exoplanets, including many too far from their stars for other methods to detect.</p>
+                    <p style="margin-top: 15px;"><strong>Expected discoveries:</strong> Thousands of planets including analogs to Jupiter, Saturn, and potentially rogue planets.</p>
+                    <p style="margin-top: 15px;"><strong>Unique capability:</strong> First mission optimized for microlensing surveys.</p>
+                </div>
+
+                <div class="card">
+                    <span class="card-icon">🇪🇺</span>
+                    <h4>Upcoming: PLATO (2026)</h4>
+                    <p><strong>Status:</strong> ESA mission in development</p>
+                    <p><strong>Mission:</strong> PLAnetary Transits and Oscillations of stars will discover and characterize Earth-sized planets around sun-like stars.</p>
+                    <p style="margin-top: 15px;"><strong>Goal:</strong> Find Earth-like planets in habitable zones and characterize their host stars with asteroseismology.</p>
+                    <p style="margin-top: 15px;"><strong>Duration:</strong> Planned 4-year mission with possible extension.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz Section -->
+        <div class="section" id="quiz">
+            <h2>🧠 Test Your Exoplanet Knowledge</h2>
+            <p style="font-size: 1.2em; margin-bottom: 30px;">How much have you learned about exoplanets? Take this quiz to find out!</p>
+
+            <div class="quiz-section">
+                <div class="quiz-question">
+                    <h3>Question 1: When was the first exoplanet orbiting a sun-like star discovered?</h3>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">A) 1987</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">B) 1992</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, true)">C) 1995</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">D) 2001</div>
+                    </div>
+                </div>
+
+                <div class="quiz-question">
+                    <h3>Question 2: What detection method has discovered the most exoplanets?</h3>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="checkAnswer(this, true)">A) Transit Photometry</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">B) Radial Velocity</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">C) Direct Imaging</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">D) Gravitational Microlensing</div>
+                    </div>
+                </div>
+
+                <div class="quiz-question">
+                    <h3>Question 3: What is the most common type of exoplanet discovered?</h3>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">A) Hot Jupiters</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, true)">B) Mini-Neptunes</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">C) Super-Earths</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">D) Gas Giants</div>
+                    </div>
+                </div>
+
+                <div class="quiz-question">
+                    <h3>Question 4: What is the closest exoplanet to Earth?</h3>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="checkAnswer(this, true)">A) Proxima Centauri b</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">B) TRAPPIST-1e</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">C) Kepler-452b</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">D) 51 Pegasi b</div>
+                    </div>
+                </div>
+
+                <div class="quiz-question">
+                    <h3>Question 5: How many Earth-sized planets orbit TRAPPIST-1?</h3>
+                    <div class="quiz-options">
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">A) Three</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">B) Five</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, true)">C) Seven</div>
+                        <div class="quiz-option" onclick="checkAnswer(this, false)">D) Nine</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="quiz-result" style="margin-top: 30px; padding: 20px; background: rgba(192, 107, 255, 0.2); border-radius: 10px; display: none; text-align: center;">
+                <h3 style="color: #4ade80;">Your Score: <span id="score">0</span>/5</h3>
+                <p id="result-message" style="margin-top: 15px; font-size: 1.2em;"></p>
+                <button class="btn btn-primary" style="margin-top: 20px;" onclick="resetQuiz()">Try Again</button>
+            </div>
+        </div>
+
+        <!-- Fun Facts -->
+        <div class="section">
+            <h2>🎯 Fascinating Exoplanet Facts</h2>
+            <div class="grid grid-3">
+                <div class="card">
+                    <h4>🌧️ Glass Rain</h4>
+                    <p>On HD 189733 b, it likely rains molten glass sideways at 7,000 km/h (4,350 mph) winds. The planet's deep blue color comes from silicate particles in its atmosphere.</p>
+                </div>
+                <div class="card">
+                    <h4>⏳ Tidal Locking</h4>
+                    <p>Many exoplanets are tidally locked - one side permanently faces their star (eternal day) while the other faces eternal night. This creates extreme temperature differences.</p>
+                </div>
+                <div class="card">
+                    <h4>💎 Diamond Planets</h4>
+                    <p>55 Cancri e may have a surface made largely of diamonds. With temperatures around 2,400°C and extreme pressure, carbon could crystallize into diamond.</p>
+                </div>
+                <div class="card">
+                    <h4>🌅 Two Suns</h4>
+                    <p>Kepler-16b orbits two stars in a binary system - real-life Tatooine! About 40% of stars are in binary systems, potentially hosting these circumbinary planets.</p>
+                </div>
+                <div class="card">
+                    <h4>🌊 Waterworld</h4>
+                    <p>GJ 1214 b might be covered in a deep ocean over 1,000 km deep. The water would exist in exotic high-pressure ice forms at the bottom.</p>
+                </div>
+                <div class="card">
+                    <h4>⚡ Lightning Storms</h4>
+                    <p>Hot Jupiters like HD 209458 b may experience lightning storms millions of times more powerful than Earth's, with planet-wide electrical storms.</p>
+                </div>
