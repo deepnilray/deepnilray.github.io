@@ -17,6 +17,7 @@ If you're interested in keeping up with my latest updates and insights on the co
 - [Exoplanets](exoplanet.html)
 
 # Documents
+📚 [View all documents and research papers](documents.html)
 - [Predator Dynamics Model (RTF)](model.rtf) - Mathematical model for predator dynamics in the Thalassara ecosystem
 - [Vector Space Mathematics](vector%20space.md) - Notes on vector spaces and linear algebra
 
