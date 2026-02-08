@@ -16,6 +16,10 @@ If you're interested in keeping up with my latest updates and insights on the co
 - [useless_clock.html](useless_clock.html)
 - [Exoplanets](exoplanet.html)
 
+# Documents
+- [Predator Dynamics Model (RTF)](model.rtf) - Mathematical model for predator dynamics in the Thalassara ecosystem
+- [Vector Space Mathematics](vector%20space.md) - Notes on vector spaces and linear algebra
+
 Thanks for stopping by and I hope you enjoy exploring the universe with me!
 
 
