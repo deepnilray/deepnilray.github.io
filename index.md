@@ -27,7 +27,7 @@ Here are some of my projects you can explore:
 
 Thanks for stopping by and I hope you enjoy exploring the universe with me!
 
-[View My Resume](https://deepnilray.github.io/about%20me)
+[View My Resume](https://deepnilray.github.io/about-me)
 
 ---
 
