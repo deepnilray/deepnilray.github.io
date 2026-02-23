@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AstroPlanner — Live Sky Targets</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --ink:#020810;--paper:#050d1c;--panel:#081220;--well:#0b1828;
+  --rim:#152030;--rim2:#1c2e46;--rim3:#243856;
+  --text:#bdd3e8;--soft:#7a9bb5;--muted:#3d5870;--ghost:#1e3248;
+  --acc:#d4a44c;--acc2:#f0c870;--acc-glow:rgba(212,164,76,.15);
+  --cyan:#35c5e5;--green:#3de890;--red:#e05060;--purple:#a070f0;--orange:#f07040;
+  --c-neb:#e85878;--c-oc:#35c5e5;--c-gc:#a070f0;--c-gal:#d4a44c;
+  --sidebar:380px;
+}
+html{scroll-behavior:smooth;}
+body{background:var(--ink);color:var(--text);font-family:'DM Mono',monospace;min-height:100vh;overflow-x:hidden;}
+::selection{background:rgba(212,164,76,.2);}
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:var(--ink);}
+::-webkit-scrollbar-thumb{background:var(--rim2);border-radius:2px;}
+
+/* ── Stars canvas ── */
+#cvs{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.65;}
+.z1{position:relative;z-index:1;}
+
+/* ── Header ── */
+header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:18px 28px;border-bottom:1px solid var(--rim);
+  background:rgba(2,8,16,.8);backdrop-filter:blur(12px);
+  position:sticky;top:0;z-index:50;
+}
+.brand{font-family:'DM Serif Display',serif;font-size:1.2rem;color:#fff;}
+.brand em{color:var(--acc);font-style:italic;}
+.brand small{display:block;font-family:'DM Mono',monospace;font-size:.5rem;letter-spacing:3px;color:var(--muted);margin-top:1px;}
+.hbadge{font-size:.5rem;letter-spacing:2px;border:1px solid var(--rim2);color:var(--muted);padding:4px 10px;border-radius:20px;}
+
+/* ── Hero ── */
+.hero{text-align:center;padding:44px 24px 36px;max-width:800px;margin:0 auto;}
+.hero h1{font-family:'DM Serif Display',serif;font-size:clamp(1.8rem,5vw,3.2rem);color:#fff;line-height:1.1;margin-bottom:12px;}
+.hero h1 i{color:var(--acc);font-style:italic;}
+.hero p{font-size:.65rem;color:var(--muted);letter-spacing:.5px;line-height:2;}
+
+/* ── Control panel ── */
+.cp{max-width:940px;margin:0 auto;padding:0 24px 28px;}
+.cp-box{background:var(--panel);border:1px solid var(--rim);border-radius:14px;padding:22px 26px;position:relative;overflow:hidden;}
+.cp-box::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--acc),var(--cyan),transparent);opacity:.4;}
+.cp-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr auto;gap:12px;align-items:end;}
+@media(max-width:820px){.cp-grid{grid-template-columns:1fr 1fr;}.go{grid-column:1/-1;}}
+@media(max-width:460px){.cp-grid{grid-template-columns:1fr;}}
+.fg{display:flex;flex-direction:column;gap:6px;}
+.fl{font-size:.5rem;letter-spacing:3px;text-transform:uppercase;color:var(--muted);}
+.fr{display:flex;gap:6px;}
+input,select{
+  background:var(--well);border:1px solid var(--rim);color:var(--text);
+  font-family:'DM Mono',monospace;font-size:.68rem;padding:9px 11px;border-radius:7px;
+  width:100%;outline:none;transition:border-color .2s,box-shadow .2s;
+  -webkit-appearance:none;appearance:none;
+}
+input:focus,select:focus{border-color:var(--acc);box-shadow:0 0 0 3px var(--acc-glow);}
+input::placeholder{color:var(--ghost);}
+.gps{
+  background:var(--well);border:1px solid var(--rim);color:var(--cyan);
+  font-family:'DM Mono',monospace;font-size:.7rem;padding:9px 10px;border-radius:7px;
+  cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all .2s;
+}
+.gps:hover{border-color:rgba(53,197,229,.4);background:rgba(53,197,229,.05);}
+.go{
+  background:var(--acc);border:none;color:var(--ink);font-family:'DM Mono',monospace;
+  font-size:.65rem;font-weight:500;letter-spacing:2px;text-transform:uppercase;
+  padding:10px 22px;border-radius:7px;cursor:pointer;transition:all .2s;white-space:nowrap;
+}
+.go:hover{background:var(--acc2);transform:translateY(-1px);}
+.go:active{transform:scale(.98);}
+.presets{margin-top:12px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+.pl{font-size:.5rem;letter-spacing:2px;color:var(--ghost);text-transform:uppercase;}
+.pc{font-size:.58rem;color:var(--muted);border:1px solid var(--rim);border-radius:20px;padding:3px 9px;cursor:pointer;background:none;font-family:'DM Mono',monospace;transition:all .15s;}
+.pc:hover{color:var(--text);border-color:var(--rim2);}
+
+/* ── MAIN LAYOUT ── */
+.main{display:none;}
+.main.on{display:flex;flex-direction:column;}
+
+/* ── Night timeline ── */
+.timeline-wrap{
+  background:var(--panel);border-top:1px solid var(--rim);border-bottom:1px solid var(--rim);
+  padding:16px 28px;
+}
+.tl-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px;}
+.tl-title{font-size:.5rem;letter-spacing:3px;text-transform:uppercase;color:var(--muted);}
+.tl-legend{display:flex;gap:14px;flex-wrap:wrap;}
+.tll{display:flex;align-items:center;gap:5px;font-size:.5rem;color:var(--muted);}
+.tll-dot{width:10px;height:6px;border-radius:2px;flex-shrink:0;}
+.tl-bar{position:relative;height:40px;background:var(--well);border-radius:6px;border:1px solid var(--rim);overflow:hidden;margin-bottom:8px;}
+.tl-seg{position:absolute;top:0;bottom:0;border-radius:0;}
+.tl-time-row{display:flex;justify-content:space-between;font-size:.48rem;color:var(--ghost);}
+/* Time slider */
+.slider-wrap{margin-top:10px;}
+.tl-slider{
+  -webkit-appearance:none;appearance:none;width:100%;height:3px;
+  background:var(--rim2);border-radius:3px;outline:none;
+}
+.tl-slider::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;width:16px;height:16px;
+  border-radius:50%;background:var(--acc);cursor:pointer;
+  border:2px solid var(--ink);box-shadow:0 0 0 3px var(--acc-glow);
+}
+.tl-slider::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--acc);cursor:pointer;border:2px solid var(--ink);}
+.slider-label{text-align:center;font-size:.6rem;color:var(--acc);margin-top:6px;letter-spacing:1px;}
+
+/* ── Two-col ── */
+.body-grid{display:grid;grid-template-columns:var(--sidebar) 1fr;min-height:80vh;}
+@media(max-width:860px){.body-grid{grid-template-columns:1fr;}--sidebar:100%;}
+
+/* ── Sidebar ── */
+.sidebar{
+  border-right:1px solid var(--rim);background:var(--paper);
+  position:sticky;top:57px;height:calc(100vh - 57px);
+  overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:16px;
+}
+@media(max-width:860px){.sidebar{position:static;height:auto;border-right:none;border-bottom:1px solid var(--rim);}}
+
+/* ── Sky conditions ── */
+.sc-box{background:var(--panel);border:1px solid var(--rim);border-radius:10px;padding:14px;}
+.sec-label{font-size:.48rem;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+.sc-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.sc-row{display:flex;flex-direction:column;gap:2px;}
+.sc-l{font-size:.48rem;letter-spacing:2px;text-transform:uppercase;color:var(--ghost);}
+.sc-v{font-size:.7rem;color:var(--acc);}
+
+/* ── Polar chart ── */
+.chart-box{background:var(--panel);border:1px solid var(--rim);border-radius:10px;padding:14px;flex:1;}
+.chart-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+#skyChart{width:100%;height:auto;display:block;cursor:crosshair;}
+.type-leg{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
+.tleg{display:flex;align-items:center;gap:4px;font-size:.48rem;color:var(--muted);}
+.tleg-sh{width:10px;height:6px;border-radius:1px;flex-shrink:0;}
+
+/* ── Tooltip ── */
+#tip{
+  position:fixed;pointer-events:none;z-index:200;
+  background:var(--well);border:1px solid var(--rim2);border-radius:8px;
+  padding:10px 13px;font-size:.6rem;color:var(--text);max-width:210px;
+  opacity:0;transition:opacity .1s;box-shadow:0 8px 32px rgba(0,0,0,.6);line-height:1.7;
+}
+#tip.on{opacity:1;}
+#tip strong{color:var(--acc);display:block;margin-bottom:2px;font-size:.65rem;}
+#tip .tip-row{color:var(--soft);font-size:.58rem;}
+
+/* ── Right panel ── */
+.rp{padding:20px 20px;background:var(--ink);}
+.toolbar{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:14px;}
+.tb-sep{width:1px;height:18px;background:var(--rim);}
+.fb{font-size:.48rem;letter-spacing:2px;text-transform:uppercase;padding:4px 10px;border-radius:20px;border:1px solid var(--rim);background:none;color:var(--muted);cursor:pointer;font-family:'DM Mono',monospace;transition:all .15s;}
+.fb:hover{color:var(--text);border-color:var(--rim2);}
+.fb.on{background:var(--well);border-color:var(--acc);color:var(--acc);}
+.fb[data-f="Nebula"].on{border-color:var(--c-neb);color:var(--c-neb);}
+.fb[data-f="Open Cluster"].on{border-color:var(--c-oc);color:var(--c-oc);}
+.fb[data-f="Globular Cluster"].on{border-color:var(--c-gc);color:var(--c-gc);}
+.fb[data-f="Galaxy"].on{border-color:var(--c-gal);color:var(--c-gal);}
+.ss{width:auto;font-size:.58rem;padding:4px 10px;}
+.count-bar{font-size:.58rem;color:var(--muted);margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--rim);}
+.count-bar b{color:var(--text);}
+
+/* ── Twilight warning ── */
+.tw-warn{
+  background:rgba(224,80,96,.05);border:1px solid rgba(224,80,96,.2);
+  border-radius:7px;padding:10px 13px;font-size:.6rem;color:#7a4050;
+  margin-bottom:12px;display:none;
+}
+.tw-warn.on{display:block;}
+
+/* ── Cards ── */
+.cards{display:flex;flex-direction:column;gap:10px;}
+
+.card{
+  background:var(--panel);border:1px solid var(--rim);border-radius:10px;
+  overflow:hidden;transition:border-color .2s,box-shadow .15s,transform .15s;
+  position:relative;animation:rise .35s ease both;
+}
+@keyframes rise{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+.card:hover{border-color:var(--rim2);box-shadow:0 5px 20px rgba(0,0,0,.4);transform:translateX(2px);}
+.card.hi{border-color:var(--acc)!important;box-shadow:0 0 0 1px var(--acc),0 6px 24px var(--acc-glow)!important;}
+.card.dimmed{opacity:.3;}
+.card.below{opacity:.35;}
+/* left stripe */
+.card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--stripe,#444);}
+
+.ci{display:flex;}
+/* Meta col */
+.cm{padding:14px 12px 14px 16px;flex:0 0 120px;min-width:0;border-right:1px solid var(--rim);display:flex;flex-direction:column;gap:4px;}
+.cid{font-family:'DM Serif Display',serif;font-size:1.25rem;color:#fff;line-height:1;}
+.cname{font-size:.55rem;color:var(--muted);line-height:1.4;margin-bottom:2px;}
+.cbadge{font-size:.42rem;letter-spacing:2px;text-transform:uppercase;padding:2px 6px;border-radius:8px;border:1px solid;width:fit-content;}
+/* difficulty */
+.cdiff{margin-top:auto;padding-top:6px;}
+.diff-label{font-size:.42rem;letter-spacing:2px;text-transform:uppercase;color:var(--ghost);}
+.diff-stars{font-size:.6rem;letter-spacing:1px;}
+/* rating */
+.crating{font-family:'DM Serif Display',serif;font-size:1.4rem;line-height:1;margin-top:4px;}
+.crating sub{font-size:.45rem;color:var(--muted);font-family:'DM Mono',monospace;}
+
+/* Body col */
+.cb{flex:1;min-width:0;padding:12px 14px;}
+/* Top row: alt, az, transit */
+.pr{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:9px;}
+.pi{display:flex;flex-direction:column;}
+.pil{font-size:.42rem;letter-spacing:2px;text-transform:uppercase;color:var(--ghost);margin-bottom:1px;}
+.piv{font-size:.7rem;}
+.alt-g{color:var(--green);}
+.alt-o{color:var(--acc);}
+.alt-l{color:var(--orange);}
+.alt-b{color:var(--red);}
+/* Altitude bar */
+.ab{margin-bottom:9px;}
+.abt{height:3px;background:var(--rim);border-radius:3px;overflow:hidden;position:relative;}
+.abf{height:100%;border-radius:3px;transition:width .5s ease;}
+.abm{display:flex;justify-content:space-between;font-size:.42rem;color:var(--ghost);margin-top:3px;}
+/* Rise/set row */
+.rs-row{
+  display:flex;gap:8px;margin-bottom:9px;
+  background:rgba(255,255,255,.02);border:1px solid var(--rim);
+  border-radius:5px;padding:6px 8px;flex-wrap:wrap;
+}
+.rs-item{display:flex;flex-direction:column;}
+.rs-l{font-size:.42rem;letter-spacing:2px;text-transform:uppercase;color:var(--ghost);margin-bottom:1px;}
+.rs-v{font-size:.62rem;}
+.rs-up{color:var(--green);}
+.rs-dn{color:var(--muted);}
+.rs-na{color:var(--ghost);font-style:italic;}
+/* Specs */
+.sp-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:9px;}
+.sp{display:flex;flex-direction:column;}
+.spl{font-size:.42rem;letter-spacing:2px;text-transform:uppercase;color:var(--ghost);margin-bottom:1px;}
+.spv{font-size:.62rem;color:var(--text);}
+/* FOV hint */
+.fov-hint{
+  display:flex;align-items:center;gap:6px;font-size:.55rem;color:var(--muted);
+  margin-bottom:9px;padding:5px 8px;background:rgba(53,197,229,.04);
+  border:1px solid rgba(53,197,229,.12);border-radius:5px;
+}
+/* Tip */
+.tip-text{font-size:.6rem;color:#4a6880;line-height:1.65;border-top:1px solid var(--rim);padding-top:9px;margin-top:9px;}
+.tip-text b{color:var(--acc);font-weight:400;}
+
+/* ── Empty / loader ── */
+.empty{text-align:center;padding:50px 20px;color:var(--ghost);font-size:.62rem;letter-spacing:1px;line-height:2;}
+#loader{position:fixed;inset:0;z-index:500;background:rgba(2,8,16,.85);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px;font-size:.58rem;letter-spacing:3px;color:var(--muted);}
+#loader.on{display:flex;}
+.ring{width:36px;height:36px;border:2px solid var(--rim);border-top-color:var(--acc);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+</style>
+</head>
+<body>
+<canvas id="cvs"></canvas>
+<div id="tip"><strong></strong><div class="tip-row"></div></div>
+<div id="loader"><div class="ring"></div><span>COMPUTING SKY</span></div>
+
+<div class="z1">
+<!-- HEADER -->
+<header>
+  <div class="brand">Astro<em>Planner</em><small>ASTROPHOTOGRAPHY TARGET COMPUTER · v3</small></div>
+  <div class="hbadge">Real Astronomy · Corrected for Refraction</div>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <h1>What can you photograph <i>tonight?</i></h1>
+  <p>Real spherical trigonometry + atmospheric refraction. Rise/set times, twilight window, live sky chart.<br>50+ objects, any location, any time.</p>
+</div>
+
+<!-- CONTROLS -->
+<div class="cp">
+  <div class="cp-box">
+    <div class="cp-grid">
+      <div class="fg">
+        <div class="fl">Latitude / Longitude</div>
+        <div class="fr">
+          <input id="lat" type="number" placeholder="28.93" step=".0001" min="-90" max="90">
+          <input id="lon" type="number" placeholder="77.02" step=".0001" min="-180" max="180">
+          <button class="gps" id="gpsBtn" title="Use my location">📍</button>
+        </div>
+      </div>
+      <div class="fg"><div class="fl">Date</div><input id="di" type="date"></div>
+      <div class="fg"><div class="fl">Local Time</div><input id="ti" type="time"></div>
+      <div class="fg">
+        <div class="fl">UTC Offset</div>
+        <select id="tz">
+          <option value="-12">UTC−12</option><option value="-11">UTC−11</option>
+          <option value="-10">UTC−10</option><option value="-9.5">UTC−9:30</option>
+          <option value="-9">UTC−9</option><option value="-8">UTC−8 (PST)</option>
+          <option value="-7">UTC−7 (MST/PDT)</option><option value="-6">UTC−6 (CST)</option>
+          <option value="-5">UTC−5 (EST)</option><option value="-4">UTC−4 (EDT)</option>
+          <option value="-3.5">UTC−3:30</option><option value="-3">UTC−3</option>
+          <option value="-2">UTC−2</option><option value="-1">UTC−1</option>
+          <option value="0">UTC±0 (GMT/WET)</option><option value="1">UTC+1 (CET)</option>
+          <option value="2">UTC+2 (EET)</option><option value="3">UTC+3 (MSK)</option>
+          <option value="3.5">UTC+3:30 (IRT)</option><option value="4">UTC+4</option>
+          <option value="4.5">UTC+4:30 (AFT)</option><option value="5">UTC+5 (PKT)</option>
+          <option value="5.5" selected>UTC+5:30 (IST)</option>
+          <option value="5.75">UTC+5:45 (NPT)</option>
+          <option value="6">UTC+6 (BST)</option><option value="6.5">UTC+6:30</option>
+          <option value="7">UTC+7 (ICT)</option><option value="8">UTC+8 (CST/SGT)</option>
+          <option value="8.75">UTC+8:45</option><option value="9">UTC+9 (JST/KST)</option>
+          <option value="9.5">UTC+9:30 (ACST)</option><option value="10">UTC+10 (AEST)</option>
+          <option value="10.5">UTC+10:30</option><option value="11">UTC+11</option>
+          <option value="12">UTC+12 (NZST)</option><option value="13">UTC+13</option>
+        </select>
+      </div>
+      <button class="go" onclick="generate()">✦ COMPUTE</button>
+    </div>
+    <div class="presets">
+      <span class="pl">Quick:</span>
+      <button class="pc" onclick="ps(28.93,77.02,5.5,'Sonipat, India')">Sonipat</button>
+      <button class="pc" onclick="ps(28.61,77.20,5.5,'New Delhi')">Delhi</button>
+      <button class="pc" onclick="ps(19.08,72.88,5.5,'Mumbai')">Mumbai</button>
+      <button class="pc" onclick="ps(12.97,77.59,5.5,'Bengaluru')">Bengaluru</button>
+      <button class="pc" onclick="ps(51.51,-0.12,0,'London')">London</button>
+      <button class="pc" onclick="ps(40.71,-74.01,-5,'New York')">New York</button>
+      <button class="pc" onclick="ps(34.05,-118.24,-8,'Los Angeles')">LA</button>
+      <button class="pc" onclick="ps(35.68,139.69,9,'Tokyo')">Tokyo</button>
+      <button class="pc" onclick="ps(-33.87,151.21,10,'Sydney')">Sydney</button>
+      <button class="pc" onclick="ps(48.85,2.35,1,'Paris')">Paris</button>
+      <button class="pc" onclick="ps(-1.28,36.82,3,'Nairobi')">Nairobi</button>
+      <button class="pc" onclick="ps(64.13,-21.93,0,'Reykjavik')">Reykjavik</button>
+      <button class="pc" onclick="ps(-26.20,28.04,2,'Johannesburg')">Joburg</button>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main" id="main">
+
+  <!-- NIGHT TIMELINE -->
+  <div class="timeline-wrap">
+    <div class="tl-header">
+      <div class="tl-title">// Night Timeline — drag slider to change time</div>
+      <div class="tl-legend">
+        <div class="tll"><div class="tll-dot" style="background:#1a3050"></div>Civil twilight</div>
+        <div class="tll"><div class="tll-dot" style="background:#0f1e36"></div>Nautical twilight</div>
+        <div class="tll"><div class="tll-dot" style="background:#040c18"></div>Astronomical dark</div>
+        <div class="tll"><div class="tll-dot" style="background:rgba(212,164,76,.35)"></div>Your time</div>
+      </div>
+    </div>
+    <div class="tl-bar" id="tlBar"></div>
+    <div class="tl-time-row" id="tlTimes"></div>
+    <div class="slider-wrap">
+      <input type="range" class="tl-slider" id="tlSlider" min="0" max="1440" value="0">
+      <div class="slider-label" id="sliderLabel">—</div>
+    </div>
+  </div>
+
+  <!-- BODY -->
+  <div class="body-grid">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="sc-box">
+        <div class="sec-label">// Sky Conditions</div>
+        <div class="sc-grid" id="scGrid"></div>
+      </div>
+      <div class="chart-box">
+        <div class="chart-hdr">
+          <div class="sec-label" style="margin-bottom:0">// Polar Sky Chart</div>
+          <div style="font-size:.45rem;color:var(--ghost)">hover to cross-link</div>
+        </div>
+        <svg id="skyChart" viewBox="0 0 340 340" xmlns="http://www.w3.org/2000/svg"></svg>
+        <div class="type-leg" id="typeLeg"></div>
+      </div>
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="rp">
+      <div class="toolbar" id="toolbar">
+        <button class="fb on" data-f="All" onclick="setF('All',this)">All</button>
+        <button class="fb" data-f="Nebula" onclick="setF('Nebula',this)">Nebulae</button>
+        <button class="fb" data-f="Open Cluster" onclick="setF('Open Cluster',this)">Open Clusters</button>
+        <button class="fb" data-f="Globular Cluster" onclick="setF('Globular Cluster',this)">Globulars</button>
+        <button class="fb" data-f="Galaxy" onclick="setF('Galaxy',this)">Galaxies</button>
+        <button class="fb" data-f="visible" onclick="setF('visible',this)">Above Horizon</button>
+        <div class="tb-sep"></div>
+        <select class="ss" id="sortSel" onchange="renderCards()">
+          <option value="score">Best rated first</option>
+          <option value="alt">Highest altitude</option>
+          <option value="mag">Brightest first</option>
+          <option value="type">By type</option>
+        </select>
+      </div>
+      <div class="count-bar" id="cbar"></div>
+      <div class="tw-warn" id="twWarn"></div>
+      <div class="cards" id="cards"></div>
+    </div>
+  </div>
+</div>
+</div><!-- /.z1 -->
+
+<script>
+// ══════════════════════════════════════════════════════
+// STARFIELD
+// ══════════════════════════════════════════════════════
+(()=>{
+  const c=document.getElementById('cvs'),x=c.getContext('2d');
+  let S=[],t=0;
+  const sz=()=>{c.width=innerWidth;c.height=innerHeight;};
+  const make=()=>{S=[];const n=Math.min(500,~~(c.width*c.height/6000));for(let i=0;i<n;i++)S.push({x:Math.random()*c.width,y:Math.random()*c.height,r:Math.random()*.8+.15,a:Math.random()*.7+.2,p:Math.random()*6.28,s:Math.random()*.007+.003});};
+  const draw=()=>{x.clearRect(0,0,c.width,c.height);t+=.4;for(const s of S){const a=s.a*(.45+.55*Math.sin(t*s.s+s.p));x.beginPath();x.arc(s.x,s.y,s.r,0,6.28);x.fillStyle=`rgba(170,205,255,${a})`;x.fill();}requestAnimationFrame(draw);};
+  sz();make();draw();addEventListener('resize',()=>{sz();make();});
+})();
+
+// ══════════════════════════════════════════════════════
+// ASTRONOMY MATH
+// ══════════════════════════════════════════════════════
+const D2R=Math.PI/180, R2D=180/Math.PI;
+
+// Julian Date from a proper UTC Date object
+function jd(date){
+  const y=date.getUTCFullYear(),m=date.getUTCMonth()+1,d=date.getUTCDate();
+  const h=date.getUTCHours()+date.getUTCMinutes()/60+date.getUTCSeconds()/3600;
+  let Y=y,M=m;if(M<=2){Y--;M+=12;}
+  const A=Math.floor(Y/100),B=2-A+Math.floor(A/4);
+  return Math.floor(365.25*(Y+4716))+Math.floor(30.6001*(M+1))+d+B-1524.5+h/24;
+}
+
+// GMST in degrees (Meeus Astronomical Algorithms Ch.12)
+function gmst(JD){
+  const T=(JD-2451545.0)/36525;
+  return(((280.46061837+360.98564736629*(JD-2451545)+.000387933*T*T-T*T*T/38710000)%360)+360)%360;
+}
+
+// Atmospheric refraction correction (Bennett's formula, degrees)
+function refraction(alt){
+  if(alt<-5) return 0;
+  return 1.02/(Math.tan((alt+10.3/(alt+5.11))*D2R)*60); // degrees
+}
+
+// RA (hours) + Dec (deg) → Alt/Az with refraction
+function altaz(raH,decD,latD,lonD,JD){
+  const LST=((gmst(JD)+lonD)%360+360)%360;
+  const HA=((LST-raH*15)%360+360)%360*D2R;
+  const dec=decD*D2R,lat=latD*D2R;
+  const sinAlt=Math.sin(dec)*Math.sin(lat)+Math.cos(dec)*Math.cos(lat)*Math.cos(HA);
+  const altGeom=Math.asin(Math.max(-1,Math.min(1,sinAlt)))*R2D;
+  const altApp=altGeom+refraction(altGeom); // apparent altitude (corrected)
+  const cosAz=(Math.sin(dec)-Math.sin(altApp*D2R)*Math.sin(lat))/(Math.cos(altApp*D2R)*Math.cos(lat));
+  let az=Math.acos(Math.max(-1,Math.min(1,cosAz)))*R2D;
+  if(Math.sin(HA)>0) az=360-az;
+  return{alt:altApp,altGeom,az};
+}
+
+// Sun position (low-precision, good to ~1°) — returns {ra (hours), dec (deg)}
+function sunPos(JD){
+  const n=JD-2451545.0;
+  const L=((280.460+.9856474*n)%360+360)%360;
+  const g=((357.528+.9856003*n)%360+360)%360*D2R;
+  const lam=(L+1.915*Math.sin(g)+.020*Math.sin(2*g))*D2R;
+  const eps=23.439*D2R;
+  const ra=(Math.atan2(Math.cos(eps)*Math.sin(lam),Math.cos(lam))*R2D/15+24)%24;
+  const dec=Math.asin(Math.sin(eps)*Math.sin(lam))*R2D;
+  return{ra,dec};
+}
+
+// Moon position (low-precision) — returns {ra (hours), dec (deg)}
+function moonPos(JD){
+  const T=(JD-2451545.0)/36525;
+  let L=(218.316+13.176396*((JD-2451545.0))%360);
+  L=((L%360)+360)%360;
+  const M=((357.529+.9856003*(JD-2451545.0))%360+360)%360*D2R;
+  const Mm=((134.963+13.064993*(JD-2451545.0))%360+360)%360*D2R;
+  const D=((297.850+12.190749*(JD-2451545.0))%360+360)%360*D2R;
+  const lam=L+6.289*Math.sin(Mm)*R2D;
+  const bet=5.128*Math.sin(D)*D2R;
+  const lamR=lam*D2R;
+  const eps=23.439*D2R;
+  const ra=(Math.atan2(Math.sin(lamR)*Math.cos(eps)-Math.tan(bet)*Math.sin(eps),Math.cos(lamR))*R2D/15+24)%24;
+  const dec=Math.asin(Math.sin(bet)*Math.cos(eps)+Math.cos(bet)*Math.sin(eps)*Math.sin(lamR))*R2D;
+  return{ra,dec};
+}
+
+// Moon phase
+function moonPhase(JD){
+  const k=((JD-2451549.9)/29.53058867%1+1)%1;
+  const illum=(1-Math.cos(2*Math.PI*k))/2;
+  const names=['New Moon','Waxing Crescent','First Quarter','Waxing Gibbous','Full Moon','Waning Gibbous','Last Quarter','Waning Crescent'];
+  const emojis=['🌑','🌒','🌓','🌔','🌕','🌖','🌗','🌘'];
+  const i=Math.min(7,Math.floor(k*8));
+  return{illum,name:names[i],emoji:emojis[i],k};
+}
+
+// Find when object reaches altitude=targetAlt (hours offset from baseJD, search window±12h)
+// Returns local HH:MM string or null
+function findCrossing(raH,decD,latD,lonD,baseJD,targetAlt,risingWanted,offsetH){
+  // search in steps, then binary search
+  const STEP=0.05; // hours
+  let prevAlt=null, prevT=null;
+  for(let dt=-12;dt<12;dt+=STEP){
+    const JDt=baseJD+dt/24;
+    const {alt}=altaz(raH,decD,latD,lonD,JDt);
+    if(prevAlt!==null){
+      const wasBelow=prevAlt<targetAlt, isAbove=alt>=targetAlt;
+      const crossing=risingWanted?(wasBelow&&isAbove):(!wasBelow&&!isAbove);
+      if(crossing){
+        // Binary search between prevT and dt
+        let lo=prevT, hi=dt;
+        for(let i=0;i<20;i++){
+          const mid=(lo+hi)/2;
+          const {alt:ma}=altaz(raH,decD,latD,lonD,baseJD+mid/24);
+          if(ma<targetAlt) lo=mid; else hi=mid;
+        }
+        const localMs=(baseJD+(lo+hi)/2/24-2440587.5)*86400000+offsetH*3600000;
+        const d=new Date(localMs);
+        return`${String(d.getUTCHours()).padStart(2,'0')}:${String(d.getUTCMinutes()).padStart(2,'0')}`;
+      }
+    }
+    prevAlt=alt; prevT=dt;
+  }
+  return null;
+}
+
+// Find sun altitude at given JD
+function sunAlt(latD,lonD,JD){
+  const s=sunPos(JD);
+  return altaz(s.ra,s.dec,latD,lonD,JD).alt;
+}
+
+// Find twilight events for a given night (returns UTC Date objects)
+function twilightEvents(latD,lonD,baseJD,offsetH){
+  // baseJD is the JD of the local noon before the night
+  const types=[
+    {name:'sunset',   alt:-.833, rising:false},
+    {name:'civil',    alt:-6,    rising:false},
+    {name:'nautical', alt:-12,   rising:false},
+    {name:'astro',    alt:-18,   rising:false},
+    {name:'astro_end',alt:-18,   rising:true},
+    {name:'nautical_end',alt:-12,rising:true},
+    {name:'civil_end',alt:-6,    rising:true},
+    {name:'sunrise',  alt:-.833, rising:true},
+  ];
+  const result={};
+  for(const ev of types){
+    const sun=sunPos(baseJD);
+    const t=findCrossing(sun.ra,sun.dec,latD,lonD,baseJD,ev.alt,ev.rising,offsetH);
+    result[ev.name]=t;
+  }
+  return result;
+}
+
+// Format local time from JD + offsetH
+function localTimeStr(JD,offsetH){
+  const ms=(JD-2440587.5)*86400000+offsetH*3600000;
+  const d=new Date(ms);
+  return`${String(d.getUTCHours()).padStart(2,'0')}:${String(d.getUTCMinutes()).padStart(2,'0')}`;
+}
+
+// Az → compass
+const DIRS=['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];
+const azDir=az=>DIRS[Math.round(((az%360)+360)%360/22.5)%16];
+
+// ══════════════════════════════════════════════════════
+// DSO DATABASE
+// ══════════════════════════════════════════════════════
+// diff: 1=easy, 2=moderate, 3=challenging
+const DSO=[
+  {id:'M 42',  name:'Great Orion Nebula',       type:'Nebula',          ra:5.583, dec:-5.39, mag:4.0,  sz:'65×60′', fov:'50mm+', con:'Orion',        exp:'5–60s',   diff:1, tip:'<b>Best beginner target.</b> Orion\'s Belt points straight at it. The Trapezium cluster burns inside. Stack 5s, 15s, 60s exposures to avoid blowing the core.'},
+  {id:'M 43',  name:'De Mairan\'s Nebula',       type:'Nebula',          ra:5.594, dec:-5.27, mag:9.0,  sz:'20×15′', fov:'200mm+',con:'Orion',        exp:'30–120s', diff:2, tip:'A comma-shaped glow attached to M42. Capture both in one frame on a 200mm lens.'},
+  {id:'M 78',  name:'Casper Nebula',             type:'Nebula',          ra:5.779, dec:0.07,  mag:8.3,  sz:'8×6′',   fov:'200mm+',con:'Orion',        exp:'60–300s', diff:2, tip:'Reflection nebula 2.5° NE of Alnitak. Brighter than expected. Ghost-like in images.'},
+  {id:'M 1',   name:'Crab Nebula (SN1054)',      type:'Nebula',          ra:5.575, dec:22.01, mag:8.4,  sz:'7×5′',   fov:'400mm+',con:'Taurus',       exp:'60–180s', diff:2, tip:'<b>Historic supernova remnant.</b> Find ζ Tauri → M1 is 1° NW. Elliptical glow. Pulsar inside. Great for lab reports.'},
+  {id:'M 45',  name:'Pleiades (Kṛttikā)',        type:'Open Cluster',    ra:3.783, dec:24.12, mag:1.6,  sz:'110′',   fov:'50mm+', con:'Taurus',       exp:'10–120s', diff:1, tip:'<b>Most iconic cluster.</b> Aldebaran (orange star) points toward it. Wide-angle lens captures the faint blue reflection nebula.'},
+  {id:'Hyades',name:'Hyades Cluster',            type:'Open Cluster',    ra:4.700, dec:15.87, mag:0.5,  sz:'330′',   fov:'24mm+', con:'Taurus',       exp:'5–30s',   diff:1, tip:'Closest cluster to Earth. The V-shape frames the wider Milky Way field beautifully.'},
+  {id:'M 35',  name:'Shoe-Buckle Cluster',       type:'Open Cluster',    ra:6.150, dec:24.35, mag:5.3,  sz:'28′',    fov:'100mm+',con:'Gemini',       exp:'15–60s',  diff:1, tip:'Find Castor & Pollux (twin stars) → foot of Castor (μ Gem). NGC 2158 haunts the background.'},
+  {id:'NGC 2392',name:'Eskimo Nebula',           type:'Nebula',          ra:7.489, dec:20.91, mag:9.9,  sz:'0.8′',   fov:'1000mm+',con:'Gemini',      exp:'120–600s',diff:3, tip:'Tiny planetary nebula. Needs 1000mm+ focal length and good seeing. The "face" structure is rewarding.'},
+  {id:'M 36',  name:'Pinwheel Cluster',          type:'Open Cluster',    ra:5.600, dec:34.13, mag:6.3,  sz:'12′',    fov:'100mm+',con:'Auriga',       exp:'20–90s',  diff:1, tip:'Auriga trio with M37 & M38. All in a 5° sweep from <b>Capella</b>.'},
+  {id:'M 37',  name:'Salt & Pepper Cluster',     type:'Open Cluster',    ra:5.870, dec:32.55, mag:6.2,  sz:'24′',    fov:'100mm+',con:'Auriga',       exp:'20–90s',  diff:1, tip:'Richest Auriga cluster. ~150 stars. A red giant glows at the core. Southernmost of the three.'},
+  {id:'M 38',  name:'Starfish Cluster',          type:'Open Cluster',    ra:5.480, dec:35.85, mag:7.4,  sz:'21′',    fov:'100mm+',con:'Auriga',       exp:'20–90s',  diff:1, tip:'Cross-shaped star pattern. NGC 1907 is a bonus cluster 0.5° south — fit both in one frame.'},
+  {id:'NGC 2237',name:'Rosette Nebula',          type:'Nebula',          ra:6.530, dec:4.87,  mag:9.0,  sz:'80′',    fov:'50mm+', con:'Monoceros',    exp:'120–600s',diff:3, tip:'<b>Huge but faint.</b> The central cluster NGC 2244 (mag 4.8) is your anchor. Shoot from dark skies.'},
+  {id:'NGC 2264',name:'Cone + Christmas Tree',  type:'Nebula',          ra:6.680, dec:9.90,  mag:3.9,  sz:'20′',    fov:'100mm+',con:'Monoceros',    exp:'120–480s',diff:3, tip:'Star S Mon forms the tree apex. Emission nebula wraps the cluster. The Cone structure requires long exposures.'},
+  {id:'M 41',  name:'Little Beehive',            type:'Open Cluster',    ra:6.770, dec:-20.77,mag:4.5,  sz:'38′',    fov:'100mm+',con:'Canis Major',  exp:'10–45s',  diff:1, tip:'<b>4° south of Sirius</b> — the brightest star in the sky. An orange giant glows at the core.'},
+  {id:'M 47',  name:'M 47',                      type:'Open Cluster',    ra:7.608, dec:-14.49,mag:4.4,  sz:'30′',    fov:'100mm+',con:'Puppis',       exp:'10–40s',  diff:1, tip:'Paired with M46 (1.3° east). Both in one binocular field. M46 has a planetary nebula superimposed.'},
+  {id:'M 46',  name:'M 46 + NGC 2438',           type:'Open Cluster',    ra:7.695, dec:-14.82,mag:6.1,  sz:'27′',    fov:'100mm+',con:'Puppis',       exp:'20–60s',  diff:2, tip:'Two objects in one: the rich cluster + planetary nebula NGC 2438 floating in front. Classic.'},
+  {id:'NGC 869',name:'h Persei (Double Cluster)',type:'Open Cluster',    ra:2.370, dec:57.13, mag:5.3,  sz:'30′',    fov:'100mm+',con:'Perseus',      exp:'10–60s',  diff:1, tip:'<b>Breathtaking pair.</b> Between Perseus and Cassiopeia. Colour contrast of hot/cool stars.'},
+  {id:'NGC 884',name:'χ Persei (Double Cluster)',type:'Open Cluster',    ra:2.382, dec:57.12, mag:6.1,  sz:'30′',    fov:'100mm+',con:'Perseus',      exp:'10–60s',  diff:1, tip:'Eastern partner. Older — more evolved orange/red stars. Blue vs amber contrast is stunning.'},
+  {id:'M 34',  name:'M 34',                      type:'Open Cluster',    ra:2.700, dec:42.75, mag:5.5,  sz:'35′',    fov:'100mm+',con:'Perseus',      exp:'15–60s',  diff:1, tip:'Hop from Algol (the Demon Star) ~5° NW. Loose X-shaped star pattern.'},
+  {id:'NGC 457',name:'Owl / ET Cluster',         type:'Open Cluster',    ra:1.320, dec:58.28, mag:6.4,  sz:'13′',    fov:'200mm+',con:'Cassiopeia',   exp:'15–60s',  diff:1, tip:'Two bright "eye" stars. The chain of fainter stars forms ET\'s body and arms. Circumpolar from India.'},
+  {id:'M 52',  name:'Salt Box Cluster',          type:'Open Cluster',    ra:23.40, dec:61.59, mag:7.3,  sz:'13′',    fov:'200mm+',con:'Cassiopeia',   exp:'15–60s',  diff:1, tip:'Rich compressed cluster. Circumpolar from northern India — always above the horizon.'},
+  {id:'NGC 7789',name:'Caroline\'s Rose',        type:'Open Cluster',    ra:23.96, dec:56.72, mag:6.7,  sz:'16′',    fov:'200mm+',con:'Cassiopeia',   exp:'20–90s',  diff:2, tip:'Discovered by Caroline Herschel. Thousands of stars in curved arcs like rose petals. A showpiece.'},
+  {id:'M 31',  name:'Andromeda Galaxy',          type:'Galaxy',          ra:0.712, dec:41.27, mag:3.4,  sz:'190×60′',fov:'24mm+', con:'Andromeda',    exp:'15–120s', diff:1, tip:'<b>2.5 million light-years. Naked eye!</b> From the Great Square of Pegasus → hop north. M32 and M110 fit in the same frame.'},
+  {id:'M 33',  name:'Triangulum Galaxy',         type:'Galaxy',          ra:1.565, dec:30.66, mag:5.7,  sz:'73×45′', fov:'35mm+', con:'Triangulum',   exp:'30–300s', diff:3, tip:'Third-largest Local Group galaxy. Huge but very low surface brightness — needs truly dark skies.'},
+  {id:'M 81',  name:"Bode's Galaxy",             type:'Galaxy',          ra:9.926, dec:69.07, mag:6.9,  sz:'27×14′', fov:'200mm+',con:'Ursa Major',   exp:'60–300s', diff:2, tip:'<b>Pair with M82!</b> Both in one frame — use the Big Dipper pointer stars (Dubhe → Merak → NW).'},
+  {id:'M 82',  name:'Cigar Galaxy',              type:'Galaxy',          ra:9.928, dec:69.68, mag:8.4,  sz:'11×4′',  fov:'200mm+',con:'Ursa Major',   exp:'60–300s', diff:2, tip:'Edge-on starburst galaxy. Dramatic dust lanes. Just 0.5° from M81 — one frame catches both.'},
+  {id:'M 101', name:'Pinwheel Galaxy',           type:'Galaxy',          ra:14.06, dec:54.35, mag:7.9,  sz:'29×27′', fov:'200mm+',con:'Ursa Major',   exp:'120–600s',diff:3, tip:'Face-on spiral near the Big Dipper handle. Large but low surface brightness — dark skies essential.'},
+  {id:'M 65',  name:'Leo Triplet I',             type:'Galaxy',          ra:11.31, dec:13.09, mag:9.3,  sz:'10×3′',  fov:'300mm+',con:'Leo',          exp:'120–600s',diff:3, tip:'Part of the famous Leo Triplet. All three (M65, M66, NGC 3628) fit in one camera frame.'},
+  {id:'M 66',  name:'Leo Triplet II',            type:'Galaxy',          ra:11.34, dec:12.99, mag:8.9,  sz:'9×4′',   fov:'300mm+',con:'Leo',          exp:'120–600s',diff:2, tip:'Brightest Leo Triplet member. Asymmetric arms caused by gravitational interaction.'},
+  {id:'M 104', name:'Sombrero Galaxy',           type:'Galaxy',          ra:12.67, dec:-11.62,mag:8.0,  sz:'9×4′',   fov:'300mm+',con:'Virgo',        exp:'60–300s', diff:2, tip:'<b>Iconic dust lane.</b> Find Spica (brightest in Virgo) → hop ~10° NW.'},
+  {id:'M 87',  name:'Virgo A / M87',             type:'Galaxy',          ra:12.51, dec:12.39, mag:8.6,  sz:'7×7′',   fov:'300mm+',con:'Virgo',        exp:'60–300s', diff:2, tip:'The galaxy with the famous black hole image. Giant elliptical. Hop south from Denebola (β Leo).'},
+  {id:'M 97',  name:'Owl Nebula',                type:'Nebula',          ra:11.25, dec:55.02, mag:9.9,  sz:'3.4′',   fov:'500mm+',con:'Ursa Major',   exp:'120–600s',diff:3, tip:'Planetary nebula in the Big Dipper bowl. The owl-eye pattern requires long exposures.'},
+  {id:'M 57',  name:'Ring Nebula',               type:'Nebula',          ra:18.89, dec:33.03, mag:8.8,  sz:'1.4′',   fov:'800mm+',con:'Lyra',         exp:'30–300s', diff:2, tip:'<b>Classic smoke ring.</b> Between β and γ Lyrae. Focal length >400mm recommended.'},
+  {id:'M 27',  name:'Dumbbell Nebula',           type:'Nebula',          ra:19.99, dec:22.72, mag:7.5,  sz:'8×6′',   fov:'200mm+',con:'Vulpecula',    exp:'20–120s', diff:1, tip:'<b>Easiest planetary nebula.</b> Apple-core shape obvious even in short exposures. 3° north of Sagitta the Arrow.'},
+  {id:'NGC 7000',name:'North America Nebula',    type:'Nebula',          ra:20.97, dec:44.52, mag:4.0,  sz:'120×100′',fov:'24mm+',con:'Cygnus',       exp:'60–300s', diff:2, tip:'<b>Enormous nebula shaped like North America.</b> Near Deneb (α Cyg). Use 35mm or wider for the full outline.'},
+  {id:'M 11',  name:'Wild Duck Cluster',         type:'Open Cluster',    ra:18.85, dec:-6.27, mag:6.3,  sz:'14′',    fov:'200mm+',con:'Scutum',       exp:'10–45s',  diff:1, tip:'One of the richest clusters. 3,000+ stars. The Milky Way backdrop adds spectacular depth.'},
+  {id:'M 13',  name:'Great Hercules Cluster',    type:'Globular Cluster',ra:16.70, dec:36.46, mag:5.8,  sz:'20′',    fov:'200mm+',con:'Hercules',     exp:'10–60s',  diff:1, tip:'<b>Best globular in the north.</b> Hercules Keystone → western edge. ~300,000 stars, 25,000 ly away.'},
+  {id:'M 92',  name:'M 92',                      type:'Globular Cluster',ra:17.29, dec:43.14, mag:6.4,  sz:'11′',    fov:'200mm+',con:'Hercules',     exp:'10–60s',  diff:1, tip:'Spectacular in its own right. ~9° north of M13. More compressed core. Often overlooked.'},
+  {id:'M 3',   name:'M 3',                       type:'Globular Cluster',ra:13.70, dec:28.38, mag:6.2,  sz:'18′',    fov:'200mm+',con:'CVn',          exp:'15–90s',  diff:1, tip:'Rival to M13. Half a million stars, 33,900 ly. Between Arcturus and Cor Caroli. Best in spring/summer.'},
+  {id:'M 5',   name:'Rose Cluster',              type:'Globular Cluster',ra:15.31, dec:2.08,  mag:5.6,  sz:'23′',    fov:'200mm+',con:'Serpens',      exp:'10–60s',  diff:1, tip:'Near the celestial equator — visible worldwide. Some consider it more beautiful than M13.'},
+  {id:'M 4',   name:'Cat\'s Eye Globular',       type:'Globular Cluster',ra:16.39, dec:-26.53,mag:5.6,  sz:'36′',    fov:'200mm+',con:'Scorpius',     exp:'10–60s',  diff:1, tip:'Nearest globular to Earth (~7,200 ly). Find Antares → M4 is 1.3° west. Unique bar through the core.'},
+  {id:'M 22',  name:'Sagittarius Cluster',       type:'Globular Cluster',ra:18.60, dec:-23.90,mag:5.1,  sz:'32′',    fov:'200mm+',con:'Sagittarius',  exp:'10–60s',  diff:1, tip:'Third-brightest globular. Near λ Sgr (Teapot lid). Best from southern latitudes.'},
+  {id:'M 8',   name:'Lagoon Nebula',             type:'Nebula',          ra:18.06, dec:-24.38,mag:5.8,  sz:'90×40′', fov:'50mm+', con:'Sagittarius',  exp:'15–120s', diff:1, tip:'<b>Naked-eye nebula!</b> The Sagittarius Teapot spout "steam" leads right into it.'},
+  {id:'M 20',  name:'Trifid Nebula',             type:'Nebula',          ra:18.04, dec:-23.03,mag:8.5,  sz:'28′',    fov:'200mm+',con:'Sagittarius',  exp:'30–180s', diff:2, tip:'<b>Emission + reflection + dark nebula in one.</b> Three-lobed. 1.5° north of M8 — wide field gets both.'},
+  {id:'M 6',   name:'Butterfly Cluster',         type:'Open Cluster',    ra:17.67, dec:-32.22,mag:4.2,  sz:'25′',    fov:'100mm+',con:'Scorpius',     exp:'10–30s',  diff:1, tip:'Star pattern outlines a butterfly. Near M7. Best from equatorial/southern latitudes.'},
+  {id:'M 7',   name:"Ptolemy's Cluster",         type:'Open Cluster',    ra:17.90, dec:-34.82,mag:3.3,  sz:'80′',    fov:'50mm+', con:'Scorpius',     exp:'5–20s',   diff:1, tip:'Recorded by Ptolemy in 130 AD. Huge! One of the closest clusters. Milky Way backdrop.'},
+  {id:'M 44',  name:'Beehive / Praesepe',        type:'Open Cluster',    ra:8.672, dec:19.98, mag:3.7,  sz:'95′',    fov:'35mm+', con:'Cancer',       exp:'10–60s',  diff:1, tip:'Between Gemini and Leo. Very wide FOV needed. Naked-eye glow between two bright stars.'},
+  {id:'M 39',  name:'M 39',                      type:'Open Cluster',    ra:21.54, dec:48.43, mag:4.6,  sz:'32′',    fov:'100mm+',con:'Cygnus',       exp:'10–40s',  diff:1, tip:'Triangle-shaped cluster near the tail of Cygnus. Always well-placed in the summer Milky Way.'},
+  {id:'NGC 7789',name:'Caroline\'s Rose',        type:'Open Cluster',    ra:23.96, dec:56.72, mag:6.7,  sz:'16′',    fov:'200mm+',con:'Cassiopeia',   exp:'20–90s',  diff:2, tip:'Thousands of stars in curved arcs. One of the most beautiful clusters.'},
+];
+
+// Remove duplicates by id
+const seen=new Set(); const DSO_CLEAN=DSO.filter(o=>{if(seen.has(o.id))return false;seen.add(o.id);return true;});
+DSO_CLEAN; // working set
+
+const TYPE_COL={'Nebula':'#e85878','Open Cluster':'#35c5e5','Globular Cluster':'#a070f0','Galaxy':'#d4a44c'};
+
+// ══════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════
+let RES=[], FILT='All', OBS_JD=0, OBS_LAT=0, OBS_LON=0, OBS_OFF=5.5;
+let NIGHT_START_JD=0; // JD of local midnight
+
+// ══════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded',()=>{
+  const now=new Date();
+  document.getElementById('di').value=now.toISOString().split('T')[0];
+  document.getElementById('ti').value='21:00';
+  document.getElementById('lat').value='28.93';
+  document.getElementById('lon').value='77.02';
+});
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&['INPUT','SELECT'].includes(e.target.tagName))generate();});
+document.getElementById('gpsBtn').addEventListener('click',()=>{
+  if(!navigator.geolocation)return;
+  const b=document.getElementById('gpsBtn');b.textContent='⏳';b.disabled=true;
+  navigator.geolocation.getCurrentPosition(p=>{
+    document.getElementById('lat').value=p.coords.latitude.toFixed(4);
+    document.getElementById('lon').value=p.coords.longitude.toFixed(4);
+    b.textContent='📍';b.disabled=false;
+  },()=>{b.textContent='📍';b.disabled=false;});
+});
+function ps(lat,lon,tz,name){
+  document.getElementById('lat').value=lat;
+  document.getElementById('lon').value=lon;
+  document.getElementById('tz').value=tz;
+  generate(name);
+}
+
+// ══════════════════════════════════════════════════════
+// GENERATE
+// ══════════════════════════════════════════════════════
+function generate(locName){
+  const lat=parseFloat(document.getElementById('lat').value);
+  const lon=parseFloat(document.getElementById('lon').value);
+  const dateStr=document.getElementById('di').value;
+  const timeStr=document.getElementById('ti').value;
+  const utcOff=parseFloat(document.getElementById('tz').value);
+  if(isNaN(lat)||isNaN(lon)||!dateStr||!timeStr){alert('Fill in all fields');return;}
+
+  document.getElementById('loader').classList.add('on');
+
+  const [yr,mo,dy]=dateStr.split('-').map(Number);
+  const [hr,mn]=timeStr.split(':').map(Number);
+  // Local → UTC via milliseconds (handles all edge cases)
+  const localMs=Date.UTC(yr,mo-1,dy,hr,mn,0);
+  const utcMs=localMs-utcOff*3600000;
+  const obsDate=new Date(utcMs);
+  const JD=jd(obsDate);
+
+  OBS_JD=JD; OBS_LAT=lat; OBS_LON=lon; OBS_OFF=utcOff;
+  // Midnight JD for rise/set search base
+  const midnightLocal=Date.UTC(yr,mo-1,dy,0,0,0)-utcOff*3600000;
+  NIGHT_START_JD=jd(new Date(midnightLocal));
+
+  const moonData=moonPhase(JD);
+
+  // Calculate sun twilight
+  let twStr='';
+  const sunAltNow=sunAlt(lat,lon,JD);
+  const darkEnough=sunAltNow<-18;
+  const slightlyDark=sunAltNow<-12;
+
+  // Compute positions
+  RES=DSO_CLEAN.map(obj=>{
+    const {alt,az}=altaz(obj.ra,obj.dec,lat,lon,JD);
+
+    // Rise/set times
+    const riseStr=findCrossing(obj.ra,obj.dec,lat,lon,NIGHT_START_JD,0,true,utcOff);
+    const setStr=findCrossing(obj.ra,obj.dec,lat,lon,NIGHT_START_JD,0,false,utcOff);
+
+    // Transit time
+    const LST=((gmst(JD)+lon)%360+360)%360;
+    const targetLST=((obj.ra*15)%360+360)%360;
+    let diffDeg=targetLST-LST;if(diffDeg<0)diffDeg+=360;
+    const solarSecs=diffDeg/360*86164.1;
+    const tUtcMs=utcMs+solarSecs*1000;
+    const tLocalMs=tUtcMs+utcOff*3600000;
+    const tD=new Date(tLocalMs);
+    const transitStr=`${String(tD.getUTCHours()).padStart(2,'0')}:${String(tD.getUTCMinutes()).padStart(2,'0')}`;
+    const transitDiffH=solarSecs/3600;
+    let transitNote;
+    if(transitDiffH<0.08) transitNote='⭐ At transit now!';
+    else if(transitDiffH<1) transitNote=`Transit in ${Math.round(transitDiffH*60)}min`;
+    else if(transitDiffH<12) transitNote=`Transit at ${transitStr}`;
+    else transitNote=`Transit at ${transitStr}`;
+
+    // Visibility score
+    let score=0;
+    if(alt>0){
+      if(alt>=60) score=90+alt/90*10;
+      else if(alt>=40) score=70+(alt-40)/20*20;
+      else if(alt>=20) score=40+(alt-20)/20*30;
+      else score=alt/20*40;
+    }
+    // Moon penalty on faint
+    if(obj.mag>8) score*=Math.max(.35,1-moonData.illum*.55);
+    score=Math.round(Math.max(0,Math.min(100,score)));
+
+    // FOV fit hint
+    let fovNote='';
+    // Parse fov field
+    const fovNum=parseInt(obj.fov);
+    if(fovNum<=50) fovNote='Fits wide-field (50mm)';
+    else if(fovNum<=100) fovNote='Use 100–200mm lens';
+    else if(fovNum<=300) fovNote='200–400mm recommended';
+    else fovNote='Long focal length (800mm+)';
+
+    return{...obj,alt,az,score,riseStr,setStr,transitNote,fovNote};
+  });
+
+  // Sun + moon for chart
+  const moonP=moonPos(JD);
+  const moonAltaz=altaz(moonP.ra,moonP.dec,lat,lon,JD);
+  const sunP=sunPos(JD);
+  const sunAltaz=altaz(sunP.ra,sunP.dec,lat,lon,JD);
+
+  updateConditions(lat,lon,JD,moonData,locName||`${lat.toFixed(2)}°, ${lon.toFixed(2)}°`,sunAltNow);
+  drawChart(lat,moonAltaz,sunAltaz);
+  buildTimeline(lat,lon,utcOff,JD,hr,mn);
+  renderCards();
+
+  document.getElementById('loader').classList.remove('on');
+  document.getElementById('main').classList.add('on');
+
+  // Twilight warning
+  const warn=document.getElementById('twWarn');
+  if(!slightlyDark){
+    warn.classList.add('on');
+    warn.textContent=`☀ Warning: the sun is only ${Math.abs(sunAltNow).toFixed(1)}° below the horizon — the sky isn't fully dark yet (needs >12° for nautical, >18° for astronomical darkness). Results shown for planning — try a later time.`;
+  } else {
+    warn.classList.remove('on');
+  }
+
+  setTimeout(()=>document.getElementById('main').scrollIntoView({behavior:'smooth',block:'start'}),100);
+}
+
+// ══════════════════════════════════════════════════════
+// SKY CONDITIONS
+// ══════════════════════════════════════════════════════
+function updateConditions(lat,lon,JD,moon,locName,sunAltNow){
+  const vis=RES.filter(r=>r.alt>20).length;
+  const pct=Math.round(moon.illum*100);
+  let sq;
+  if(pct<15) sq='🟢 Excellent';
+  else if(pct<40) sq='🟡 Good';
+  else if(pct<70) sq='🟠 Fair';
+  else sq='🔴 Poor (moon)';
+  const latStr=lat>=0?`${lat.toFixed(2)}°N`:`${Math.abs(lat).toFixed(2)}°S`;
+  const lonStr=lon>=0?`${lon.toFixed(2)}°E`:`${Math.abs(lon).toFixed(2)}°W`;
+  const sunStr=sunAltNow<-18?'🌑 Astronomical dark':sunAltNow<-12?'🌆 Nautical twilight':sunAltNow<-6?'🌇 Civil twilight':'☀️ Daytime';
+  document.getElementById('scGrid').innerHTML=`
+    <div class="sc-row"><div class="sc-l">Location</div><div class="sc-v" style="color:var(--text);font-size:.6rem">${locName}</div></div>
+    <div class="sc-row"><div class="sc-l">Coords</div><div class="sc-v" style="color:var(--text);font-size:.6rem">${latStr}, ${lonStr}</div></div>
+    <div class="sc-row"><div class="sc-l">Visible &gt;20°</div><div class="sc-v">${vis} / ${DSO_CLEAN.length}</div></div>
+    <div class="sc-row"><div class="sc-l">Sky now</div><div class="sc-v" style="color:var(--text);font-size:.6rem">${sunStr}</div></div>
+    <div class="sc-row"><div class="sc-l">Moon</div><div class="sc-v">${moon.emoji} ${moon.name}</div></div>
+    <div class="sc-row"><div class="sc-l">Illumination</div><div class="sc-v">${pct}%</div></div>
+    <div class="sc-row"><div class="sc-l">Sky quality</div><div class="sc-v" style="font-size:.6rem">${sq}</div></div>
+    <div class="sc-row"><div class="sc-l">Hemisphere</div><div class="sc-v" style="font-size:.6rem">${lat>=0?'Northern ↑N':'Southern ↓S'}</div></div>
+  `;
+}
+
+// ══════════════════════════════════════════════════════
+// POLAR CHART
+// ══════════════════════════════════════════════════════
+function drawChart(lat,moonPos,sunPos){
+  const svg=document.getElementById('skyChart');
+  const CX=170,CY=170,R=150;
+  svg.innerHTML='';
+  const mk=(tag,a={},t='')=>{
+    const el=document.createElementNS('http://www.w3.org/2000/svg',tag);
+    for(const[k,v]of Object.entries(a))el.setAttribute(k,v);
+    if(t)el.textContent=t;
+    return el;
+  };
+
+  // Background gradient
+  const defs=mk('defs');
+  const bg=mk('radialGradient',{id:'bg',cx:'50%',cy:'50%',r:'50%'});
+  bg.appendChild(mk('stop',{offset:'0%','stop-color':'#0a1828','stop-opacity':'1'}));
+  bg.appendChild(mk('stop',{offset:'100%','stop-color':'#03070f','stop-opacity':'1'}));
+  defs.appendChild(bg);
+  svg.appendChild(defs);
+  svg.appendChild(mk('circle',{cx:CX,cy:CY,r:R+5,fill:'#020610'}));
+  svg.appendChild(mk('circle',{cx:CX,cy:CY,r:R,fill:'url(#bg)',stroke:'#1c2e46','stroke-width':'1.5'}));
+
+  // Sweet spot band (40°–70°)
+  const r40=R*(1-40/90), r70=R*(1-70/90);
+  const sweetSpot=mk('circle',{cx:CX,cy:CY,r:(r40+r70)/2,fill:'none',stroke:'rgba(212,164,76,.06)','stroke-width':r40-r70});
+  svg.appendChild(sweetSpot);
+
+  // Altitude rings
+  [20,40,60,80].forEach(a=>{
+    const r=R*(1-a/90);
+    svg.appendChild(mk('circle',{cx:CX,cy:CY,r,fill:'none',stroke:a===40?'rgba(212,164,76,.2)':'#152030','stroke-width':'1','stroke-dasharray':a===20?'2,5':'1,5'}));
+    svg.appendChild(mk('text',{x:CX+3,y:CY-r+9,fill:'#1e3248','font-size':'7','font-family':'DM Mono,monospace'},`${a}°`));
+  });
+  // Horizon
+  svg.appendChild(mk('circle',{cx:CX,cy:CY,r:R,fill:'none',stroke:'#1c2e46','stroke-width':'1.5'}));
+
+  // Cardinals
+  [['N',CX,CY-R-9],['S',CX,CY+R+15],['E',CX+R+13,CY+4],['W',CX-R-13,CY+4]].forEach(([l,x,y])=>{
+    svg.appendChild(mk('text',{x,y,fill:l==='N'?'rgba(212,164,76,.7)':'#3d5870','font-size':l==='N'?'9':'8','font-family':'DM Mono,monospace','text-anchor':'middle'},l));
+  });
+  svg.appendChild(mk('line',{x1:CX,y1:CY-R-3,x2:CX,y2:CY-R+6,stroke:'rgba(212,164,76,.5)','stroke-width':'1.5'}));
+
+  // Sun (if near horizon)
+  if(sunPos.alt>-20){
+    const{x:sx,y:sy}=altazToXY(sunPos.alt,sunPos.az,CX,CY,R);
+    if(sunPos.alt>0){
+      svg.appendChild(mk('circle',{cx:sx,cy:sy,r:10,fill:'rgba(255,220,80,.15)'}));
+      svg.appendChild(mk('circle',{cx:sx,cy:sy,r:6,fill:'#ffd850',stroke:'#ffbb30','stroke-width':'1'}));
+      svg.appendChild(mk('text',{x:sx,y:sy-10,fill:'#ffdd80','font-size':'7','font-family':'DM Mono','text-anchor':'middle'},'☀'));
+    } else {
+      svg.appendChild(mk('circle',{cx:sx,cy:sy,r:5,fill:'none',stroke:'rgba(255,180,50,.3)','stroke-width':'1','stroke-dasharray':'2,2'}));
+    }
+  }
+
+  // Moon
+  if(moonPos.alt>-10){
+    const{x:mx,y:my}=altazToXY(moonPos.alt,moonPos.az,CX,CY,R);
+    const moonCol=moonPos.alt>0?'rgba(220,210,180,.9)':'rgba(180,170,140,.3)';
+    svg.appendChild(mk('circle',{cx:mx,cy:my,r:7,fill:moonPos.alt>0?'rgba(220,210,160,.2)':'none',stroke:moonCol,'stroke-width':'1.5'}));
+    svg.appendChild(mk('text',{x:mx,y:my+4,fill:moonCol,'font-size':'9','font-family':'DM Mono','text-anchor':'middle'},'☽'));
+  }
+
+  // DSO objects
+  const tipEl=document.getElementById('tip');
+  RES.forEach(obj=>{
+    if(obj.alt<-20) return;
+    const{x,y}=altazToXY(obj.alt,obj.az,CX,CY,R);
+    const col=TYPE_COL[obj.type]||'#888';
+    const below=obj.alt<=0;
+    const sz=Math.max(2.5,Math.min(6.5,7.5-obj.mag*.55));
+    const g=mk('g',{class:'dot','data-id':obj.id,cursor:'pointer',opacity:below?.25:1});
+
+    // Glow
+    if(!below){
+      g.appendChild(mk('circle',{cx:x,cy:y,r:sz+4,fill:col,opacity:'.1'}));
+    }
+    // Shape by type
+    if(obj.type==='Galaxy'){
+      g.appendChild(mk('ellipse',{cx:x,cy:y,rx:sz,ry:sz*.5,transform:`rotate(${obj.az},${x},${y})`,fill:below?'none':col+'99',stroke:col,'stroke-width':'1',opacity:below?.4:.9}));
+    } else if(obj.type==='Nebula'){
+      const hw=sz*.75;
+      g.appendChild(mk('rect',{x:x-hw,y:y-hw,width:hw*2,height:hw*2,fill:below?'none':col+'88',stroke:col,'stroke-width':'1',rx:'1.5',opacity:below?.4:.9}));
+    } else if(obj.type==='Globular Cluster'){
+      // Cross + circle
+      g.appendChild(mk('circle',{cx:x,cy:y,r:sz,fill:'none',stroke:col,'stroke-width':'1',opacity:below?.4:.8}));
+      g.appendChild(mk('line',{x1:x-sz,y1:y,x2:x+sz,y2:y,stroke:col,'stroke-width':'.8',opacity:below?.3:.7}));
+      g.appendChild(mk('line',{x1:x,y1:y-sz,x2:x,y2:y+sz,stroke:col,'stroke-width':'.8',opacity:below?.3:.7}));
+    } else {
+      g.appendChild(mk('circle',{cx:x,cy:y,r:sz,fill:below?'none':col+'99',stroke:col,'stroke-width':'1',opacity:below?.4:.9}));
+    }
+
+    // Interactions
+    g.addEventListener('mouseenter',e=>{
+      const altCol=obj.alt>40?'#3de890':obj.alt>20?'#d4a44c':obj.alt>0?'#f07040':'#e05060';
+      document.querySelector('#tip strong').textContent=`${obj.id} — ${obj.name}`;
+      document.querySelector('#tip .tip-row').innerHTML=`${obj.alt.toFixed(1)}° alt · ${obj.az.toFixed(0)}° ${azDir(obj.az)}<br>Mag ${obj.mag} · ${obj.type} · Score: ${obj.score}%`;
+      tipEl.style.borderLeftColor=col;
+      tipEl.classList.add('on');
+      document.querySelectorAll('.card').forEach(c=>c.classList.remove('hi'));
+      const card=document.querySelector(`.card[data-id="${obj.id}"]`);
+      if(card){card.classList.add('hi');card.scrollIntoView({behavior:'smooth',block:'nearest'});}
+    });
+    g.addEventListener('mousemove',e=>{tipEl.style.left=(e.clientX+15)+'px';tipEl.style.top=(e.clientY-8)+'px';});
+    g.addEventListener('mouseleave',()=>{tipEl.classList.remove('on');document.querySelectorAll('.card').forEach(c=>c.classList.remove('hi'));});
+    svg.appendChild(g);
+  });
+
+  // Type legend
+  const leg=document.getElementById('typeLeg');
+  leg.innerHTML='';
+  const shapes={
+    'Nebula':'<svg width="12" height="10"><rect x="1" y="1" width="10" height="8" rx="1.5" fill="none" stroke="currentColor" stroke-width="1"/></svg>',
+    'Open Cluster':'<svg width="12" height="10"><circle cx="6" cy="5" r="4" fill="none" stroke="currentColor" stroke-width="1"/></svg>',
+    'Globular Cluster':'<svg width="12" height="10"><circle cx="6" cy="5" r="4" fill="none" stroke="currentColor" stroke-width="1"/><line x1="2" y1="5" x2="10" y2="5" stroke="currentColor" stroke-width=".8"/></svg>',
+    'Galaxy':'<svg width="14" height="10"><ellipse cx="7" cy="5" rx="6" ry="3" fill="none" stroke="currentColor" stroke-width="1"/></svg>',
+  };
+  Object.entries(TYPE_COL).forEach(([type,col])=>{
+    const d=document.createElement('div');d.className='tleg';
+    d.style.color=col;
+    d.innerHTML=`${shapes[type]||'●'} <span style="color:var(--muted)">${type}</span>`;
+    leg.appendChild(d);
+  });
+  // Moon/Sun legend
+  ['☽ Moon','☀ Sun (daytime)'].forEach((l,i)=>{
+    const d=document.createElement('div');d.className='tleg';
+    d.style.color=i===0?'#c8c0a0':'rgba(255,200,60,.7)';
+    d.textContent=l;
+    leg.appendChild(d);
+  });
+}
+
+function altazToXY(alt,az,cx,cy,R){
+  const r=R*Math.max(0,(90-alt)/90);
+  const azR=az*Math.PI/180;
+  return{x:cx+r*Math.sin(azR),y:cy-r*Math.cos(azR)};
+}
+
+// ══════════════════════════════════════════════════════
+// NIGHT TIMELINE
+// ══════════════════════════════════════════════════════
+function buildTimeline(lat,lon,utcOff,JD,hr,mn){
+  // Build 24-hour bar from noon to noon
+  // Sample sun altitude every 30 minutes
+  const bar=document.getElementById('tlBar');
+  const timeRow=document.getElementById('tlTimes');
+  const slider=document.getElementById('tlSlider');
+
+  const STEPS=48; // every 30min
+  const segments=[];
+
+  // Find local noon JD
+  const noonMs=JD*86400000*1000-(hr*60+mn)*60000; // approx
+  // Base: local noon today
+  const [yr,mo,dy]=document.getElementById('di').value.split('-').map(Number);
+  const noonUtcMs=Date.UTC(yr,mo-1,dy,12,0,0)-utcOff*3600000;
+  const noonJD=jd(new Date(noonUtcMs));
+
+  for(let i=0;i<STEPS;i++){
+    const frac=i/STEPS;
+    const JDt=noonJD+frac; // 24 hours from noon to noon
+    const sa=sunAlt(lat,lon,JDt);
+    let col,opacity;
+    if(sa>-6){col='#4080b0';opacity=.4;} // civil or day
+    else if(sa>-12){col='#1a3050';opacity:.8;} // civil twilight
+    else if(sa>-18){col='#0f1e36';opacity:.9;} // nautical
+    else{col='#040c18';opacity:1;} // astro dark
+    segments.push({frac,sa,col,opacity});
+  }
+
+  bar.innerHTML='';
+  segments.forEach(seg=>{
+    const el=document.createElement('div');
+    el.className='tl-seg';
+    el.style.left=`${seg.frac*100}%`;
+    el.style.width=`${100/STEPS}%`;
+    el.style.background=seg.col;
+    el.style.opacity=seg.opacity;
+    bar.appendChild(el);
+  });
+
+  // Current time marker
+  const nowFrac=((hr*60+mn)/1440+.5)%1; // noon=0, midnight=0.5
+  const marker=document.createElement('div');
+  marker.id='tl-now';
+  marker.style.cssText=`position:absolute;top:0;bottom:0;width:2px;background:rgba(212,164,76,.7);left:${nowFrac*100}%;box-shadow:0 0 6px rgba(212,164,76,.4);`;
+  bar.appendChild(marker);
+
+  // Hour labels every 3h
+  timeRow.innerHTML='';
+  for(let h=12;h<36;h+=3){
+    const d=document.createElement('div');
+    d.textContent=`${String(h%24).padStart(2,'0')}:00`;
+    timeRow.appendChild(d);
+  }
+
+  // Slider setup
+  const totalMins=(hr*60+mn);
+  slider.value=totalMins;
+  document.getElementById('sliderLabel').textContent=`Viewing: ${String(hr).padStart(2,'0')}:${String(mn).padStart(2,'0')}`;
+
+  slider.oninput=function(){
+    const mins=parseInt(this.value);
+    const h=Math.floor(mins/60), m=mins%60;
+    document.getElementById('sliderLabel').textContent=`Viewing: ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+    // Update marker
+    const frac=((mins)/1440+.5)%1;
+    document.getElementById('tl-now').style.left=`${frac*100}%`;
+    // Recompute positions for new time
+    const utcMs2=Date.UTC(...document.getElementById('di').value.split('-').map(Number).map((v,i)=>i===1?v-1:v),h,m,0)-OBS_OFF*3600000;
+    // Simplified: pass 3 nums
+    const [yr2,mo2,dy2]=document.getElementById('di').value.split('-').map(Number);
+    const utcMsNew=Date.UTC(yr2,mo2-1,dy2,h,m,0)-OBS_OFF*3600000;
+    const JDnew=jd(new Date(utcMsNew));
+    recompute(JDnew);
+  };
+}
+
+function recompute(JDnew){
+  RES=RES.map(obj=>{
+    const {alt,az}=altaz(obj.ra,obj.dec,OBS_LAT,OBS_LON,JDnew);
+    let score=0;
+    if(alt>0){
+      if(alt>=60)score=90+alt/90*10;
+      else if(alt>=40)score=70+(alt-40)/20*20;
+      else if(alt>=20)score=40+(alt-20)/20*30;
+      else score=alt/20*40;
+    }
+    score=Math.round(Math.max(0,Math.min(100,score)));
+    return{...obj,alt,az,score};
+  });
+  const moonP=moonPos(JDnew);
+  const moonAltaz=altaz(moonP.ra,moonP.dec,OBS_LAT,OBS_LON,JDnew);
+  const sunP=sunPos(JDnew);
+  const sunAltaz_=altaz(sunP.ra,sunP.dec,OBS_LAT,OBS_LON,JDnew);
+  drawChart(OBS_LAT,moonAltaz,sunAltaz_);
+  renderCards();
+  // Update sun warning
+  const sa=sunAltaz_.alt;
+  const warn=document.getElementById('twWarn');
+  if(sa>-12){warn.classList.add('on');warn.textContent=`☀ Sun is ${Math.abs(sa).toFixed(1)}° below horizon — not fully dark yet.`;}
+  else warn.classList.remove('on');
+}
+
+// ══════════════════════════════════════════════════════
+// FILTER + RENDER
+// ══════════════════════════════════════════════════════
+function setF(f,btn){
+  FILT=f;
+  document.querySelectorAll('.fb').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  renderCards();
+}
+
+function renderCards(){
+  if(!RES.length)return;
+  const sort=document.getElementById('sortSel').value;
+  let items=[...RES];
+  if(FILT==='visible') items=items.filter(r=>r.alt>0);
+  else if(FILT!=='All') items=items.filter(r=>r.type===FILT);
+  if(sort==='score') items.sort((a,b)=>b.score-a.score);
+  else if(sort==='alt') items.sort((a,b)=>b.alt-a.alt);
+  else if(sort==='mag') items.sort((a,b)=>a.mag-b.mag);
+  else items.sort((a,b)=>a.type.localeCompare(b.type)||b.alt-a.alt);
+
+  const vis=items.filter(r=>r.alt>20).length;
+  document.getElementById('cbar').innerHTML=`<b>${vis}</b> well-placed (above 20°) of <b>${items.length}</b> matching`;
+
+  const grid=document.getElementById('cards');
+  grid.innerHTML='';
+  if(!items.length){grid.innerHTML='<div class="empty">No objects match this filter.<br>Try "All" or a different time.</div>';return;}
+  items.forEach((obj,i)=>grid.appendChild(buildCard(obj,i)));
+}
+
+// ══════════════════════════════════════════════════════
+// CARD
+// ══════════════════════════════════════════════════════
+function buildCard(obj,i){
+  const col=TYPE_COL[obj.type]||'#888';
+  const below=obj.alt<=0;
+  const altCls=obj.alt>40?'alt-g':obj.alt>20?'alt-o':obj.alt>0?'alt-l':'alt-b';
+  const barPct=Math.max(0,Math.min(100,obj.alt/90*100));
+  const barCol=obj.alt>40?'var(--green)':obj.alt>20?'var(--acc)':obj.alt>0?'var(--orange)':'var(--red)';
+  const diffDots='★'.repeat(obj.diff)+'☆'.repeat(3-obj.diff);
+  const diffCol=obj.diff===1?'var(--green)':obj.diff===2?'var(--acc)':'var(--red)';
+
+  const d=document.createElement('div');
+  d.className='card'+(below?' below':'');
+  d.setAttribute('data-id',obj.id);
+  d.style.cssText=`--stripe:${col};animation-delay:${Math.min(i*.025,.4)}s`;
+
+  d.addEventListener('mouseenter',()=>{
+    document.querySelectorAll('.dot').forEach(g=>g.style.opacity='.15');
+    const dot=document.querySelector(`.dot[data-id="${obj.id}"]`);
+    if(dot){dot.style.opacity='1';dot.style.filter='drop-shadow(0 0 4px '+col+')';}
+  });
+  d.addEventListener('mouseleave',()=>{
+    document.querySelectorAll('.dot').forEach(g=>{g.style.opacity='';g.style.filter='';});
+  });
+
+  const riseHtml=obj.riseStr
+    ?`<div class="rs-item"><div class="rs-l">Rises</div><div class="rs-v rs-up">↑ ${obj.riseStr}</div></div>`
+    :`<div class="rs-item"><div class="rs-l">Rises</div><div class="rs-v rs-na">circumpolar</div></div>`;
+  const setHtml=obj.setStr
+    ?`<div class="rs-item"><div class="rs-l">Sets</div><div class="rs-v rs-dn">↓ ${obj.setStr}</div></div>`
+    :`<div class="rs-item"><div class="rs-l">Sets</div><div class="rs-v rs-na">circumpolar</div></div>`;
+
+  d.innerHTML=`
+  <div class="ci">
+    <div class="cm">
+      <div class="cid">${obj.id}</div>
+      <div class="cname">${obj.name}</div>
+      <div class="cbadge" style="color:${col};border-color:${col}">${obj.type}</div>
+      <div class="cdiff">
+        <div class="diff-label">Difficulty</div>
+        <div class="diff-stars" style="color:${diffCol}">${diffDots}</div>
+      </div>
+      <div class="crating" style="color:${obj.score>60?'var(--green)':obj.score>30?'var(--acc)':'var(--red)'}">${obj.score}<sub>%</sub></div>
+    </div>
+    <div class="cb">
+      <div class="pr">
+        <div class="pi"><div class="pil">Altitude</div><div class="piv ${altCls}">${obj.alt.toFixed(1)}°${below?' ↓':''}</div></div>
+        <div class="pi"><div class="pil">Azimuth</div><div class="piv">${obj.az.toFixed(0)}° ${azDir(obj.az)}</div></div>
+        <div class="pi"><div class="pil">Transit</div><div class="piv" style="font-size:.58rem;color:var(--soft)">${obj.transitNote}</div></div>
+      </div>
+      <div class="ab">
+        <div class="abt"><div class="abf" style="width:${barPct}%;background:${barCol}"></div></div>
+        <div class="abm"><span>0°</span><span>30°</span><span>60°</span><span>90°</span></div>
+      </div>
+      <div class="rs-row">
+        ${riseHtml}
+        ${setHtml}
+        <div class="rs-item"><div class="rs-l">Constellation</div><div class="rs-v" style="color:var(--muted)">${obj.con}</div></div>
+        <div class="rs-item"><div class="rs-l">Exposure</div><div class="rs-v" style="color:var(--muted)">${obj.exp}</div></div>
+      </div>
+      <div class="sp-row">
+        <div class="sp"><div class="spl">Magnitude</div><div class="spv">${obj.mag}</div></div>
+        <div class="sp"><div class="spl">Size</div><div class="spv">${obj.sz}</div></div>
+        <div class="sp"><div class="spl">Min Focal Length</div><div class="spv">${obj.fov}</div></div>
+      </div>
+      <div class="fov-hint">🔭 ${obj.fovNote}</div>
+      <div class="tip-text">${obj.tip}</div>
+    </div>
+  </div>`;
+  return d;
+}
+</script>
+</body>
+</html>
