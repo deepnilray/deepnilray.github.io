@@ -29,5 +29,11 @@
 <p class="muted warn">First create the private repository and a fine-grained access token on github.com; GitHub account authorization is not embedded into this public site. The token and passphrase are not saved to browser storage. If you lose the passphrase, the encrypted backups cannot be decrypted. GitHub repos have storage and rate limits; this is scalable segmented storage, not literally unlimited capacity.</p>
 <p class="tiny">Model checkpoints use AES-256-GCM with a PBKDF2-derived key. Every game batch is an independent encrypted file. Sync is initiated by you, not silently in the background.</p>
 </section>
+<section><h2>4. Publish your trained AI to every visitor</h2>
+<p>After importing your own games, publish <strong>model weights only</strong> to the public chessboard. No raw PGNs, account names, or encrypted personal backup files are published. Anonymous visitors automatically load the newest public checkpoint and can play without a GitHub account.</p>
+<label for="public-token">Fine-grained GitHub token with Contents: read/write access to <code>deepnilray/deepnilray.github.io</code></label>
+<input id="public-token" type="password" autocomplete="off" placeholder="Used once for publication; never saved">
+<div class="action"><button id="publish">Publish my trained opponent</button><a style="align-self:center" href="./?training=1">Open my personal training board →</a></div>
+<p class="muted warn">The trained weights themselves become public, so only publish when you accept that. The private game archive remains encrypted in the separate private repository. You must explicitly publish each updated checkpoint. The public AI does not learn from anonymous visitors.</p></section>
 <p class="muted">JARVIS ZERO is still a lightweight AlphaZero-inspired learner. More games can improve its ability to imitate your choices, but training on your games alone cannot guarantee expert chess strength or a 1900 rating.</p>
 </main><script src="./core.js"></script><script src="./vault.js"></script></body></html>
