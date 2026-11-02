@@ -211,7 +211,7 @@ if(vc===0)res+=`<span class="square-coord rank">${8-r}</span>`;
 return res+'</button>';}
 function render(){let end=status();let check=Core.inCheck(board,board.turn),targets=movesFromSelected(),html='';for(let vr=0;vr<8;vr++)for(let vc=0;vc<8;vc++){let r=flipped?7-vr:vr,c=flipped?7-vc:vc;html+=squareHTML(r,c,vr,vc,targets,check);}$('board').innerHTML=html;
 const st=$('status-title'),sd=$('status-desc'),label=$('status-overline');
-if(end.over){label.textContent='GAME COMPLETE';st.textContent=end.winner?(end.winner==='w'?'You won.':'Jarvis won.'):'Draw.';sd.textContent=end.reason[0].toUpperCase()+end.reason.slice(1)+'. The model will learn from this result.';}
+if(end.over){label.textContent='GAME COMPLETE';st.textContent=end.winner?(end.winner==='w'?'You won.':'Jarvis won.'):'Draw.';sd.textContent=end.reason[0].toUpperCase()+end.reason.slice(1)+(ownerMode?'. Your training model will learn from this result.':'. This guest game does not modify the public model.');}
 else if(thinking){label.textContent='ENGINE THINKING';st.textContent='Jarvis is calculating…';sd.textContent='Monte Carlo tree search is exploring legal continuations.';}
 else{label.textContent=check?'CHECK':'YOUR MOVE';st.textContent=check?'Your king is in check.':'Your move.';sd.textContent='Select or drag a piece. Legal destinations are highlighted.';}
 $('black-status').textContent=thinking?'Searching…':!ownerMode?(publicModelMeta?.trained?'Published brain + tactical search':'Tactical search · no published training yet'):(mode==='pure'?'Personal learning MCTS':'Personal model + tactical search');
@@ -255,6 +255,7 @@ else{
   }).catch(e=>{console.warn('Official checkpoint unavailable, tactical fallback:',e);publicModelMeta={trained:false};worker.postMessage({type:'init',model:null});});
 }
 for(const id of ['train-five','train-twenty','stop-train']){$(id).disabled=true;$(id).title='Disabled: model learns only from the owner games';}
+if(!ownerMode){$('mode-pure').disabled=true;$('mode-pure').title='Guests use tactical guidance to reduce basic blunders';}
 if(!ownerMode){$('reset-brain').disabled=true;$('reset-brain').title='Guest cannot reset the shared model';$('import-brain').disabled=true;$('import-brain').title='Use the owner training view to import checkpoints';}
 render();refreshStats();
 $('board').addEventListener('click',e=>{let b=e.target.closest('.sq');if(b)actionSquare(+b.dataset.r,+b.dataset.c);});
@@ -264,7 +265,7 @@ $('board').addEventListener('drop',e=>{e.preventDefault();let target=e.target.cl
 $('board').addEventListener('dragend',()=>{dragFrom=null;});
 $('promo-options').addEventListener('click',e=>{let b=e.target.closest('[data-promo]');if(!b||!pendingPromo)return;let m=pendingPromo.find(m=>m.promotion===b.dataset.promo);pendingPromo=null;$('promotion-modal').classList.remove('open');if(m)playHuman(m);});
 $('new-game').addEventListener('click',newGame);$('undo').addEventListener('click',undo);$('flip').addEventListener('click',()=>{flipped=!flipped;saveGame();render();});
-$('mode-pure').addEventListener('click',()=>{mode='pure';saveGame();render();});$('mode-guided').addEventListener('click',()=>{mode='guided';saveGame();render();});
+$('mode-pure').addEventListener('click',()=>{if(!ownerMode)return;mode='pure';saveGame();render();});$('mode-guided').addEventListener('click',()=>{mode='guided';saveGame();render();});
 $('budget').addEventListener('input',e=>{simulations=+e.target.value;$('budget-text').textContent=simulations+' searches';saveGame();});
 $('train-five').addEventListener('click',()=>startTraining(5));$('train-twenty').addEventListener('click',()=>startTraining(20));
 $('stop-train').addEventListener('click',()=>{if(!training)return;stopPending=true;worker.postMessage({type:'stop'});$('train-status').textContent='Stopping after the current search…';});
