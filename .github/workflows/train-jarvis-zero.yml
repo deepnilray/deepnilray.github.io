@@ -1,0 +1,41 @@
+name: Train JARVIS ZERO on owner Lichess games
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/train-jarvis-zero.yml'
+      - 'jarvis-zero/train_from_lichess.mjs'
+      - 'jarvis-zero/core.js'
+permissions:
+  contents: write
+concurrency:
+  group: jarvis-zero-owner-training
+  cancel-in-progress: false
+jobs:
+  train:
+    name: Download owner history, train and publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      LICHESS_USERNAME: f14deepnilray
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Train only on real public games of the account
+        run: node jarvis-zero/train_from_lichess.mjs
+      - name: Publish learned policy and value weights (never game PGNs)
+        run: |
+          git config user.name "jarvis-zero-training[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add jarvis-zero/public-model.json jarvis-zero/training-report.json
+          if git diff --cached --quiet; then
+            echo "No checkpoint changes"
+          else
+            git commit -m "Publish owner-game-trained JARVIS ZERO checkpoint"
+            git push origin HEAD:main
+          fi
