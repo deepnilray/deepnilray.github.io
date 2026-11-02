@@ -109,6 +109,29 @@ let count=0;
 for(let path of manifest.files||[]){let file=await gitGet(c,path);if(!file)throw Error('Missing archived batch '+path);let obj=await decrypt(file.text,c.pass);for(let game of obj.games||[]){await restoreGame(game);count++;}setStatus('Restoring encrypted GitHub files: '+count+' games so far…');await sleep();}
 brain=saved.brain;safeSaveBrain();await putState('last_synced_seq',manifest.lastSeq);await statsUpdate();setStatus('Restored '+count+' games plus the trained model from your private GitHub repository. Refresh the chessboard.');});}
 async function runCloud(fn){if(busy)return;busySet(true);try{let c=repoConfig();await fn(c);}catch(e){setStatus('GitHub vault: '+String(e.message||e));}finally{busySet(false);}}
+async function publishForGuests(){
+ if(busy)return;
+ const t=$('public-token').value.trim();
+ if(!t){setStatus('Enter a GitHub token with Contents: write on the public website repository.');return;}
+ const count=brain.stats?.importedGames||0;
+ if(count<1||!(brain.stats?.importedMoves>0)){setStatus('No Lichess games have been trained yet. Import your own games before publishing.');return;}
+ busySet(true);$('publish').disabled=true;
+ try{
+   const target={repo:'deepnilray/deepnilray.github.io',token:t};
+   const rr=await fetch('https://api.github.com/repos/'+target.repo,{headers:{Authorization:'Bearer '+t,Accept:'application/vnd.github+json'},cache:'no-store'});
+   if(!rr.ok)throw Error('Cannot access website repository (HTTP '+rr.status+'). Verify token access.');
+   const details=await rr.json();
+   if(details.private)throw Error('Expected a public GitHub Pages repository.');
+   const publicModel={version:2,value:brain.value,policy:brain.policy,stats:{
+     importedGames:count,importedMoves:brain.stats.importedMoves||0,policyUpdates:brain.stats.policyUpdates||0,trainedPositions:brain.stats.trainedPositions||0,
+     humanMoves:0,humanGames:0,selfplayGames:0,results:{w:0,b:0,draw:0}
+   },publication:{version:1,trained:true,source:'private owner training: own Lichess games only',updatedAt:new Date().toISOString()}};
+   const old=await gitGet(target,'jarvis-zero/public-model.json');
+   await gitPut(target,'jarvis-zero/public-model.json',JSON.stringify(publicModel),old?.sha);
+   setStatus('Published '+count.toLocaleString()+' personal-game training checkpoint. Guest chessboards will read it on their next page load. No PGN files or tokens uploaded.');
+ }catch(e){setStatus('Cannot publish: '+String(e.message||e));}
+ finally{busySet(false);$('publish').disabled=false;}
+}
 function setPGNLink(){let first=usernames()[0]||'f14deepnilray';$('pgnlink').href='https://lichess.org/api/games/user/'+encodeURIComponent(first)+'?moves=true&tags=true&clocks=false&evals=false&sort=dateAsc';}
 $('lichess').addEventListener('click',importLichess);
 $('local').addEventListener('click',importFiles);
@@ -119,5 +142,6 @@ $('downloadarchive').addEventListener('click',exportArchive);
 $('downloadvault').addEventListener('click',exportBundle);
 $('sync').addEventListener('click',syncGithub);
 $('restore').addEventListener('click',restoreGithub);
+$('publish').addEventListener('click',publishForGuests);
 statsUpdate().catch(e=>setStatus('Archive database error: '+e.message));
 })();
