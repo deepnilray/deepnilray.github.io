@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 180
     env:
-      LICHESS_USERNAMES: drebrius,ebkbkvhe,f14deepnilray
+      LICHESS_USERNAMES: drebrius
     steps:
       - uses: actions/checkout@v4
         with:
