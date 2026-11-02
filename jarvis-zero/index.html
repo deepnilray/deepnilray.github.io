@@ -185,6 +185,8 @@ if(d.type==='import'){let ok=Brain.importModel(d.model);self.postMessage({type:'
 const $=id=>document.getElementById(id);
 const pieceSrc=PIECES;
 const storeKey='jarvis.chess.zero.v2',gameKey='jarvis.chess.match.v2';
+const ownerMode=new URLSearchParams(location.search).get('training')==='1';
+let publicModelMeta=null;
 const glyphNames={P:'pawn',N:'knight',B:'bishop',R:'rook',Q:'queen',K:'king'};
 let board=Core.initial(),history=[],lastMove=null,selected=null,pendingPromo=null,flipped=false,thinking=false,training=false,stopPending=false,ready=false,reported=false,mode='pure',simulations=120,runId=0,pendingBest=0;
 let brainModel=null,toastTimeout=0,dragFrom=null;
@@ -195,8 +197,8 @@ function safeSave(key,val){try{localStorage.setItem(key,JSON.stringify(val));}ca
 function toast(msg){const el=$('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toastTimeout);toastTimeout=setTimeout(()=>el.classList.remove('show'),3400);}
 function initials(){return {humanMoves:0,humanGames:0,selfplayGames:0,trainedPositions:0,policyUpdates:0,results:{w:0,b:0,draw:0}};}
 function status(){let visited=history.map(h=>Core.positionKey(h.before)).concat(Core.positionKey(board));return Core.endState(board,visited);}
-function setBrain(o){brainModel=o;safeSave(storeKey,o);refreshStats();}
-function refreshStats(){let st=brainModel?.stats||initials();$('stat-moves').textContent=(st.humanMoves||0).toLocaleString();$('stat-games').textContent=(st.selfplayGames||0).toLocaleString();$('stat-positions').textContent=(st.trainedPositions||0).toLocaleString();$('memory-detail').textContent=`${(st.humanGames||0)} played · ${(st.policyUpdates||0)} policy updates · kept on this browser`;}
+function setBrain(o){brainModel=o;if(ownerMode)safeSave(storeKey,o);refreshStats();}
+function refreshStats(){let st=brainModel?.stats||initials();$('stat-moves').textContent=(st.humanMoves||0).toLocaleString();$('stat-games').textContent=(st.selfplayGames||0).toLocaleString();$('stat-positions').textContent=(st.trainedPositions||0).toLocaleString();$('memory-detail').textContent=ownerMode?`${(st.humanGames||0)} played · ${(st.policyUpdates||0)} policy updates · saved to your browser`:(publicModelMeta?.trained?`Official shared brain · ${(st.importedGames||0)} personal Lichess games · guest play is isolated`:'Guest tactical engine · awaiting trained public checkpoint');}
 function saveGame(){safeSave(gameKey,{board,history,lastMove,flipped,mode,simulations,reported});}
 function loadGame(){let v=safeGet(gameKey);if(!v||!v.board||!Array.isArray(v.history)||!v.board.b)return;board=v.board;history=v.history;lastMove=v.lastMove||null;flipped=!!v.flipped;mode=['pure','guided'].includes(v.mode)?v.mode:'pure';simulations=Math.max(40,Math.min(400,v.simulations||120));reported=!!v.reported;}
 function movesFromSelected(){return selected&&board.turn==='w'&&!thinking?Core.legal(board).filter(m=>m.fr===selected[0]&&m.fc===selected[1]):[];}
@@ -212,17 +214,17 @@ const st=$('status-title'),sd=$('status-desc'),label=$('status-overline');
 if(end.over){label.textContent='GAME COMPLETE';st.textContent=end.winner?(end.winner==='w'?'You won.':'Jarvis won.'):'Draw.';sd.textContent=end.reason[0].toUpperCase()+end.reason.slice(1)+'. The model will learn from this result.';}
 else if(thinking){label.textContent='ENGINE THINKING';st.textContent='Jarvis is calculating…';sd.textContent='Monte Carlo tree search is exploring legal continuations.';}
 else{label.textContent=check?'CHECK':'YOUR MOVE';st.textContent=check?'Your king is in check.':'Your move.';sd.textContent='Select or drag a piece. Legal destinations are highlighted.';}
-$('black-status').textContent=thinking?'Searching…':mode==='pure'?'Untrained-policy MCTS':'Tactical guided MCTS';
+$('black-status').textContent=thinking?'Searching…':!ownerMode?(publicModelMeta?.trained?'Published brain + tactical search':'Tactical search · no published training yet'):(mode==='pure'?'Personal learning MCTS':'Personal model + tactical search');
 $('turn-indicator').textContent=board.turn==='w'?'WHITE TO MOVE':'BLACK TO MOVE';
 $('undo').disabled=!history.length;$('flip').textContent='Flip board';$('move-num').textContent=`Move ${board.full}`;
-$('mode-pure').classList.toggle('active',mode==='pure');$('mode-guided').classList.toggle('active',mode==='guided');$('mode-info').textContent=mode==='pure'?'Pure Zero: no opening book, pretrained network or material evaluation. Learns from your moves and completed games; initially very weak.':'Tactical assist: adds a hand-designed material/position heuristic to the same learned model. Better from game one, but no longer strictly zero-knowledge.';
+$('mode-pure').classList.toggle('active',mode==='pure');$('mode-guided').classList.toggle('active',mode==='guided');$('mode-info').textContent=!ownerMode?'Guest mode: uses the latest published personal checkpoint and optional hand-coded tactical evaluation. Your moves never update the shared model; a trained checkpoint does not guarantee strong chess.':mode==='pure'?'Personal training: no opening book, pretrained network or material evaluation. Learns only from your own moves and imported games; initially very weak.':'Personal model + tactical assist: adds conventional material and position evaluation. Only your games teach the model.';
 $('budget').value=simulations;$('budget-text').textContent=simulations+' searches';
 let htmlMoves='';for(let i=0;i<history.length;i+=2){htmlMoves+=`<div class="move-line"><span class="index">${(i>>1)+1}.</span><span>${history[i].san}</span><span>${history[i+1]?.san||''}</span></div>`;}$('move-list').innerHTML=htmlMoves||'<div class="empty">Your first move is waiting.</div>';$('move-list').scrollTop=$('move-list').scrollHeight;
 }
-function afterGame(){let end=status();if(end.over&&!reported){reported=true;worker.postMessage({type:'result',positions:history.map(h=>h.before),winner:end.winner});if(end.winner==='w')toast('Game won. Training the brain on your victory.');else if(end.winner==='b')toast('Game ended. Your choices and the result will be learned.');else toast('Draw. Training from the finished game.');}}
+function afterGame(){let end=status();if(end.over&&!reported){reported=true;if(!ownerMode){toast('Game complete. Guest moves did not change the published model.');return;}worker.postMessage({type:'result',positions:history.map(h=>h.before),winner:end.winner});if(end.winner==='w')toast('Game won. Training the brain on your victory.');else if(end.winner==='b')toast('Game ended. Your choices and the result will be learned.');else toast('Draw. Training from the finished game.');}}
 function makeMove(m){let before=Core.copy(board),san=Core.san(before,m);board=Core.apply(board,m);history.push({before,move:m,san});lastMove=m;selected=null;pendingPromo=null;saveGame();render();afterGame();}
 function askEngine(){if(board.turn!=='b'||status().over||thinking)return;if(!ready){$('status-title').textContent='Loading learning engine…';return;}thinking=true;render();const id=++runId;pendingBest=id;worker.postMessage({type:'move',state:board,sims:simulations,mode,id});}
-function playHuman(m){if(thinking||board.turn!=='w'||status().over)return;let prev=Core.copy(board),id=Core.uci(m);makeMove(m);worker.postMessage({type:'observe',state:prev,uci:id});if(!status().over)askEngine();}
+function playHuman(m){if(thinking||board.turn!=='w'||status().over)return;let prev=Core.copy(board),id=Core.uci(m);makeMove(m);if(ownerMode)worker.postMessage({type:'observe',state:prev,uci:id});if(!status().over)askEngine();}
 function actionSquare(r,c){if(thinking||board.turn!=='w'||status().over||pendingPromo)return;let p=board.b[r][c];if(selected){let x=Core.legal(board).filter(m=>m.fr===selected[0]&&m.fc===selected[1]&&m.tr===r&&m.tc===c);if(x.length){if(x.some(m=>m.promotion)){pendingPromo=x;renderPromotion(x);return;}playHuman(x[0]);return;}}
 selected=p&&Core.color(p)==='w'?[r,c]:null;render();}
 function renderPromotion(moves){$('promo-options').innerHTML=moves.map(m=>`<button data-promo="${m.promotion}" aria-label="Promote to ${glyphNames[m.promotion]}"><img src="${pieceSrc[m.promotion]}" alt="${glyphNames[m.promotion]}"/></button>`).join('');$('promotion-modal').classList.add('open');}
@@ -231,16 +233,30 @@ function newGame(){cancelThinking();board=Core.initial();history=[];lastMove=nul
 function undo(){if(!history.length)return;cancelThinking();let n=board.turn==='w'?Math.min(2,history.length):1;board=Core.copy(history[history.length-n].before);history.length-=n;lastMove=history.length?history[history.length-1].move:null;selected=null;reported=false;saveGame();render();toast('Move taken back. Learned preferences remain in memory.');}
 function saveDownload(obj,filename,mimetype){const b=new Blob([typeof obj==='string'?obj:JSON.stringify(obj,null,2)],{type:mimetype||'application/json'}),url=URL.createObjectURL(b),link=document.createElement('a');link.href=url;link.download=filename;link.click();setTimeout(()=>URL.revokeObjectURL(url),1500);}
 function pgn(){let s='[Event "Jarvis Zero Self-Learning Game"]\n[Site "Local Browser"]\n[White "Human"]\n[Black "Jarvis Zero"]\n[Result "'+(status().over?(status().winner==='w'?'1-0':status().winner==='b'?'0-1':'1/2-1/2'):'*')+'"]\n\n';for(let i=0;i<history.length;i+=2){s+=`${(i>>1)+1}. ${history[i].san} ${history[i+1]?.san||''} `;}return s+(status().over?(status().winner==='w'?'1-0':status().winner==='b'?'0-1':'1/2-1/2'):'*')+'\n';}
-function startTraining(count){if(training)return;training=true;stopPending=false;const $stop=$('stop-train');$stop.disabled=false;$('train-five').disabled=true;$('train-twenty').disabled=true;$('train-bar').style.width='0%';$('train-status').textContent=`Starting ${count} games of self-play…`;worker.postMessage({type:'train',games:count,sims:24});}
+function startTraining(count){toast('Self-play training is disabled: only your own games may train the model. Import your Lichess history in the Training Vault.');return;if(training)return;training=true;stopPending=false;const $stop=$('stop-train');$stop.disabled=false;$('train-five').disabled=true;$('train-twenty').disabled=true;$('train-bar').style.width='0%';$('train-status').textContent=`Starting ${count} games of self-play…`;worker.postMessage({type:'train',games:count,sims:24});}
 function trainingDone(){training=false;$('stop-train').disabled=true;$('train-five').disabled=false;$('train-twenty').disabled=false;}
-function importBrain(file){if(!file)return;const reader=new FileReader();reader.onload=()=>{try{let data=JSON.parse(reader.result);if(data.version!==2||!Array.isArray(data.value)||data.value.length!==768||!Array.isArray(data.policy)||data.policy.length!==800)throw Error('Incompatible format');worker.postMessage({type:'import',model:data});}catch(e){toast('Invalid or incompatible brain file.');}};reader.readAsText(file);}
+function importBrain(file){if(!ownerMode){toast('Guests cannot modify the official published model.');return;}if(!file)return;const reader=new FileReader();reader.onload=()=>{try{let data=JSON.parse(reader.result);if(data.version!==2||!Array.isArray(data.value)||data.value.length!==768||!Array.isArray(data.policy)||data.policy.length!==800)throw Error('Incompatible format');worker.postMessage({type:'import',model:data});}catch(e){toast('Invalid or incompatible brain file.');}};reader.readAsText(file);}
 function handleMessage(e){let d=e.data;if(d.type==='ready'){ready=true;setBrain(d.model);render();if(board.turn==='b'&&!status().over)askEngine();}
 else if(d.type==='best'){if(d.id!==pendingBest||board.turn!=='b')return;thinking=false;pendingBest=0;const m=Core.legal(board).find(m=>Core.uci(m)===d.uci);$('last-search').textContent=`Last search: ${d.elapsed} ms · ${simulations} simulations`;if(m)makeMove(m);else{render();toast('Engine did not return a legal move.');}}
 else if(d.type==='trained'){setBrain(d.model);}
 else if(d.type==='training'){if(d.model)setBrain(d.model);if(d.status==='progress'){$('train-status').textContent=`${d.finished}/${d.total} self-play games · last game ${d.plies} plies · weights saved`;$('train-bar').style.width=(100*d.finished/d.total)+'%';}else if(d.status==='done'){trainingDone();if(!stopPending)$('train-status').textContent='Training complete. The neural weights are saved in this browser.';else $('train-status').textContent='Stopped training. Completed games have been saved.';toast('Brain checkpoint saved.');}}
 else if(d.type==='imported'){if(d.ok){setBrain(d.model);toast('Brain imported. Learned experience restored.');}else toast('The brain could not be imported.');}
 else if(d.type==='error'){console.error(d.message);thinking=false;trainingDone();toast('Engine error. Open the browser console for details.');render();}}
-loadGame();let original=safeGet(storeKey);worker.onmessage=handleMessage;worker.onerror=err=>{console.error(err);thinking=false;toast('Worker failed: use a recent browser with local file support.');};worker.postMessage({type:'init',model:original});render();refreshStats();
+loadGame();
+if(!ownerMode)mode='guided';
+worker.onmessage=handleMessage;
+worker.onerror=err=>{console.error(err);thinking=false;toast('Worker failed: use a recent browser with local file support.');};
+if(ownerMode){worker.postMessage({type:'init',model:safeGet(storeKey)});}
+else{
+  fetch('./public-model.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('public checkpoint HTTP '+r.status);return r.json();}).then(m=>{
+    if(m.version!==2||!Array.isArray(m.value)||m.value.length!==768||!Array.isArray(m.policy)||m.policy.length!==800)throw Error('invalid published model');
+    publicModelMeta=m.publication||{trained:false};
+    worker.postMessage({type:'init',model:m});
+  }).catch(e=>{console.warn('Official checkpoint unavailable, tactical fallback:',e);publicModelMeta={trained:false};worker.postMessage({type:'init',model:null});});
+}
+for(const id of ['train-five','train-twenty','stop-train']){$(id).disabled=true;$(id).title='Disabled: model learns only from the owner games';}
+if(!ownerMode){$('reset-brain').disabled=true;$('reset-brain').title='Guest cannot reset the shared model';$('import-brain').disabled=true;$('import-brain').title='Use the owner training view to import checkpoints';}
+render();refreshStats();
 $('board').addEventListener('click',e=>{let b=e.target.closest('.sq');if(b)actionSquare(+b.dataset.r,+b.dataset.c);});
 $('board').addEventListener('dragstart',e=>{let piece=e.target.closest('.piece');if(!piece||board.turn!=='w'||thinking){e.preventDefault();return;}let sq=piece.closest('.sq');if(Core.color(board.b[+sq.dataset.r][+sq.dataset.c])!=='w'){e.preventDefault();return;}dragFrom=[+sq.dataset.r,+sq.dataset.c];e.dataTransfer.setData('text/plain',Core.sqName(...dragFrom));e.dataTransfer.effectAllowed='move';selected=dragFrom;sq.classList.add('selected');});
 $('board').addEventListener('dragover',e=>{if(dragFrom){e.preventDefault();e.dataTransfer.dropEffect='move';}});
@@ -254,7 +270,7 @@ $('train-five').addEventListener('click',()=>startTraining(5));$('train-twenty')
 $('stop-train').addEventListener('click',()=>{if(!training)return;stopPending=true;worker.postMessage({type:'stop'});$('train-status').textContent='Stopping after the current search…';});
 $('export-brain').addEventListener('click',()=>{if(brainModel)saveDownload(brainModel,'jarvis-zero-brain.json');else toast('Brain not loaded yet.');});
 $('import-brain').addEventListener('click',()=>$('brain-file').click());$('brain-file').addEventListener('change',e=>{importBrain(e.target.files[0]);e.target.value='';});
-$('reset-brain').addEventListener('click',()=>{if(!confirm('Reset all learned weights and training statistics? Your current chess game will stay intact.'))return;worker.postMessage({type:'reset'});toast('Learning weights reset.');});
+$('reset-brain').addEventListener('click',()=>{if(!ownerMode)return;if(!confirm('Reset all learned weights and training statistics? Your current chess game will stay intact.'))return;worker.postMessage({type:'reset'});toast('Learning weights reset.');});
 $('export-pgn').addEventListener('click',()=>saveDownload(pgn(),'jarvis-zero-game.pgn','text/plain'));
 window.JarvisChess={Core,getState:()=>board,getBrain:()=>brainModel,moveUCI:(uci)=>{let m=Core.legal(board).find(x=>Core.uci(x)===uci);if(m&&board.turn==='w')playHuman(m);},newGame,requestTrain:startTraining};
 })();
