@@ -1,0 +1,23 @@
+{
+  "generatedAt": "2026-11-02T08:17:16.484Z",
+  "ownerUsernames": [
+    "drebrius",
+    "ebkbkvhe",
+    "f14deepnilray"
+  ],
+  "statistics": {
+    "total": 2255,
+    "trainingGames": 1815,
+    "trainingMoves": 60970,
+    "validationGames": 429,
+    "validationMoves": 14275,
+    "skipped": 9,
+    "parseErrors": 0,
+    "validation": {
+      "positions": 14275,
+      "baselineNLL": 3.194608775607153,
+      "trainedNLL": 2.5099471854398745,
+      "top1": 0.3036077057793345
+    }
+  }
+}
